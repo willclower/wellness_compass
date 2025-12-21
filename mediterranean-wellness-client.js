@@ -24,21 +24,43 @@ class MediterraneanWellnessClient {
      * Send a chat message to the current assistant
      */
     async sendMessage(message) {
-        try {
-            // Dynamic webhook based on assistant
-            const webhookPath = `${this.currentAssistant}_chat`;
-            
-            const response = await fetch(`${this.baseUrl}/${webhookPath}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    message: message,
-                    timestamp: new Date().toISOString()
-                })
-            });
+    try {
+        const webhookPath = `${this.currentAssistant}_chat`;
+        
+        const response = await fetch(`${this.baseUrl}/${webhookPath}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chatInput: message,
+                userId: this.userId,
+                sessionId: this.userId, // Use same as userId for now
+                userName: 'User' // Default, can be updated later
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return {
+            success: true,
+            message: data.message || data.response || data.text,
+            assistant: this.currentAssistant,
+            ...data
+        };
+
+    } catch (error) {
+        console.error('Send message error:', error);
+        return {
+            success: false,
+            error: error.message,
+            message: 'Unable to connect to assistant. Please try again.'
+        };
+    }
+}
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
