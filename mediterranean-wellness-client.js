@@ -23,21 +23,23 @@ class MediterraneanWellnessClient {
     /**
      * Send a chat message to the current assistant
      */
-    async sendMessage(message) {
-        try {
-            const response = await fetch('https://willclower.app.n8n.cloud/webhook/nona_chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(this.userToken && { 'Authorization': `Bearer ${this.userToken}` })
-                },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    assistant_id: this.currentAssistant,
-                    message: message,
-                    timestamp: new Date().toISOString()
-                })
-            });
+   async sendMessage(message) {
+    try {
+        // Dynamic webhook based on assistant
+        const webhookPath = `${this.currentAssistant}_chat`;
+        
+        const response = await fetch(`https://willclower.app.n8n.cloud/webhook/${webhookPath}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: this.userId,
+                message: message,
+                timestamp: new Date().toISOString()
+            })
+        });
+        // ... rest stays the same
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
