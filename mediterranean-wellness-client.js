@@ -24,43 +24,22 @@ class MediterraneanWellnessClient {
      * Send a chat message to the current assistant
      */
     async sendMessage(message) {
-    try {
-        const webhookPath = `${this.currentAssistant}_chat`;
-        
-        const response = await fetch(`${this.baseUrl}/${webhookPath}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chatInput: message,
-                userId: this.userId,
-                sessionId: this.userId, // Use same as userId for now
-                userName: 'User' // Default, can be updated later
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return {
-            success: true,
-            message: data.message || data.response || data.text,
-            assistant: this.currentAssistant,
-            ...data
-        };
-
-    } catch (error) {
-        console.error('Send message error:', error);
-        return {
-            success: false,
-            error: error.message,
-            message: 'Unable to connect to assistant. Please try again.'
-        };
-    }
-}
+        try {
+            // Dynamic webhook based on assistant
+            const webhookPath = `${this.currentAssistant}_chat`;
+            
+            const response = await fetch(`${this.baseUrl}/${webhookPath}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chatInput: message,
+                    userId: this.userId,
+                    sessionId: this.userId,
+                    userName: 'User'
+                })
+            });
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -69,7 +48,7 @@ class MediterraneanWellnessClient {
             const data = await response.json();
             return {
                 success: true,
-                message: data.message || data.response || data.assistant_message,
+                message: data.message || data.response || data.text || data.assistantResponse,
                 assistant: this.currentAssistant,
                 ...data
             };
@@ -89,7 +68,6 @@ class MediterraneanWellnessClient {
      */
     async switchAssistant(assistantId) {
         try {
-            // Just switch locally for now - no backend call needed
             this.currentAssistant = assistantId;
             localStorage.setItem('mw_assistant', assistantId);
             
@@ -265,8 +243,8 @@ class MediterraneanWellnessClient {
         const greetings = {
             'nona': 'Ciao bella! Ready to cook something delicious today?',
             'dundee': 'Hey there! Ready to crush your workout today?',
-            'chiara': 'Welcome. Let\'s find some peace together.',
-            'lina': 'Hi! Let\'s create a nutrition plan that works for you.'
+            'chiara': 'Welcome. Let us find some peace together.',
+            'lina': 'Hi! Let us create a nutrition plan that works for you.'
         };
         return greetings[assistantId] || 'Hello! How can I help you today?';
     }
