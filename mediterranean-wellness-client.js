@@ -5,7 +5,7 @@
 
 class MediterraneanWellnessClient {
     constructor(baseUrl) {
-        this.baseUrl = baseUrl || 'https://willclower.app.n8n.cloud';
+        this.baseUrl = baseUrl || 'https://willclower.app.n8n.cloud/webhook';
         this.userToken = localStorage.getItem('mw_token');
         this.currentAssistant = localStorage.getItem('mw_assistant') || 'nona';
         this.userId = localStorage.getItem('mw_user_id') || this.generateTempUserId();
@@ -25,7 +25,7 @@ class MediterraneanWellnessClient {
      */
     async sendMessage(message) {
         try {
-            const response = await fetch(`${this.baseUrl}/webhook/chat-message`, {
+            const response = await fetch('https://willclower.app.n8n.cloud/webhook/nona_chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
