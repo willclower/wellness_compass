@@ -23,23 +23,22 @@ class MediterraneanWellnessClient {
     /**
      * Send a chat message to the current assistant
      */
-   async sendMessage(message) {
-    try {
-        // Dynamic webhook based on assistant
-        const webhookPath = `${this.currentAssistant}_chat`;
-        
-        const response = await fetch(`https://willclower.app.n8n.cloud/webhook/${webhookPath}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                user_id: this.userId,
-                message: message,
-                timestamp: new Date().toISOString()
-            })
-        });
-        // ... rest stays the same
+    async sendMessage(message) {
+        try {
+            // Dynamic webhook based on assistant
+            const webhookPath = `${this.currentAssistant}_chat`;
+            
+            const response = await fetch(`${this.baseUrl}/${webhookPath}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: this.userId,
+                    message: message,
+                    timestamp: new Date().toISOString()
+                })
+            });
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -68,45 +67,21 @@ class MediterraneanWellnessClient {
      */
     async switchAssistant(assistantId) {
         try {
-            const response = await fetch(`${this.baseUrl}/webhook/select-assistant`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(this.userToken && { 'Authorization': `Bearer ${this.userToken}` })
-                },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    assistant_id: assistantId
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
+            // Just switch locally for now - no backend call needed
+            this.currentAssistant = assistantId;
+            localStorage.setItem('mw_assistant', assistantId);
             
-            if (data.success !== false) {
-                this.currentAssistant = assistantId;
-                localStorage.setItem('mw_assistant', assistantId);
-            }
-
             return {
                 success: true,
                 assistant: {
                     id: assistantId,
                     name: this.getAssistantName(assistantId),
-                    greeting: data.greeting || this.getDefaultGreeting(assistantId)
-                },
-                ...data
+                    greeting: this.getDefaultGreeting(assistantId)
+                }
             };
 
         } catch (error) {
             console.error('Switch assistant error:', error);
-            
-            // Fallback: still switch locally even if webhook fails
-            this.currentAssistant = assistantId;
-            localStorage.setItem('mw_assistant', assistantId);
             
             return {
                 success: true,
@@ -124,7 +99,7 @@ class MediterraneanWellnessClient {
      */
     async register(email, name, preferences) {
         try {
-            const response = await fetch(`${this.baseUrl}/webhook/register-user`, {
+            const response = await fetch(`${this.baseUrl}/register-user`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, name, preferences })
@@ -159,7 +134,7 @@ class MediterraneanWellnessClient {
      */
     async updatePreferences(preferences) {
         try {
-            const response = await fetch(`${this.baseUrl}/webhook/update-preferences`, {
+            const response = await fetch(`${this.baseUrl}/update-preferences`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -192,7 +167,7 @@ class MediterraneanWellnessClient {
     async getMessageHistory(limit = 50) {
         try {
             const response = await fetch(
-                `${this.baseUrl}/webhook/message-history?user_id=${this.userId}&limit=${limit}`,
+                `${this.baseUrl}/message-history?user_id=${this.userId}&limit=${limit}`,
                 {
                     headers: {
                         ...(this.userToken && { 'Authorization': `Bearer ${this.userToken}` })
