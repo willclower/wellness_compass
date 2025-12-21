@@ -45,13 +45,28 @@ class MediterraneanWellnessClient {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            const data = await response.json();
-            return {
-                success: true,
-                message: data.message || data.response || data.text || data.assistantResponse,
-                assistant: this.currentAssistant,
-                ...data
-            };
+            // Get response as TEXT first
+            const text = await response.text();
+            
+            // Try to parse as JSON, if it fails, use the text directly
+            let data;
+            try {
+                data = JSON.parse(text);
+                // If it's JSON with a message field
+                return {
+                    success: true,
+                    message: data.message || data.response || data.text || text,
+                    assistant: this.currentAssistant,
+                    ...data
+                };
+            } catch (e) {
+                // It's plain text, use it directly
+                return {
+                    success: true,
+                    message: text,
+                    assistant: this.currentAssistant
+                };
+            }
 
         } catch (error) {
             console.error('Send message error:', error);
