@@ -11,28 +11,19 @@ class MediterraneanWellnessClient {
         this.userId = localStorage.getItem('mw_user_id') || this.generateTempUserId();
     }
 
-    /**
-     * Generate temporary user ID for testing (before auth is implemented)
-     */
     generateTempUserId() {
         const tempId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('mw_user_id', tempId);
         return tempId;
     }
 
-    /**
-     * Send a chat message to the current assistant
-     */
     async sendMessage(message) {
         try {
-            // Dynamic webhook based on assistant
             const webhookPath = `${this.currentAssistant}_chat`;
             
             const response = await fetch(`${this.baseUrl}/${webhookPath}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chatInput: message,
                     userId: this.userId,
@@ -45,25 +36,25 @@ class MediterraneanWellnessClient {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            // Get response as TEXT first
             const text = await response.text();
             
-            // Try to parse as JSON, if it fails, use the text directly
             let data;
             try {
                 data = JSON.parse(text);
-                // If it's JSON with a message field
+                const messageText = data.message || data.response || data.text || text;
+                
                 return {
                     success: true,
-                    message: data.message || data.response || data.text || text,
+                    message: messageText,
+                    isRecipe: this.isRecipeResponse(messageText),
                     assistant: this.currentAssistant,
                     ...data
                 };
             } catch (e) {
-                // It's plain text, use it directly
                 return {
                     success: true,
                     message: text,
+                    isRecipe: this.isRecipeResponse(text),
                     assistant: this.currentAssistant
                 };
             }
@@ -78,40 +69,65 @@ class MediterraneanWellnessClient {
         }
     }
 
-    /**
-     * Switch to a different assistant
-     */
-    async switchAssistant(assistantId) {
-        try {
-            this.currentAssistant = assistantId;
-            localStorage.setItem('mw_assistant', assistantId);
-            
-            return {
-                success: true,
-                assistant: {
-                    id: assistantId,
-                    name: this.getAssistantName(assistantId),
-                    greeting: this.getDefaultGreeting(assistantId)
-                }
-            };
-
-        } catch (error) {
-            console.error('Switch assistant error:', error);
-            
-            return {
-                success: true,
-                assistant: {
-                    id: assistantId,
-                    name: this.getAssistantName(assistantId),
-                    greeting: this.getDefaultGreeting(assistantId)
-                }
-            };
-        }
+    isRecipeResponse(text) {
+        const markers = ['## What You\'ll Need', '## What To Do', '# What You\'ll Need', '# What To Do'];
+        return markers.some(m => text.includes(m));
     }
 
-    /**
-     * Register a new user (for when auth is implemented)
-     */
+    parseRecipe(text) {
+        const recipe = { title: '', summary: '', ingredients: [], instructions: [], notes: [], tags: [] };
+        
+        const titleMatch = text.match(/^#\s+(.+)$/m);
+        if (titleMatch) recipe.title = titleMatch[1].trim();
+        
+        const summaryMatch = text.match(/^#.+\n\n(.+?)\n\n##/s);
+        if (summaryMatch) recipe.summary = summaryMatch[1].trim();
+        
+        const ingredientsSection = text.match(/##\s+What You'll Need\s*\n([\s\S]+?)(?=\n##|$)/);
+        if (ingredientsSection) {
+            recipe.ingredients = ingredientsSection[1].split('\n')
+                .filter(line => line.trim().startsWith('#'))
+                .map(line => line.replace(/^#\s*/, '').trim());
+        }
+        
+        const instructionsSection = text.match(/##\s+What To Do\s*\n([\s\S]+?)(?=\n##|$)/);
+        if (instructionsSection) {
+            recipe.instructions = instructionsSection[1].split('\n')
+                .filter(line => /^\d+\./.test(line.trim()))
+                .map(line => line.replace(/^\d+\.\s*/, '').trim());
+        }
+        
+        const notesSection = text.match(/##\s+Notes\s*\n([\s\S]+?)(?=\n##|\n\*\*Tags|$)/);
+        if (notesSection) {
+            recipe.notes = notesSection[1].split('\n')
+                .filter(line => line.trim().startsWith('-'))
+                .map(line => line.replace(/^-\s*/, '').trim());
+        }
+        
+        const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)$/);
+        if (tagsSection) {
+            recipe.tags = tagsSection[1].split('\n')
+                .filter(line => line.trim().startsWith('-'))
+                .map(line => line.replace(/^-\s*/, '').trim());
+        }
+        
+        return recipe;
+    }
+
+    async switchAssistant(assistantId) {
+        this.currentAssistant = assistantId;
+        localStorage.setItem('mw_assistant', assistantId);
+        
+        return {
+            success: true,
+            assistant: {
+                id: assistantId,
+                name: this.getAssistantName(assistantId),
+                greeting: this.getDefaultGreeting(assistantId)
+            }
+        };
+    }
+
     async register(email, name, preferences) {
         try {
             const response = await fetch(`${this.baseUrl}/register-user`, {
@@ -120,9 +136,7 @@ class MediterraneanWellnessClient {
                 body: JSON.stringify({ email, name, preferences })
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const data = await response.json();
             
@@ -134,19 +148,11 @@ class MediterraneanWellnessClient {
             }
 
             return data;
-
         } catch (error) {
-            console.error('Registration error:', error);
-            return {
-                success: false,
-                error: error.message
-            };
+            return { success: false, error: error.message };
         }
     }
 
-    /**
-     * Update user preferences
-     */
     async updatePreferences(preferences) {
         try {
             const response = await fetch(`${this.baseUrl}/update-preferences`, {
@@ -155,70 +161,36 @@ class MediterraneanWellnessClient {
                     'Content-Type': 'application/json',
                     ...(this.userToken && { 'Authorization': `Bearer ${this.userToken}` })
                 },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    preferences: preferences
-                })
+                body: JSON.stringify({ user_id: this.userId, preferences })
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return await response.json();
-
         } catch (error) {
-            console.error('Update preferences error:', error);
-            return {
-                success: false,
-                error: error.message
-            };
+            return { success: false, error: error.message };
         }
     }
 
-    /**
-     * Get message history
-     */
     async getMessageHistory(limit = 50) {
         try {
             const response = await fetch(
                 `${this.baseUrl}/message-history?user_id=${this.userId}&limit=${limit}`,
-                {
-                    headers: {
-                        ...(this.userToken && { 'Authorization': `Bearer ${this.userToken}` })
-                    }
-                }
+                { headers: { ...(this.userToken && { 'Authorization': `Bearer ${this.userToken}` }) } }
             );
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return await response.json();
-
         } catch (error) {
-            console.error('Get message history error:', error);
-            return {
-                success: false,
-                messages: [],
-                error: error.message
-            };
+            return { success: false, messages: [], error: error.message };
         }
     }
 
-    /**
-     * Check if user is authenticated
-     */
     isAuthenticated() {
         return !!this.userToken && !this.isTokenExpired();
     }
 
-    /**
-     * Check if JWT token is expired
-     */
     isTokenExpired() {
         if (!this.userToken) return true;
-        
         try {
             const payload = JSON.parse(atob(this.userToken.split('.')[1]));
             return payload.exp * 1000 < Date.now();
@@ -227,9 +199,6 @@ class MediterraneanWellnessClient {
         }
     }
 
-    /**
-     * Logout user
-     */
     logout() {
         localStorage.removeItem('mw_token');
         localStorage.removeItem('mw_user_id');
@@ -238,22 +207,11 @@ class MediterraneanWellnessClient {
         this.userId = null;
     }
 
-    /**
-     * Helper: Get assistant display name
-     */
     getAssistantName(assistantId) {
-        const names = {
-            'nona': 'Nona',
-            'dundee': 'Dundee',
-            'chiara': 'Chiara',
-            'lina': 'Lina'
-        };
+        const names = { 'nona': 'Nona', 'dundee': 'Dundee', 'chiara': 'Chiara', 'lina': 'Lina' };
         return names[assistantId] || assistantId;
     }
 
-    /**
-     * Helper: Get default greeting for assistant
-     */
     getDefaultGreeting(assistantId) {
         const greetings = {
             'nona': 'Ciao bella! Ready to cook something delicious today?',
@@ -264,24 +222,9 @@ class MediterraneanWellnessClient {
         return greetings[assistantId] || 'Hello! How can I help you today?';
     }
 
-    /**
-     * Get current assistant ID
-     */
-    getCurrentAssistant() {
-        return this.currentAssistant;
-    }
-
-    /**
-     * Get current user ID
-     */
-    getUserId() {
-        return this.userId;
-    }
+    getCurrentAssistant() { return this.currentAssistant; }
+    getUserId() { return this.userId; }
 }
 
-// Initialize global client instance
 window.MWClient = new MediterraneanWellnessClient();
-
-console.log('Mediterranean Wellness Client initialized');
-console.log('User ID:', window.MWClient.getUserId());
-console.log('Current Assistant:', window.MWClient.getCurrentAssistant());
+console.log('MW Client initialized - User:', window.MWClient.getUserId(), 'Assistant:', window.MWClient.getCurrentAssistant());
