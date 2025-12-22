@@ -801,23 +801,21 @@
 
                 // Check if response contains a recipe
                 if (response.success && response.message) {
-                    const messageText = response.message;
-                    
-                    if (isRecipeResponse(messageText)) {
+                    if (response.isRecipe) {
                         // Parse and display recipe
-                        const recipe = parseRecipe(messageText);
+                        const recipe = window.MWClient.parseRecipe(response.message);
                         displayRecipe(recipe);
                         
                         // Show abbreviated message in chat
                         const assistantMsg = document.createElement('div');
                         assistantMsg.className = 'message assistant';
-                        assistantMsg.textContent = `Here's the recipe for ${recipe.title}! I've displayed it in the recipe area so you can follow along. 🍝`;
+                        assistantMsg.textContent = `Here's the recipe for ${recipe.title}! I've displayed it in the recipe area. 🍝`;
                         messagesContainer.appendChild(assistantMsg);
                     } else {
                         // Regular chat message
                         const assistantMsg = document.createElement('div');
                         assistantMsg.className = 'message assistant';
-                        assistantMsg.textContent = messageText;
+                        assistantMsg.textContent = response.message;
                         messagesContainer.appendChild(assistantMsg);
                     }
                 } else {
@@ -840,74 +838,7 @@
             }
         }
 
-        // Recipe Detection and Parsing
-        function isRecipeResponse(text) {
-            const recipeMarkers = [
-                '## What You\'ll Need',
-                '## What To Do',
-                '# What You\'ll Need',
-                '# What To Do'
-            ];
-            return recipeMarkers.some(marker => text.includes(marker));
-        }
-
-        function parseRecipe(text) {
-            const recipe = {
-                title: '',
-                summary: '',
-                ingredients: [],
-                instructions: [],
-                notes: [],
-                tags: []
-            };
-            
-            // Extract title
-            const titleMatch = text.match(/^#\s+(.+)$/m);
-            if (titleMatch) recipe.title = titleMatch[1].trim();
-            
-            // Extract summary
-            const summaryMatch = text.match(/^#.+\n\n(.+?)\n\n##/s);
-            if (summaryMatch) recipe.summary = summaryMatch[1].trim();
-            
-            // Extract ingredients
-            const ingredientsSection = text.match(/##\s+What You'll Need\s*\n([\s\S]+?)(?=\n##|\n\n##|$)/);
-            if (ingredientsSection) {
-                const lines = ingredientsSection[1].split('\n');
-                recipe.ingredients = lines
-                    .filter(line => line.trim().startsWith('#'))
-                    .map(line => line.replace(/^#\s*/, '').trim());
-            }
-            
-            // Extract instructions
-            const instructionsSection = text.match(/##\s+What To Do\s*\n([\s\S]+?)(?=\n##|\n\n##|$)/);
-            if (instructionsSection) {
-                const lines = instructionsSection[1].split('\n');
-                recipe.instructions = lines
-                    .filter(line => /^\d+\./.test(line.trim()))
-                    .map(line => line.replace(/^\d+\.\s*/, '').trim());
-            }
-            
-            // Extract notes
-            const notesSection = text.match(/##\s+Notes\s*\n([\s\S]+?)(?=\n##|\n\*\*Tags|\n$)/);
-            if (notesSection) {
-                const lines = notesSection[1].split('\n');
-                recipe.notes = lines
-                    .filter(line => line.trim().startsWith('-'))
-                    .map(line => line.replace(/^-\s*/, '').trim());
-            }
-            
-            // Extract tags
-            const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)$/);
-            if (tagsSection) {
-                const lines = tagsSection[1].split('\n');
-                recipe.tags = lines
-                    .filter(line => line.trim().startsWith('-'))
-                    .map(line => line.replace(/^-\s*/, '').trim());
-            }
-            
-            return recipe;
-        }
-
+        // Recipe Display Function
         function displayRecipe(recipe) {
             // Hide placeholder, show recipe
             document.getElementById('recipePlaceholder').classList.add('hidden');
