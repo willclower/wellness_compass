@@ -74,50 +74,55 @@ class MediterraneanWellnessClient {
         return markers.some(m => text.includes(m));
     }
 
-    parseRecipe(text) {
-        const recipe = { title: '', summary: '', ingredients: [], instructions: [], notes: [], tags: [] };
-        
-        const titleMatch = text.match(/^#\s+(.+)$/m);
-        if (titleMatch) recipe.title = titleMatch[1].trim();
-        
-        const summaryMatch = text.match(/^#.+\n\n(.+?)\n\n##/s);
-        if (summaryMatch) recipe.summary = summaryMatch[1].trim();
-        
-        const ingredientsSection = text.match(/##\s+What You'll Need\s*\n([\s\S]+?)(?=\n##|$)/);
-        if (ingredientsSection) {
-            recipe.ingredients = ingredientsSection[1].split('\n')
-                .filter(line => line.trim().startsWith('-'))
-                .map(line => line.replace(/^#\s*/, '').trim());
-        }
-        
-        const instructionsSection = text.match(/##\s+What To Do\s*\n([\s\S]+?)(?=\n##|$)/);
-        if (instructionsSection) {
-            recipe.instructions = instructionsSection[1].split('\n')
-                .filter(line => /^\d+\./.test(line.trim()))
-                .map(line => line.replace(/^\d+\.\s*/, '').trim());
-        }
-        
-        const notesSection = text.match(/##\s+Notes\s*\n([\s\S]+?)(?=\n##|\n\*\*Tags|$)/);
-        if (notesSection) {
-            recipe.notes = notesSection[2].split('\n')
-                .filter(line => line.trim().startsWith('-'))
-                .map(line => line.replace(/^-\s*/, '').trim());
-        }
-
-        const summarySection = text.match(/##\s+Summary\s*\n([\s\S]+?)(?=\n##|\n\*\*Tags|$)/);
-if (summarySection) {
-    recipe.summary2 = summarySection[1].trim(); // Store closing summary separately
-}  
-        const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)$/);
-        if (tagsSection) {
-            recipe.tags = tagsSection[1].split('\n')
-                .filter(line => line.trim().startsWith('-'))
-                .map(line => line.replace(/^-\s*/, '').trim());
-        }
-        
-        return recipe;
+   parseRecipe(text) {
+    const recipe = { title: '', summary: '', ingredients: [], instructions: [], notes: '', summary2: '', tags: [] };
+    
+    // Title - WORKS
+    const titleMatch = text.match(/^#\s+(.+)$/m);
+    if (titleMatch) recipe.title = titleMatch[1].trim();
+    
+    // Summary (intro paragraph) - WORKS
+    const summaryMatch = text.match(/^#.+\n\n(.+?)\n\n##/s);
+    if (summaryMatch) recipe.summary = summaryMatch[1].trim();
+    
+    // Ingredients - Updated to handle bullet points
+    const ingredientsSection = text.match(/##\s+What You'll Need\s*\n([\s\S]+?)(?=\n##|$)/);
+    if (ingredientsSection) {
+        recipe.ingredients = ingredientsSection[1].split('\n')
+            .filter(line => line.trim().startsWith('-'))
+            .map(line => line.replace(/^-\s*/, '').trim());
     }
-
+    
+    // Instructions - WORKS
+    const instructionsSection = text.match(/##\s+What To Do\s*\n([\s\S]+?)(?=\n##|$)/);
+    if (instructionsSection) {
+        recipe.instructions = instructionsSection[1].split('\n')
+            .filter(line => /^\d+\./.test(line.trim()))
+            .map(line => line.replace(/^\d+\.\s*/, '').trim());
+    }
+    
+    // Play With Your Food - NOW HANDLES PARAGRAPHS
+    const notesSection = text.match(/##\s+Play With Your Food\s*\n\n([\s\S]+?)(?=\n##|$)/);
+    if (notesSection) {
+        recipe.notes = notesSection[1].trim();
+    }
+    
+    // Summary (closing) - NOW IMPLEMENTED
+    const summarySection = text.match(/##\s+Summary\s*\n\n([\s\S]+?)(?=\n##|\*\*Tags|$)/);
+    if (summarySection) {
+        recipe.summary2 = summarySection[1].trim();
+    }
+    
+    // Tags - Optional, if you want them parsed
+    const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)$/);
+    if (tagsSection) {
+        recipe.tags = tagsSection[1].split('\n')
+            .filter(line => line.trim().startsWith('-'))
+            .map(line => line.replace(/^-\s*/, '').trim());
+    }
+    
+    return recipe;
+}
     async switchAssistant(assistantId) {
         this.currentAssistant = assistantId;
         localStorage.setItem('mw_assistant', assistantId);
