@@ -77,43 +77,45 @@ class MediterraneanWellnessClient {
    parseRecipe(text) {
     const recipe = { title: '', summary: '', ingredients: [], instructions: [], notes: '', summary2: '', tags: [] };
     
-    // Title - WORKS
+    // Title
     const titleMatch = text.match(/^#\s+(.+)$/m);
     if (titleMatch) recipe.title = titleMatch[1].trim();
     
-    // Summary (intro paragraph) - WORKS
-    const summaryMatch = text.match(/^#.+\n\n(.+?)\n\n##/s);
+    // Introduction (first paragraph after title, before first ##)
+    const summaryMatch = text.match(/^#[^\n]+\n+(.+?)(?=\n##)/s);
     if (summaryMatch) recipe.summary = summaryMatch[1].trim();
     
-    // Ingredients - Updated to handle bullet points
-    const ingredientsSection = text.match(/##\s+What You'll Need\s*\n([\s\S]+?)(?=\n##|$)/);
+    // Ingredients
+    const ingredientsSection = text.match(/##\s+What You'll Need\s*\n+([\s\S]+?)(?=\n##)/);
     if (ingredientsSection) {
         recipe.ingredients = ingredientsSection[1].split('\n')
-            .filter(line => line.trim().startsWith('-'))
+            .map(line => line.trim())
+            .filter(line => line.startsWith('-'))
             .map(line => line.replace(/^-\s*/, '').trim());
     }
     
-    // Instructions - WORKS
-    const instructionsSection = text.match(/##\s+What To Do\s*\n([\s\S]+?)(?=\n##|$)/);
+    // Instructions
+    const instructionsSection = text.match(/##\s+What To Do\s*\n+([\s\S]+?)(?=\n##)/);
     if (instructionsSection) {
         recipe.instructions = instructionsSection[1].split('\n')
-            .filter(line => /^\d+\./.test(line.trim()))
+            .map(line => line.trim())
+            .filter(line => /^\d+\./.test(line))
             .map(line => line.replace(/^\d+\.\s*/, '').trim());
     }
     
-    // Play With Your Food - NOW HANDLES PARAGRAPHS
-    const notesSection = text.match(/##\s+Play With Your Food\s*\n\n([\s\S]+?)(?=\n##|$)/);
+    // Play With Your Food
+    const notesSection = text.match(/##\s+Play With Your Food\s*\n+([\s\S]+?)(?=\n##|$)/);
     if (notesSection) {
         recipe.notes = notesSection[1].trim();
     }
     
-    // Summary (closing) - NOW IMPLEMENTED
-    const summarySection = text.match(/##\s+Summary\s*\n\n([\s\S]+?)(?=\n##|\*\*Tags|$)/);
+    // Summary (closing)
+    const summarySection = text.match(/##\s+Summary\s*\n+([\s\S]+?)(?=\n##|\n\*\*Tags|$)/);
     if (summarySection) {
         recipe.summary2 = summarySection[1].trim();
     }
     
-    // Tags - Optional, if you want them parsed
+    // Tags
     const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)$/);
     if (tagsSection) {
         recipe.tags = tagsSection[1].split('\n')
