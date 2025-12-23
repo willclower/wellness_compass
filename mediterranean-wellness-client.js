@@ -86,7 +86,7 @@ class MediterraneanWellnessClient {
         const ingredientsSection = text.match(/##\s+What You'll Need\s*\n([\s\S]+?)(?=\n##|$)/);
         if (ingredientsSection) {
             recipe.ingredients = ingredientsSection[1].split('\n')
-                .filter(line => line.trim().startsWith('#'))
+                .filter(line => line.trim().startsWith('-'))
                 .map(line => line.replace(/^#\s*/, '').trim());
         }
         
@@ -99,11 +99,15 @@ class MediterraneanWellnessClient {
         
         const notesSection = text.match(/##\s+Notes\s*\n([\s\S]+?)(?=\n##|\n\*\*Tags|$)/);
         if (notesSection) {
-            recipe.notes = notesSection[1].split('\n')
+            recipe.notes = notesSection[2].split('\n')
                 .filter(line => line.trim().startsWith('-'))
                 .map(line => line.replace(/^-\s*/, '').trim());
         }
-        
+
+        const summarySection = text.match(/##\s+Summary\s*\n([\s\S]+?)(?=\n##|\n\*\*Tags|$)/);
+if (summarySection) {
+    recipe.summary2 = summarySection[1].trim(); // Store closing summary separately
+}  
         const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)$/);
         if (tagsSection) {
             recipe.tags = tagsSection[1].split('\n')
