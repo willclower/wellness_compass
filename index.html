@@ -877,19 +877,14 @@
                 instructionsList.appendChild(li);
             });
             
-            // Notes
-            if (recipe.notes.length > 0) {
-                document.getElementById('notesSection').style.display = 'block';
-                const notesList = document.getElementById('notesList');
-                notesList.innerHTML = '';
-                recipe.notes.forEach(note => {
-                    const li = document.createElement('li');
-                    li.textContent = note;
-                    notesList.appendChild(li);
-                });
-            } else {
-                document.getElementById('notesSection').style.display = 'none';
-            }
+           // Notes - now handles paragraph instead of array
+if (recipe.notes) {
+    document.getElementById('notesSection').style.display = 'block';
+    const notesList = document.getElementById('notesList');
+    notesList.innerHTML = `<p>${recipe.notes}</p>`;
+} else {
+    document.getElementById('notesSection').style.display = 'none';
+}
             
             // Store current recipe
             window.currentRecipe = recipe;
