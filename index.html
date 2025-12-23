@@ -666,8 +666,6 @@
 
                     <p class="recipe-summary" id="recipeSummary"></p>
 
-                    <div class="recipe-tags-display" id="recipeTags"></div>
-
                     <div class="recipe-actions-bar">
                         <button class="recipe-action-btn like-btn" id="likeRecipeBtn">
                             <span id="likeIcon">♡</span> <span id="likeText">Like</span>
@@ -691,8 +689,18 @@
                     </div>
 
                     <div class="recipe-section-display" id="notesSection" style="display: none;">
-                        <h3>💡 Notes</h3>
-                        <ul class="notes-list" id="notesList"></ul>
+                        <h3>🍴 Play With Your Food</h3>
+                        <div class="notes-content" id="notesList" style="white-space: pre-line;"></div>
+                    </div>
+
+                    <div class="recipe-section-display" id="summarySection" style="display: none;">
+                        <h3>✨ Summary</h3>
+                        <p id="summaryContent"></p>
+                    </div>
+
+                    <div class="recipe-section-display" id="tagsSection" style="display: none;">
+                        <h3>🏷️ Tags</h3>
+                        <div class="recipe-tags-display" id="recipeTags"></div>
                     </div>
                 </div>
             </div>
@@ -850,14 +858,19 @@
             document.getElementById('recipeSummary').textContent = recipe.summary;
             
             // Tags
-            const tagsContainer = document.getElementById('recipeTags');
-            tagsContainer.innerHTML = '';
-            recipe.tags.forEach(tag => {
-                const tagSpan = document.createElement('span');
-                tagSpan.className = 'recipe-tag-pill';
-                tagSpan.textContent = tag;
-                tagsContainer.appendChild(tagSpan);
-            });
+            if (recipe.tags && recipe.tags.length > 0) {
+                document.getElementById('tagsSection').style.display = 'block';
+                const tagsContainer = document.getElementById('recipeTags');
+                tagsContainer.innerHTML = '';
+                recipe.tags.forEach(tag => {
+                    const tagSpan = document.createElement('span');
+                    tagSpan.className = 'recipe-tag-pill';
+                    tagSpan.textContent = tag;
+                    tagsContainer.appendChild(tagSpan);
+                });
+            } else {
+                document.getElementById('tagsSection').style.display = 'none';
+            }
             
             // Ingredients
             const ingredientsList = document.getElementById('ingredientsList');
@@ -877,14 +890,22 @@
                 instructionsList.appendChild(li);
             });
             
-           // Notes - now handles paragraph instead of array
+           // Play With Your Food - handles paragraph with line breaks
 if (recipe.notes) {
     document.getElementById('notesSection').style.display = 'block';
     const notesList = document.getElementById('notesList');
-    notesList.innerHTML = `<p>${recipe.notes}</p>`;
+    notesList.textContent = recipe.notes;
 } else {
     document.getElementById('notesSection').style.display = 'none';
 }
+
+            // Closing Summary
+            if (recipe.summary2) {
+                document.getElementById('summarySection').style.display = 'block';
+                document.getElementById('summaryContent').textContent = recipe.summary2;
+            } else {
+                document.getElementById('summarySection').style.display = 'none';
+            }
             
             // Store current recipe
             window.currentRecipe = recipe;
