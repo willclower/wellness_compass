@@ -414,7 +414,7 @@
             font-style: italic;
             color: #666;
             line-height: 1.6;
-            margin-bottom: 15px;
+            margin-bottom: 0;
         }
 
         .recipe-image-display {
@@ -424,6 +424,7 @@
             object-fit: cover;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             flex-shrink: 0;
+            display: none;  /* Hidden by default, shown via JS when loaded */
         }
 
         .recipe-info-card {
@@ -1131,7 +1132,7 @@
         // Load recipe image from database
         async function loadRecipeImage(recipeTitle) {
             try {
-                const response = await fetch(`${window.MWClient.baseUrl}/get-recipe-image`, {
+                const response = await fetch('https://willclower.app.n8n.cloud/webhook/get-recipe-image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title: recipeTitle })
@@ -1143,10 +1144,14 @@
                         const img = document.getElementById('recipeImage');
                         img.src = `data:image/png;base64,${data.image_data}`;
                         img.style.display = 'block';
+                    } else {
+                        document.getElementById('recipeImage').style.display = 'none';
                     }
+                } else {
+                    document.getElementById('recipeImage').style.display = 'none';
                 }
             } catch (error) {
-                console.log('Image not available for this recipe');
+                console.log('Image not available for this recipe:', error);
                 document.getElementById('recipeImage').style.display = 'none';
             }
         }
