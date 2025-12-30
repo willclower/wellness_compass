@@ -75,7 +75,16 @@ class MediterraneanWellnessClient {
     }
 
    parseRecipe(text) {
-    const recipe = { title: '', summary: '', ingredients: [], instructions: [], notes: '', summary2: '', tags: [] };
+    const recipe = { 
+        title: '', 
+        summary: '', 
+        ingredients: [], 
+        instructions: [], 
+        notes: '', 
+        summary2: '', 
+        tags: [],
+        recipeInfo: null  // New: will contain parsed nutrition data
+    };
     
     // Title
     const titleMatch = text.match(/^#\s+(.+)$/m);
@@ -110,17 +119,53 @@ class MediterraneanWellnessClient {
     }
     
     // Summary (closing)
-    const summarySection = text.match(/##\s+Summary\s*\n+([\s\S]+?)(?=\n##|\n\*\*Tags|$)/);
+    const summarySection = text.match(/##\s+Summary\s*\n+([\s\S]+?)(?=\n##|\n\*\*Tags|---)/);
     if (summarySection) {
         recipe.summary2 = summarySection[1].trim();
     }
     
     // Tags
-    const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)$/);
+    const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)(?=---|$)/);
     if (tagsSection) {
         recipe.tags = tagsSection[1].split('\n')
             .filter(line => line.trim().startsWith('-'))
             .map(line => line.replace(/^-\s*/, '').trim());
+    }
+    
+    // NEW: Parse Recipe Info section (added by AI enrichment workflow)
+    const recipeInfoSection = text.match(/---\s*## Recipe Info\s*\n+([\s\S]+?)$/);
+    if (recipeInfoSection) {
+        const infoText = recipeInfoSection[1];
+        recipe.recipeInfo = {};
+        
+        // Extract servings
+        const servingsMatch = infoText.match(/Servings:\s*(\d+)/i);
+        if (servingsMatch) recipe.recipeInfo.servings = parseInt(servingsMatch[1]);
+        
+        // Extract prep time
+        const prepMatch = infoText.match(/Prep Time:\s*(\d+)/i);
+        if (prepMatch) recipe.recipeInfo.prep_time_minutes = parseInt(prepMatch[1]);
+        
+        // Extract cook time
+        const cookMatch = infoText.match(/Cook Time:\s*(\d+)/i);
+        if (cookMatch) recipe.recipeInfo.cook_time_minutes = parseInt(cookMatch[1]);
+        
+        // Extract total time
+        const totalMatch = infoText.match(/Total Time:\s*(\d+)/i);
+        if (totalMatch) recipe.recipeInfo.total_time_minutes = parseInt(totalMatch[1]);
+        
+        // Extract calories
+        const caloriesMatch = infoText.match(/Calories:\s*(\d+)/i);
+        if (caloriesMatch) recipe.recipeInfo.calories_per_serving = parseInt(caloriesMatch[1]);
+        
+        // Extract dietary tags
+        const dietaryMatch = infoText.match(/Dietary Tags:\s*(.+)$/m);
+        if (dietaryMatch) {
+            recipe.recipeInfo.dietary_tags = dietaryMatch[1]
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0);
+        }
     }
     
     return recipe;
