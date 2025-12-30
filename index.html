@@ -927,8 +927,10 @@
         });
 
         async function sendMessage() {
+            console.log('=== SEND MESSAGE FUNCTION CALLED ===');
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
+            console.log('Message:', message);
             if (!message) return;
 
             const messagesContainer = document.getElementById('chatMessages');
@@ -959,9 +961,19 @@
 
                 // Check if response contains a recipe
                 if (response.success && response.message) {
+                    console.log('=== RECIPE DEBUG ===');
+                    console.log('Is Recipe:', response.isRecipe);
+                    console.log('Raw Message Length:', response.message.length);
+                    console.log('First 500 chars:', response.message.substring(0, 500));
+                    
                     if (response.isRecipe) {
                         // Parse and display recipe
                         const recipe = window.MWClient.parseRecipe(response.message);
+                        console.log('Parsed Recipe:', recipe);
+                        console.log('Has summary:', !!recipe.summary);
+                        console.log('Has recipeInfo:', !!recipe.recipeInfo);
+                        console.log('RecipeInfo data:', recipe.recipeInfo);
+                        
                         displayRecipe(recipe);
                         
                         // Show abbreviated message in chat
@@ -998,6 +1010,9 @@
 
         // Recipe Display Function
         function displayRecipe(recipe) {
+            console.log('=== DISPLAY RECIPE DEBUG ===');
+            console.log('Recipe object:', recipe);
+            
             // Hide placeholder, show recipe
             document.getElementById('recipePlaceholder').classList.add('hidden');
             const recipeDisplay = document.getElementById('recipeDisplay');
@@ -1005,13 +1020,22 @@
             
             // Populate content
             document.getElementById('recipeTitle').textContent = recipe.title;
+            console.log('Title set:', recipe.title);
+            
             document.getElementById('recipeSummary').textContent = recipe.summary;
+            console.log('Summary set:', recipe.summary);
+            console.log('Summary length:', recipe.summary ? recipe.summary.length : 0);
             
             // Load recipe image from database
             loadRecipeImage(recipe.title);
             
             // Display recipe info (nutrition) if available
+            console.log('Checking recipeInfo...');
+            console.log('recipeInfo exists:', !!recipe.recipeInfo);
+            console.log('recipeInfo value:', recipe.recipeInfo);
+            
             if (recipe.recipeInfo) {
+                console.log('Displaying recipe info card');
                 const infoCard = document.getElementById('recipeInfoCard');
                 const infoGrid = document.getElementById('recipeInfoGrid');
                 const dietaryTags = document.getElementById('recipeDietaryTags');
@@ -1021,6 +1045,7 @@
                 
                 // Add nutrition items
                 if (recipe.recipeInfo.servings) {
+                    console.log('Adding servings:', recipe.recipeInfo.servings);
                     infoGrid.innerHTML += `
                         <div class="recipe-info-item">
                             <div class="label">Servings</div>
@@ -1029,6 +1054,7 @@
                     `;
                 }
                 if (recipe.recipeInfo.prep_time_minutes) {
+                    console.log('Adding prep time:', recipe.recipeInfo.prep_time_minutes);
                     infoGrid.innerHTML += `
                         <div class="recipe-info-item">
                             <div class="label">Prep Time</div>
@@ -1064,6 +1090,7 @@
                 // Add dietary tags
                 dietaryTags.innerHTML = '';
                 if (recipe.recipeInfo.dietary_tags && recipe.recipeInfo.dietary_tags.length > 0) {
+                    console.log('Adding dietary tags:', recipe.recipeInfo.dietary_tags);
                     recipe.recipeInfo.dietary_tags.forEach(tag => {
                         const tagSpan = document.createElement('span');
                         tagSpan.className = 'dietary-tag';
@@ -1072,6 +1099,7 @@
                     });
                 }
             } else {
+                console.log('No recipeInfo - hiding card');
                 document.getElementById('recipeInfoCard').style.display = 'none';
             }
             
@@ -1131,6 +1159,9 @@
 
         // Load recipe image from database
         async function loadRecipeImage(recipeTitle) {
+            console.log('=== IMAGE LOADING DEBUG ===');
+            console.log('Loading image for:', recipeTitle);
+            
             try {
                 const response = await fetch('https://willclower.app.n8n.cloud/webhook/get-recipe-image', {
                     method: 'POST',
@@ -1138,20 +1169,30 @@
                     body: JSON.stringify({ title: recipeTitle })
                 });
                 
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Response data:', data);
+                    console.log('Has image_data:', !!data.image_data);
+                    
                     if (data.success && data.image_data) {
+                        console.log('Image data length:', data.image_data.length);
                         const img = document.getElementById('recipeImage');
                         img.src = `data:image/png;base64,${data.image_data}`;
                         img.style.display = 'block';
+                        console.log('Image display set to block');
                     } else {
+                        console.log('No image data in response');
                         document.getElementById('recipeImage').style.display = 'none';
                     }
                 } else {
+                    console.log('Response not ok');
                     document.getElementById('recipeImage').style.display = 'none';
                 }
             } catch (error) {
-                console.log('Image not available for this recipe:', error);
+                console.error('Image loading error:', error);
                 document.getElementById('recipeImage').style.display = 'none';
             }
         }
