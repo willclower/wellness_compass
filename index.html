@@ -400,11 +400,136 @@
             color: #333;
         }
 
+        .recipe-intro-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .recipe-summary-column {
+            flex: 1;
+        }
+
         .recipe-summary {
             font-style: italic;
             color: #666;
-            margin-bottom: 15px;
             line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .recipe-image-display {
+            width: 300px;
+            height: 300px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
+        .recipe-info-card {
+            background: linear-gradient(145deg, #fff9e6, #ffffff);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .recipe-info-card h4 {
+            color: #8b9f4a;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recipe-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .recipe-info-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .recipe-info-item .label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .recipe-info-item .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .recipe-dietary-tags {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .dietary-tag {
+            background: #6ec5c0;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Collapsible sections */
+        .collapsible-header {
+            background: linear-gradient(145deg, #8b9f4a, #7a8e3f);
+            color: white;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(139, 159, 74, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .collapsible-header:hover {
+            background: linear-gradient(145deg, #7a8e3f, #6a7d35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(139, 159, 74, 0.3);
+        }
+
+        .collapsible-header .arrow {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible-header.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.active {
+            max-height: 2000px;
+            margin-bottom: 25px;
         }
 
         .recipe-tags-display {
@@ -664,7 +789,19 @@
                         <button class="close-recipe-btn" id="closeRecipeBtn" title="Close recipe">×</button>
                     </div>
 
-                    <p class="recipe-summary" id="recipeSummary"></p>
+                    <div class="recipe-intro-section">
+                        <div class="recipe-summary-column">
+                            <p class="recipe-summary" id="recipeSummary"></p>
+                        </div>
+                        <img id="recipeImage" class="recipe-image-display" style="display: none;" />
+                    </div>
+
+                    <!-- Recipe Info Card -->
+                    <div class="recipe-info-card" id="recipeInfoCard" style="display: none;">
+                        <h4>📊 Nutrition & Details</h4>
+                        <div class="recipe-info-grid" id="recipeInfoGrid"></div>
+                        <div class="recipe-dietary-tags" id="recipeDietaryTags"></div>
+                    </div>
 
                     <div class="recipe-actions-bar">
                         <button class="recipe-action-btn like-btn" id="likeRecipeBtn">
@@ -678,14 +815,26 @@
                         </button>
                     </div>
 
-                    <div class="recipe-section-display">
-                        <h3>📝 What You'll Need</h3>
-                        <ul class="ingredients-list" id="ingredientsList"></ul>
+                    <!-- Collapsible Ingredients Section -->
+                    <button class="collapsible-header" id="ingredientsHeader">
+                        📝 Show Me What I Will Need For This Recipe
+                        <span class="arrow">▼</span>
+                    </button>
+                    <div class="collapsible-content" id="ingredientsContent">
+                        <div class="recipe-section-display">
+                            <ul class="ingredients-list" id="ingredientsList"></ul>
+                        </div>
                     </div>
 
-                    <div class="recipe-section-display">
-                        <h3>👩‍🍳 What To Do</h3>
-                        <ol class="instructions-list" id="instructionsList"></ol>
+                    <!-- Collapsible Instructions Section -->
+                    <button class="collapsible-header" id="instructionsHeader">
+                        👩‍🍳 Show Me What I Need To Do To Make This Recipe
+                        <span class="arrow">▼</span>
+                    </button>
+                    <div class="collapsible-content" id="instructionsContent">
+                        <div class="recipe-section-display">
+                            <ol class="instructions-list" id="instructionsList"></ol>
+                        </div>
                     </div>
 
                     <div class="recipe-section-display" id="notesSection" style="display: none;">
@@ -857,6 +1006,74 @@
             document.getElementById('recipeTitle').textContent = recipe.title;
             document.getElementById('recipeSummary').textContent = recipe.summary;
             
+            // Load recipe image from database
+            loadRecipeImage(recipe.title);
+            
+            // Display recipe info (nutrition) if available
+            if (recipe.recipeInfo) {
+                const infoCard = document.getElementById('recipeInfoCard');
+                const infoGrid = document.getElementById('recipeInfoGrid');
+                const dietaryTags = document.getElementById('recipeDietaryTags');
+                
+                infoCard.style.display = 'block';
+                infoGrid.innerHTML = '';
+                
+                // Add nutrition items
+                if (recipe.recipeInfo.servings) {
+                    infoGrid.innerHTML += `
+                        <div class="recipe-info-item">
+                            <div class="label">Servings</div>
+                            <div class="value">${recipe.recipeInfo.servings}</div>
+                        </div>
+                    `;
+                }
+                if (recipe.recipeInfo.prep_time_minutes) {
+                    infoGrid.innerHTML += `
+                        <div class="recipe-info-item">
+                            <div class="label">Prep Time</div>
+                            <div class="value">${recipe.recipeInfo.prep_time_minutes} min</div>
+                        </div>
+                    `;
+                }
+                if (recipe.recipeInfo.cook_time_minutes) {
+                    infoGrid.innerHTML += `
+                        <div class="recipe-info-item">
+                            <div class="label">Cook Time</div>
+                            <div class="value">${recipe.recipeInfo.cook_time_minutes} min</div>
+                        </div>
+                    `;
+                }
+                if (recipe.recipeInfo.total_time_minutes) {
+                    infoGrid.innerHTML += `
+                        <div class="recipe-info-item">
+                            <div class="label">Total Time</div>
+                            <div class="value">${recipe.recipeInfo.total_time_minutes} min</div>
+                        </div>
+                    `;
+                }
+                if (recipe.recipeInfo.calories_per_serving) {
+                    infoGrid.innerHTML += `
+                        <div class="recipe-info-item">
+                            <div class="label">Calories</div>
+                            <div class="value">${recipe.recipeInfo.calories_per_serving}</div>
+                        </div>
+                    `;
+                }
+                
+                // Add dietary tags
+                dietaryTags.innerHTML = '';
+                if (recipe.recipeInfo.dietary_tags && recipe.recipeInfo.dietary_tags.length > 0) {
+                    recipe.recipeInfo.dietary_tags.forEach(tag => {
+                        const tagSpan = document.createElement('span');
+                        tagSpan.className = 'dietary-tag';
+                        tagSpan.textContent = tag;
+                        dietaryTags.appendChild(tagSpan);
+                    });
+                }
+            } else {
+                document.getElementById('recipeInfoCard').style.display = 'none';
+            }
+            
             // Tags
             if (recipe.tags && recipe.tags.length > 0) {
                 document.getElementById('tagsSection').style.display = 'block';
@@ -891,13 +1108,13 @@
             });
             
            // Play With Your Food - handles paragraph with line breaks
-if (recipe.notes) {
-    document.getElementById('notesSection').style.display = 'block';
-    const notesList = document.getElementById('notesList');
-    notesList.textContent = recipe.notes;
-} else {
-    document.getElementById('notesSection').style.display = 'none';
-}
+            if (recipe.notes) {
+                document.getElementById('notesSection').style.display = 'block';
+                const notesList = document.getElementById('notesList');
+                notesList.textContent = recipe.notes;
+            } else {
+                document.getElementById('notesSection').style.display = 'none';
+            }
 
             // Closing Summary
             if (recipe.summary2) {
@@ -910,6 +1127,40 @@ if (recipe.notes) {
             // Store current recipe
             window.currentRecipe = recipe;
         }
+
+        // Load recipe image from database
+        async function loadRecipeImage(recipeTitle) {
+            try {
+                const response = await fetch(`${window.MWClient.baseUrl}/get-recipe-image`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: recipeTitle })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.image_data) {
+                        const img = document.getElementById('recipeImage');
+                        img.src = `data:image/png;base64,${data.image_data}`;
+                        img.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.log('Image not available for this recipe');
+                document.getElementById('recipeImage').style.display = 'none';
+            }
+        }
+
+        // Collapsible section handlers
+        document.getElementById('ingredientsHeader').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('ingredientsContent').classList.toggle('active');
+        });
+
+        document.getElementById('instructionsHeader').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('instructionsContent').classList.toggle('active');
+        });
 
         // Close recipe button
         document.getElementById('closeRecipeBtn').addEventListener('click', function() {
@@ -1002,4 +1253,3 @@ if (recipe.notes) {
     </script>
 </body>
 </html>
-
