@@ -965,6 +965,7 @@
                     console.log('Is Recipe:', response.isRecipe);
                     console.log('Raw Message Length:', response.message.length);
                     console.log('First 500 chars:', response.message.substring(0, 500));
+                    console.log('Last 500 chars:', response.message.substring(response.message.length - 500));
                     
                     if (response.isRecipe) {
                         // Parse and display recipe
