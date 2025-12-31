@@ -191,7 +191,7 @@ parseRecipe(text) {
     }
     
     // Recipe Info section - Updated to handle optional --- and bold formatting
-    const recipeInfoSection = text.match(/(?:---\s*)?\n*##\s+Recipe Info\s*\n+([\s\S]+?)$/);
+    const recipeInfoSection = text.match(/##\s+Recipe Info\s*\n([\s\S]+?)$/);
     if (recipeInfoSection) {
         const infoText = recipeInfoSection[1];
         recipe.recipeInfo = {};
