@@ -132,34 +132,92 @@ class MediterraneanWellnessClient {
             .map(line => line.replace(/^-\s*/, '').trim());
     }
     
-    // NEW: Parse Recipe Info section (added by AI enrichment workflow)
-    const recipeInfoSection = text.match(/---\s*## Recipe Info\s*\n+([\s\S]+?)$/);
+parseRecipe(text) {
+    const recipe = { 
+        title: '', 
+        summary: '', 
+        ingredients: [], 
+        instructions: [], 
+        notes: '', 
+        summary2: '', 
+        tags: [],
+        recipeInfo: null
+    };
+    
+    // Title
+    const titleMatch = text.match(/^#\s+(.+)$/m);
+    if (titleMatch) recipe.title = titleMatch[1].trim();
+    
+    // Introduction (first paragraph after title, before first ##)
+    const summaryMatch = text.match(/^#[^\n]+\n+(.+?)(?=\n##)/s);
+    if (summaryMatch) recipe.summary = summaryMatch[1].trim();
+    
+    // Ingredients
+    const ingredientsSection = text.match(/##\s+What You'll Need\s*\n+([\s\S]+?)(?=\n##)/);
+    if (ingredientsSection) {
+        recipe.ingredients = ingredientsSection[1].split('\n')
+            .map(line => line.trim())
+            .filter(line => line.startsWith('-'))
+            .map(line => line.replace(/^-\s*/, '').trim());
+    }
+    
+    // Instructions
+    const instructionsSection = text.match(/##\s+What To Do\s*\n+([\s\S]+?)(?=\n##)/);
+    if (instructionsSection) {
+        recipe.instructions = instructionsSection[1].split('\n')
+            .map(line => line.trim())
+            .filter(line => /^\d+\./.test(line))
+            .map(line => line.replace(/^\d+\.\s*/, '').trim());
+    }
+    
+    // Play With Your Food
+    const notesSection = text.match(/##\s+Play With Your Food\s*\n+([\s\S]+?)(?=\n##|$)/);
+    if (notesSection) {
+        recipe.notes = notesSection[1].trim();
+    }
+    
+    // Summary (closing)
+    const summarySection = text.match(/##\s+Summary\s*\n+([\s\S]+?)(?=\n##|\n\*\*Tags|---)/);
+    if (summarySection) {
+        recipe.summary2 = summarySection[1].trim();
+    }
+    
+    // Tags
+    const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)(?=---|##\s+Recipe Info|$)/);
+    if (tagsSection) {
+        recipe.tags = tagsSection[1].split('\n')
+            .filter(line => line.trim().startsWith('-'))
+            .map(line => line.replace(/^-\s*/, '').trim());
+    }
+    
+    // Recipe Info section - Updated to handle optional --- and bold formatting
+    const recipeInfoSection = text.match(/(?:---\s*)?\n*##\s+Recipe Info\s*\n+([\s\S]+?)$/);
     if (recipeInfoSection) {
         const infoText = recipeInfoSection[1];
         recipe.recipeInfo = {};
         
-        // Extract servings
-        const servingsMatch = infoText.match(/Servings:\s*(\d+)/i);
+        // Extract servings - handle both "Servings:" and "**Servings:**"
+        const servingsMatch = infoText.match(/\*?\*?Servings:\*?\*?\s*(\d+)/i);
         if (servingsMatch) recipe.recipeInfo.servings = parseInt(servingsMatch[1]);
         
         // Extract prep time
-        const prepMatch = infoText.match(/Prep Time:\s*(\d+)/i);
+        const prepMatch = infoText.match(/\*?\*?Prep Time:\*?\*?\s*(\d+)/i);
         if (prepMatch) recipe.recipeInfo.prep_time_minutes = parseInt(prepMatch[1]);
         
         // Extract cook time
-        const cookMatch = infoText.match(/Cook Time:\s*(\d+)/i);
+        const cookMatch = infoText.match(/\*?\*?Cook Time:\*?\*?\s*(\d+)/i);
         if (cookMatch) recipe.recipeInfo.cook_time_minutes = parseInt(cookMatch[1]);
         
         // Extract total time
-        const totalMatch = infoText.match(/Total Time:\s*(\d+)/i);
+        const totalMatch = infoText.match(/\*?\*?Total Time:\*?\*?\s*(\d+)/i);
         if (totalMatch) recipe.recipeInfo.total_time_minutes = parseInt(totalMatch[1]);
         
         // Extract calories
-        const caloriesMatch = infoText.match(/Calories:\s*(\d+)/i);
+        const caloriesMatch = infoText.match(/\*?\*?Calories:\*?\*?\s*(\d+)/i);
         if (caloriesMatch) recipe.recipeInfo.calories_per_serving = parseInt(caloriesMatch[1]);
         
         // Extract dietary tags
-        const dietaryMatch = infoText.match(/Dietary Tags:\s*(.+)$/m);
+        const dietaryMatch = infoText.match(/\*?\*?Dietary Tags:\*?\*?\s*(.+)$/m);
         if (dietaryMatch) {
             recipe.recipeInfo.dietary_tags = dietaryMatch[1]
                 .split(',')
@@ -170,6 +228,8 @@ class MediterraneanWellnessClient {
     
     return recipe;
 }
+       
+       
     async switchAssistant(assistantId) {
         this.currentAssistant = assistantId;
         localStorage.setItem('mw_assistant', assistantId);
