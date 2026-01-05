@@ -123,7 +123,12 @@ class MediterraneanWellnessClient {
     if (summarySection) {
         recipe.summary2 = summarySection[1].trim();
     }
-    
+
+       const recipeInfoSection = text.match(/##\s+Recipe Info\s*\n+([\s\S]+?)$/);
+    if (recipeInfoSection) {
+        recipe.recipeInfo = recipeInfoSection[1].trim();
+    }
+       
     // Tags
     const tagsSection = text.match(/\*\*Tags:\*\*\s*\n([\s\S]+?)(?=---|$)/);
     if (tagsSection) {
@@ -141,7 +146,7 @@ parseRecipe(text) {
         notes: '', 
         summary2: '', 
         tags: [],
-        recipeInfo: null
+        recipeInfo: ''
     };
     
     // Title
@@ -180,6 +185,11 @@ parseRecipe(text) {
     const summarySection = text.match(/##\s+Summary\s*\n+([\s\S]+?)(?=\n##|\n\*\*Tags|---)/);
     if (summarySection) {
         recipe.summary2 = summarySection[1].trim();
+    }
+
+    const recipeInfoSection = text.match(/##\s+Recipe Info\s*\n+([\s\S]+?)$/);
+    if (recipeInfoSection) {
+        recipe.recipeInfo = recipeInfoSection[1].trim();
     }
     
     // Tags
