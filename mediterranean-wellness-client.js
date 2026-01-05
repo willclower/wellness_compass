@@ -83,7 +83,7 @@ class MediterraneanWellnessClient {
         notes: '', 
         summary2: '', 
         tags: [],
-        recipeInfo: null  // New: will contain parsed nutrition data
+        recipeInfo: ''
     };
     
     // Title
