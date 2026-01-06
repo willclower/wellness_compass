@@ -1046,7 +1046,7 @@ catch (error) {
             console.log('Summary length:', recipe.summary ? recipe.summary.length : 0);
             
             // Load recipe image from database
-            Image(recipe.title);
+ loadRecipeImage(recipe.title);
             
             // Display recipe info (nutrition) if available
             console.log('Checking recipeInfo...');
