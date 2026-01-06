@@ -1046,7 +1046,7 @@ catch (error) {
             console.log('Summary length:', recipe.summary ? recipe.summary.length : 0);
             
             // Load recipe image from database
-            loadRecipeImage(recipe.title);
+            Image(recipe.title);
             
             // Display recipe info (nutrition) if available
             console.log('Checking recipeInfo...');
@@ -1188,24 +1188,39 @@ async function loadRecipeImage(recipeTitle) {
         });
         
         console.log('Response status:', response.status);
+        console.log('Response ok?:', response.ok);
         
         if (response.ok) {
             const data = await response.json();
             console.log('Response data:', data);
+            console.log('data.success:', data.success);
+            console.log('data.image_data:', data.image_data);
             
             if (data.success && data.image_data) {
                 const img = document.getElementById('recipeImage');
-                img.src = data.image_data;  // Direct OneDrive URL
+                console.log('Found img element:', !!img);
+                
+                img.onerror = () => {
+                    console.error('❌ Image failed to load from URL');
+                };
+                img.onload = () => {
+                    console.log('✅ Image successfully loaded');
+                };
+                
+                img.src = data.image_data;
                 img.style.display = 'block';
-                console.log('✓ Image loaded from:', data.image_data);
+                console.log('✓ Set img.src to:', data.image_data);
             } else {
+                console.log('No image data - hiding image element');
                 document.getElementById('recipeImage').style.display = 'none';
             }
         } else {
+            console.log('Response not OK - status:', response.status);
             document.getElementById('recipeImage').style.display = 'none';
         }
     } catch (error) {
-        console.error('Image loading error:', error);
+        console.error('❌ Image loading error:', error);
+        console.error('Error details:', error.message, error.stack);
         document.getElementById('recipeImage').style.display = 'none';
     }
 }
