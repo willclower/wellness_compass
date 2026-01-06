@@ -989,7 +989,7 @@
                         // Show abbreviated message in chat
                         const assistantMsg = document.createElement('div');
                         assistantMsg.className = 'message assistant';
-                        assistantMsg.textContent = `Here's the recipe for ${recipe.title}! I've displayed it in the recipe area. 🍝`;
+                        assistantMsg.textContent = response.message;
                         messagesContainer.appendChild(assistantMsg);
                     } else {
                         // Regular chat message
