@@ -1188,39 +1188,38 @@ async function loadRecipeImage(recipeTitle) {
         });
         
         console.log('Response status:', response.status);
-        console.log('Response ok?:', response.ok);
         
         if (response.ok) {
             const data = await response.json();
-            console.log('Response data:', data);
-            console.log('data.success:', data.success);
-            console.log('data.image_data:', data.image_data);
+            console.log('Response data received');
+            console.log('Has image data:', !!data.image_data);
             
             if (data.success && data.image_data) {
                 const img = document.getElementById('recipeImage');
-                console.log('Found img element:', !!img);
                 
+                // Add error and load handlers
                 img.onerror = () => {
-                    console.error('❌ Image failed to load from URL');
+                    console.error('❌ Image failed to render');
                 };
                 img.onload = () => {
-                    console.log('✅ Image successfully loaded');
+                    console.log('✅ Image successfully rendered');
                 };
                 
-                img.src = data.image_data;
+                // Convert base64 to data URI
+                const dataUri = `data:image/png;base64,${data.image_data}`;
+                img.src = dataUri;
                 img.style.display = 'block';
-                console.log('✓ Set img.src to:', data.image_data);
+                console.log('✓ Image set, base64 length:', data.image_data.length);
             } else {
-                console.log('No image data - hiding image element');
+                console.log('No image data available');
                 document.getElementById('recipeImage').style.display = 'none';
             }
         } else {
-            console.log('Response not OK - status:', response.status);
+            console.log('Response not OK, status:', response.status);
             document.getElementById('recipeImage').style.display = 'none';
         }
     } catch (error) {
         console.error('❌ Image loading error:', error);
-        console.error('Error details:', error.message, error.stack);
         document.getElementById('recipeImage').style.display = 'none';
     }
 }
