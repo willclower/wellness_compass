@@ -1011,7 +1011,15 @@
 
         // Recipe Display Function
         function displayRecipe(recipe) {
-            console.log('=== DISPLAY RECIPE DEBUG ===');
+    console.log('@@@ DISPLAY RECIPE CALLED @@@');
+    console.log('Response:', response);
+    
+    const recipe = window.MWClient.parseRecipe(response.message);
+    console.log('@@@ PARSED RECIPE @@@');
+    console.log('Recipe title:', recipe.title);
+    
+    // ... rest of existing code
+    console.log('=== DISPLAY RECIPE DEBUG ===');
             console.log('Recipe object:', recipe);
             
             // Hide placeholder, show recipe
@@ -1161,6 +1169,10 @@
 async function loadRecipeImage(recipeTitle) {
     console.log('=== LOADING IMAGE ===');
     console.log('Recipe title:', recipeTitle);
+console.log('@@@ ABOUT TO CALL loadRecipeImage @@@');
+loadRecipeImage(recipe.title);
+console.log('@@@ CALLED loadRecipeImage @@@');
+
     
     try {
         const url = 'https://willclower.app.n8n.cloud/webhook/get-recipe-metadata';
