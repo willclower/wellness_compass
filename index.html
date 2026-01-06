@@ -823,7 +823,7 @@
                     <!-- Collapsible Ingredients Section -->
                     <button class="collapsible-header" id="ingredientsHeader">
                         📝 Ingredients
-                        <span class="arrow">▼</span>
+                        <span class="arrow">+</span>
                     </button>
                     <div class="collapsible-content" id="ingredientsContent">
                         <div class="recipe-section-display">
@@ -834,7 +834,7 @@
                     <!-- Collapsible Instructions Section -->
                     <button class="collapsible-header" id="instructionsHeader">
                         👩‍🍳 Directions
-                        <span class="arrow">▼</span>
+                        <span class="arrow">+</span>
                     </button>
                     <div class="collapsible-content" id="instructionsContent">
                         <div class="recipe-section-display">
@@ -1223,17 +1223,20 @@ async function loadRecipeImage(recipeTitle) {
         document.getElementById('recipeImage').style.display = 'none';
     }
 }
-        // Collapsible section handlers
-        document.getElementById('ingredientsHeader').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.getElementById('ingredientsContent').classList.toggle('active');
-        });
+  // Collapsible section handlers
+document.getElementById('ingredientsHeader').addEventListener('click', function() {
+    this.classList.toggle('active');
+    document.getElementById('ingredientsContent').classList.toggle('active');
+    const arrow = this.querySelector('.arrow');
+    arrow.textContent = this.classList.contains('active') ? '−' : '+';
+});
 
-        document.getElementById('instructionsHeader').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.getElementById('instructionsContent').classList.toggle('active');
-        });
-
+document.getElementById('instructionsHeader').addEventListener('click', function() {
+    this.classList.toggle('active');
+    document.getElementById('instructionsContent').classList.toggle('active');
+    const arrow = this.querySelector('.arrow');
+    arrow.textContent = this.classList.contains('active') ? '−' : '+';
+});
         // Close recipe button
         document.getElementById('closeRecipeBtn').addEventListener('click', function() {
             document.getElementById('recipeDisplay').classList.remove('active');
