@@ -1002,15 +1002,20 @@
                 
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            } catch (error) {
-                typingIndicator.remove();
-                
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'message assistant';
-                errorMsg.textContent = 'Connection error. Please check your internet and try again.';
-                messagesContainer.appendChild(errorMsg);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
+            } 
+catch (error) {
+    typingIndicator.remove();
+    
+    console.error('@@@ CAUGHT ERROR @@@', error);
+    console.error('Error stack:', error.stack);
+    
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'message assistant';
+    errorMsg.textContent = 'Connection error. Please check your internet and try again.';
+    messagesContainer.appendChild(errorMsg);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}                
+             
         }
 
         // Recipe Display Function
