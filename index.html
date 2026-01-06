@@ -404,13 +404,15 @@
             color: #333;
         }
 
-       .recipe-intro-section {
+   .recipe-intro-section {
     display: flex;
     flex-direction: row-reverse;
     gap: 20px;
     margin-bottom: 20px;
-    align-items: flex-start;  /* Add this - aligns items to top/left */
-    justify-content: flex-start;  /* Add this - pushes content to the left */
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-left: 0;  /* Force no left margin */
+    padding-left: 5;  /* Force no left padding */
 }
 
   .recipe-summary-column {
