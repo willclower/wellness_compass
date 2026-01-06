@@ -1158,37 +1158,33 @@
             window.currentRecipe = recipe;
         }
 
-        // Load recipe image from database
 async function loadRecipeImage(recipeTitle) {
-    console.log('Loading image for:', recipeTitle);
-    
-    try {
-        const response = await fetch('https://willclower.app.n8n.cloud/webhook/get-recipe-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: recipeTitle })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            
-            if (data.success && data.image_data) {
-                const img = document.getElementById('recipeImage');
-                // Use OneDrive URL directly
-                img.src = data.image_data;
-                img.style.display = 'block';
-                console.log('Image loaded from OneDrive');
-            } else {
-                document.getElementById('recipeImage').style.display = 'none';
-            }
-        } else {
-            document.getElementById('recipeImage').style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Image loading error:', error);
-        document.getElementById('recipeImage').style.display = 'none';
-    }
-}
+       console.log('Loading image for:', recipeTitle);
+       
+       try {
+           const response = await fetch('https://willclower.app.n8n.cloud/webhook/get-recipe-metadata', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ title: recipeTitle })
+           });
+           
+           if (response.ok) {
+               const data = await response.json();
+               
+               if (data.success && data.image_data) {
+                   const img = document.getElementById('recipeImage');
+                   img.src = data.image_data; // OneDrive URL
+                   img.style.display = 'block';
+                   console.log('Image loaded from:', data.image_data);
+               } else {
+                   document.getElementById('recipeImage').style.display = 'none';
+               }
+           }
+       } catch (error) {
+           console.error('Image loading error:', error);
+           document.getElementById('recipeImage').style.display = 'none';
+       }
+   }
 
         // Collapsible section handlers
         document.getElementById('ingredientsHeader').addEventListener('click', function() {
