@@ -1019,13 +1019,14 @@ catch (error) {
         }
 
         // Recipe Display Function
-        function displayRecipe(recipe) {
+ function displayRecipe(recipe) {
     console.log('@@@ DISPLAY RECIPE CALLED @@@');
-    console.log('Response:', response);
-    
+    console.log('Recipe:', recipe);  // <- Change 'response' to 'recipe'
     
     console.log('@@@ PARSED RECIPE @@@');
     console.log('Recipe title:', recipe.title);
+    
+    // ... rest of code
     
     // ... rest of existing code
     console.log('=== DISPLAY RECIPE DEBUG ===');
