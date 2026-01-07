@@ -413,15 +413,15 @@
     justify-content: flex-end;  /* flex-end in row-reverse = left side */
 }
 
-  .recipe-summary-column {
-    flex: 0 1 500px;  /* Don't grow, can shrink, base width 500px */
-    max-width: 500px;
+.recipe-summary-column {
+    flex: 1;  /* Take up remaining space */
 }
         .recipe-summary {
             font-style: italic;
             color: #666;
             line-height: 1.6;
             margin-bottom: 0;
+            font-size: 18px;
         }
 
         .recipe-image-display {
