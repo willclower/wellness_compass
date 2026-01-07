@@ -356,9 +356,11 @@
         }
 
         /* Recipe Display Enhancements */
-        .recipe-display {
-            display: none;
-            animation: slideIn 0.4s ease-out;
+  .recipe-display {
+    display: none;
+    padding-left: 20px;
+    animation: slideIn 0.4s ease-out;
+}
         }
 
         .recipe-display.active {
@@ -495,39 +497,33 @@
         }
 
         /* Collapsible sections */
-        .collapsible-header {
-            background: linear-gradient(145deg, #8b9f4a, #7a8e3f);
-            color: white;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            text-align: left;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(139, 159, 74, 0.2);
-            margin-bottom: 10px;
-        }
-
+     .collapsible-header {
+    background: linear-gradient(145deg, #8b9f4a, #7a8e3f);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    width: 100%;
+    text-align: left;
+    font-size: 24px;  /* Increased from 16px */
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
         .collapsible-header:hover {
             background: linear-gradient(145deg, #7a8e3f, #6a7d35);
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(139, 159, 74, 0.3);
         }
 
-        .collapsible-header .arrow {
-            font-size: 20px;
-            transition: transform 0.3s ease;
-        }
-
-        .collapsible-header.active .arrow {
-            transform: rotate(180deg);
-        }
+    .collapsible-header .arrow {
+    font-size: 28px;  /* Increased from 20px */
+    transition: transform 0.3s ease;
+}
 
         .collapsible-content {
             max-height: 0;
