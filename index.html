@@ -987,6 +987,7 @@
                 } else {
                     const errorMsg = document.createElement('div');
                     errorMsg.className = 'message assistant';
+                    assistantMsg.style.whiteSpace = 'pre-line';  // Preserve line breaks
                     errorMsg.textContent = response.error || 'Sorry, something went wrong. Please try again.';
                     messagesContainer.appendChild(errorMsg);
                 }
