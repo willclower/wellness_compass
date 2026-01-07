@@ -980,7 +980,7 @@
     // Not a recipe: show in chat ONLY
     const assistantMsg = document.createElement('div');
     assistantMsg.className = 'message assistant';
-    assistantMsg.textContent = response.message;
+    assistantMsg.innerHTML = response.message.replace(/\n\n/g, '<br><br>');
     messagesContainer.appendChild(assistantMsg);
     // Don't display in staging area
 }
