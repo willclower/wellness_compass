@@ -46,7 +46,7 @@ class MediterraneanWellnessClient {
                 return {
                     success: true,
                     message: messageText,
-                    isRecipe: this.isRecipeResponse(messageText),
+                    isRecipe: data.isRecipe !== undefined ? data.isRecipe : this.isRecipeResponse(messageText),
                     assistant: this.currentAssistant,
                     ...data
                 };
