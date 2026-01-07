@@ -971,28 +971,19 @@
                     console.log('First 500 chars:', response.message.substring(0, 500));
                     console.log('Last 500 chars:', response.message.substring(response.message.length - 500));
                     
-                    if (response.isRecipe) {
-                        // Parse and display recipe
-                        const recipe = window.MWClient.parseRecipe(response.message);
-                        console.log('Parsed Recipe:', recipe);
-                        console.log('Has summary:', !!recipe.summary);
-                        console.log('Has recipeInfo:', !!recipe.recipeInfo);
-                        console.log('RecipeInfo data:', recipe.recipeInfo);
-                        
-                        displayRecipe(recipe);
-                        
-                        // Show abbreviated message in chat
-                        const assistantMsg = document.createElement('div');
-                        assistantMsg.className = 'message assistant';
-                        assistantMsg.textContent = response.message;
-                        messagesContainer.appendChild(assistantMsg);
-                    } else {
-                        // Regular chat message
-                        const assistantMsg = document.createElement('div');
-                        assistantMsg.className = 'message assistant';
-                        assistantMsg.textContent = response.message;
-                        messagesContainer.appendChild(assistantMsg);
-                    }
+                  if (response.isRecipe) {
+    // Recipe: parse and display in staging area ONLY
+    const recipe = window.MWClient.parseRecipe(response.message);
+    displayRecipe(recipe);
+    // Don't add anything to chat
+} else {
+    // Not a recipe: show in chat ONLY
+    const assistantMsg = document.createElement('div');
+    assistantMsg.className = 'message assistant';
+    assistantMsg.textContent = response.message;
+    messagesContainer.appendChild(assistantMsg);
+    // Don't display in staging area
+}
                 } else {
                     const errorMsg = document.createElement('div');
                     errorMsg.className = 'message assistant';
