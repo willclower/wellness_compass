@@ -43,13 +43,13 @@ class MediterraneanWellnessClient {
                 data = JSON.parse(text);
                 const messageText = data.message || data.response || data.text || text;
                 
-                return {
-                    success: true,
-                    message: messageText,
-                    isRecipe: data.isRecipe !== undefined ? data.isRecipe : this.isRecipeResponse(messageText),
-                    assistant: this.currentAssistant,
-                    ...data
-                };
+       return {
+    success: true,
+    message: messageText,
+    assistant: this.currentAssistant,
+    ...data,
+    isRecipe: data.isRecipe !== undefined ? data.isRecipe : this.isRecipeResponse(messageText)
+};
             } catch (e) {
                 return {
                     success: true,
