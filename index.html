@@ -225,30 +225,36 @@
 }
 /* Recipe Rating System */
 .recipe-rating {
-    background: #f8f9fa;
-    border: 2px solid #8b9d5e;
+    flex: 1;
+    background: white;
+    border: 2px solid #e0e0e0;
     border-radius: 8px;
-    padding: 15px;
-    margin: 15px 0;
+    padding: 12px 16px;
     text-align: center;
+    transition: all 0.3s ease;
+}
+
+.recipe-rating:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .recipe-rating h4 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     color: #8b9d5e;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
 }
 
 .yum-rating {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin: 10px 0;
+    gap: 4px;
+    margin: 8px 0;
 }
 
 .yum-emoji {
-    font-size: 32px;
+    font-size: 24px;
     cursor: pointer;
     opacity: 0.3;
     transition: all 0.2s ease;
@@ -263,9 +269,9 @@
 }
 
 .rating-text {
-    font-size: 12px;
+    font-size: 11px;
     color: #666;
-    margin: 5px 0 0 0;
+    margin: 4px 0 0 0;
 }
         .recipe-card {
             display: flex;
@@ -854,20 +860,18 @@
                         <div class="recipe-dietary-tags" id="recipeDietaryTags"></div>
                     </div>
 
-                    <!-- Rating Widget -->
-                    <div class="recipe-rating" id="recipeRating">
-                        <h4>Rate This Recipe</h4>
-                        <div class="yum-rating" id="yumRating">
-                            <span class="yum-emoji" data-rating="1">😋</span>
-                            <span class="yum-emoji" data-rating="2">😋</span>
-                            <span class="yum-emoji" data-rating="3">😋</span>
-                            <span class="yum-emoji" data-rating="4">😋</span>
-                            <span class="yum-emoji" data-rating="5">😋</span>
-                        </div>
-                        <p class="rating-text">Click to rate!</p>
-                    </div>
-
                     <div class="recipe-actions-bar">
+                        <div class="recipe-rating" id="recipeRating">
+                            <h4>Rate This Recipe</h4>
+                            <div class="yum-rating" id="yumRating">
+                                <span class="yum-emoji" data-rating="1">😋</span>
+                                <span class="yum-emoji" data-rating="2">😋</span>
+                                <span class="yum-emoji" data-rating="3">😋</span>
+                                <span class="yum-emoji" data-rating="4">😋</span>
+                                <span class="yum-emoji" data-rating="5">😋</span>
+                            </div>
+                            <p class="rating-text">Click to rate!</p>
+                        </div>
                         <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
                             💾 <span id="saveText">Save</span>
                         </button>
@@ -877,22 +881,22 @@
                     </div>
 
                     <!-- Collapsible Ingredients Section -->
-                    <button class="collapsible-header active" id="ingredientsHeader">
+                    <button class="collapsible-header" id="ingredientsHeader">
                         📝 Ingredients
-                        <span class="arrow">−</span>
+                        <span class="arrow">+</span>
                     </button>
-                    <div class="collapsible-content active" id="ingredientsContent">
+                    <div class="collapsible-content" id="ingredientsContent">
                         <div class="recipe-section-display">
                             <ul class="ingredients-list" id="ingredientsList"></ul>
                         </div>
                     </div>
 
                     <!-- Collapsible Instructions Section -->
-                    <button class="collapsible-header active" id="instructionsHeader">
+                    <button class="collapsible-header" id="instructionsHeader">
                         👩‍🍳 Directions
-                        <span class="arrow">−</span>
+                        <span class="arrow">+</span>
                     </button>
-                    <div class="collapsible-content active" id="instructionsContent">
+                    <div class="collapsible-content" id="instructionsContent">
                         <div class="recipe-section-display">
                             <ol class="instructions-list" id="instructionsList"></ol>
                         </div>
@@ -953,7 +957,6 @@
         // "Click here" link handler for Recipe of the Day
         document.querySelector('.recipe-card a[href="#"]').addEventListener('click', function(e) {
             e.preventDefault();
-            // Request Zucchini Pancakes recipe from Nona
             document.getElementById('messageInput').value = 'Can you share the Zucchini Pancakes recipe?';
             sendMessage();
         });
@@ -1433,4 +1436,3 @@ function saveRecipeRating(rating) {
     </script>
 </body>
 </html>
-
