@@ -1215,6 +1215,7 @@ catch (error) {
             
             // Store current recipe
             window.currentRecipe = recipe;
+     initializeRating();  // ← ADD THIS LINE
         }
 
 async function loadRecipeImage(recipeTitle) {
