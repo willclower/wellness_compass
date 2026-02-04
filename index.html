@@ -222,7 +222,50 @@
     min-height: 400px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+/* Recipe Rating System */
+.recipe-rating {
+    background: #f8f9fa;
+    border: 2px solid #8b9d5e;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    text-align: center;
+}
 
+.recipe-rating h4 {
+    margin: 0 0 10px 0;
+    color: #8b9d5e;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.yum-rating {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.yum-emoji {
+    font-size: 32px;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: all 0.2s ease;
+    filter: grayscale(100%);
+}
+
+.yum-emoji:hover,
+.yum-emoji.active {
+    opacity: 1;
+    filter: grayscale(0%);
+    transform: scale(1.2);
+}
+
+.rating-text {
+    font-size: 12px;
+    color: #666;
+    margin: 5px 0 0 0;
+}
         .recipe-card {
             display: flex;
             gap: 20px;
