@@ -1366,6 +1366,54 @@ document.getElementById('instructionsHeader').addEventListener('click', function
             greetingMsg.textContent = greeting;
             messagesContainer.appendChild(greetingMsg);
         });
+// Recipe Rating System
+function initializeRating() {
+    const ratingContainer = document.getElementById('yumRating');
+    if (!ratingContainer) return;
+    
+    const emojis = ratingContainer.querySelectorAll('.yum-emoji');
+    let currentRating = 0;
+    
+    emojis.forEach((emoji, index) => {
+        emoji.addEventListener('mouseenter', () => {
+            highlightEmojis(index + 1);
+        });
+        
+        emoji.addEventListener('click', () => {
+            currentRating = index + 1;
+            highlightEmojis(currentRating);
+            document.querySelector('.rating-text').textContent = 
+                `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
+            saveRecipeRating(currentRating);
+        });
+    });
+    
+    ratingContainer.addEventListener('mouseleave', () => {
+        highlightEmojis(currentRating);
+    });
+    
+    function highlightEmojis(count) {
+        emojis.forEach((emoji, index) => {
+            if (index < count) {
+                emoji.classList.add('active');
+            } else {
+                emoji.classList.remove('active');
+            }
+        });
+    }
+}
+
+function saveRecipeRating(rating) {
+    const recipeTitle = window.currentRecipe?.title || 'Unknown Recipe';
+    const ratings = JSON.parse(localStorage.getItem('recipeRatings') || '{}');
+    ratings[recipeTitle] = {
+        rating: rating,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('recipeRatings', JSON.stringify(ratings));
+    console.log(`✅ Saved rating: ${rating} YUMs for "${recipeTitle}"`);
+}
+    
     </script>
 </body>
 </html>
