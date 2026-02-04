@@ -178,7 +178,6 @@
     padding: 20px 30px;
     background: #f5f5f5;
     align-items: start;
-   min-height: calc(100vh - 180px);
 }
 
         /* Left Panel - Recipe Tabs */
@@ -324,6 +323,8 @@
             flex-direction: column;
             height: 600px;
             box-shadow: 0 6px 16px rgba(110, 197, 192, 0.2);
+            position: sticky;
+            top: 20px;
         }
 
         .chat-header {
@@ -853,20 +854,20 @@
                         <div class="recipe-dietary-tags" id="recipeDietaryTags"></div>
                     </div>
 
-                    <div class="recipe-actions-bar">
-                        <div class="rating-container">
+                    <!-- Rating Widget -->
+                    <div class="recipe-rating" id="recipeRating">
+                        <h4>Rate This Recipe</h4>
+                        <div class="yum-rating" id="yumRating">
+                            <span class="yum-emoji" data-rating="1">😋</span>
+                            <span class="yum-emoji" data-rating="2">😋</span>
+                            <span class="yum-emoji" data-rating="3">😋</span>
+                            <span class="yum-emoji" data-rating="4">😋</span>
+                            <span class="yum-emoji" data-rating="5">😋</span>
+                        </div>
+                        <p class="rating-text">Click to rate!</p>
+                    </div>
 
-<div class="recipe-rating" id="recipeRating">
-    <h4>Rate This Recipe</h4>
-    <div class="yum-rating" id="yumRating">
-        <span class="yum-emoji" data-rating="1">😋</span>
-        <span class="yum-emoji" data-rating="2">😋</span>
-        <span class="yum-emoji" data-rating="3">😋</span>
-        <span class="yum-emoji" data-rating="4">😋</span>
-        <span class="yum-emoji" data-rating="5">😋</span>
-    </div>
-    <p class="rating-text">Click to rate!</p>
-</div>
+                    <div class="recipe-actions-bar">
                         <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
                             💾 <span id="saveText">Save</span>
                         </button>
@@ -876,22 +877,22 @@
                     </div>
 
                     <!-- Collapsible Ingredients Section -->
-                    <button class="collapsible-header" id="ingredientsHeader">
+                    <button class="collapsible-header active" id="ingredientsHeader">
                         📝 Ingredients
-                        <span class="arrow">+</span>
+                        <span class="arrow">−</span>
                     </button>
-                    <div class="collapsible-content" id="ingredientsContent">
+                    <div class="collapsible-content active" id="ingredientsContent">
                         <div class="recipe-section-display">
                             <ul class="ingredients-list" id="ingredientsList"></ul>
                         </div>
                     </div>
 
                     <!-- Collapsible Instructions Section -->
-                    <button class="collapsible-header" id="instructionsHeader">
+                    <button class="collapsible-header active" id="instructionsHeader">
                         👩‍🍳 Directions
-                        <span class="arrow">+</span>
+                        <span class="arrow">−</span>
                     </button>
-                    <div class="collapsible-content" id="instructionsContent">
+                    <div class="collapsible-content active" id="instructionsContent">
                         <div class="recipe-section-display">
                             <ol class="instructions-list" id="instructionsList"></ol>
                         </div>
@@ -947,6 +948,14 @@
                 document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
             });
+        });
+
+        // "Click here" link handler for Recipe of the Day
+        document.querySelector('.recipe-card a[href="#"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Request Zucchini Pancakes recipe from Nona
+            document.getElementById('messageInput').value = 'Can you share the Zucchini Pancakes recipe?';
+            sendMessage();
         });
 
         // Switch assistant
@@ -1424,3 +1433,4 @@ function saveRecipeRating(rating) {
     </script>
 </body>
 </html>
+
