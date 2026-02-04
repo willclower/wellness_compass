@@ -605,22 +605,23 @@
             margin-bottom: 25px;
         }
 
-        .recipe-action-btn {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-  color: #8b9d5e;  
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
+  .recipe-action-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #8b9d5e;  /* Change from default black to olive green */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;  /* Change from default to stack vertically */
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
 
        .recipe-action-btn:hover {
     background: #f0fafa;
