@@ -860,18 +860,25 @@
                         <div class="recipe-dietary-tags" id="recipeDietaryTags"></div>
                     </div>
 
-                    <div class="recipe-actions-bar">
-                        <div class="recipe-rating" id="recipeRating">
-                            <h4>Rate This Recipe</h4>
-                            <div class="yum-rating" id="yumRating">
-                                <span class="yum-emoji" data-rating="1">😋</span>
-                                <span class="yum-emoji" data-rating="2">😋</span>
-                                <span class="yum-emoji" data-rating="3">😋</span>
-                                <span class="yum-emoji" data-rating="4">😋</span>
-                                <span class="yum-emoji" data-rating="5">😋</span>
-                            </div>
-                            <p class="rating-text">Click to rate!</p>
-                        </div>
+                   <div class="recipe-actions-bar">
+    <div class="recipe-rating" id="recipeRating">
+        <h4>Rate This Recipe</h4>
+        <div class="yum-rating" id="yumRating">
+            <span class="yum-emoji" data-rating="1">😋</span>
+            <span class="yum-emoji" data-rating="2">😋</span>
+            <span class="yum-emoji" data-rating="3">😋</span>
+            <span class="yum-emoji" data-rating="4">😋</span>
+            <span class="yum-emoji" data-rating="5">😋</span>
+        </div>
+        <p class="rating-text">Click to rate!</p>
+    </div>
+    <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
+        💾 <span id="saveText">Save This Recipe</span>
+    </button>
+    <button class="recipe-action-btn print-btn" id="printRecipeBtn">
+        🖨️ Print
+    </button>
+</div>
                         <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
                             💾 <span id="saveText">Save</span>
                         </button>
@@ -881,10 +888,9 @@
                     </div>
 
                     <!-- Collapsible Ingredients Section -->
-                    <button class="collapsible-header" id="ingredientsHeader">
-                        📝 Ingredients
-                        <span class="arrow">+</span>
-                    </button>
+                    <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
+    💾 <span id="saveText">Save This Recipe</span>
+</button>
                     <div class="collapsible-content" id="ingredientsContent">
                         <div class="recipe-section-display">
                             <ul class="ingredients-list" id="ingredientsList"></ul>
