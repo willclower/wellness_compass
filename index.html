@@ -272,12 +272,6 @@
     filter: grayscale(0%);
     transform: scale(1.2);
 }
-
-.rating-text {
-    font-size: 11px;
-    color: #666;
-    margin: 4px 0 0 0;
-}
         .recipe-card {
             display: flex;
             gap: 20px;
@@ -319,10 +313,6 @@
             align-items: center;
             gap: 10px;
             margin-top: 10px;
-        }
-
-        .recipe-rating {
-            color: #6ec5c0;
         }
 
         /* Right Panel - Chat */
@@ -884,18 +874,12 @@
         🖨️ Print
     </button>
 </div>
-                        <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
-                            💾 <span id="saveText">Save</span>
-                        </button>
-                        <button class="recipe-action-btn print-btn" id="printRecipeBtn">
-                            🖨️ Print
-                        </button>
-                    </div>
 
                     <!-- Collapsible Ingredients Section -->
-                    <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
-    💾 <span id="saveText">Save This Recipe</span>
-</button>
+                    <button class="collapsible-header" id="ingredientsHeader">
+                        📝 Ingredients
+                        <span class="arrow">+</span>
+                    </button>
                     <div class="collapsible-content" id="ingredientsContent">
                         <div class="recipe-section-display">
                             <ul class="ingredients-list" id="ingredientsList"></ul>
