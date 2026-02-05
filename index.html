@@ -605,26 +605,27 @@
             margin-bottom: 25px;
         }
 
- .recipe-action-btn {
+.recipe-action-btn {
     flex: 1;
     padding: 12px 16px;
     border: 2px solid #e0e0e0;
     background: white;
     border-radius: 8px;
-    font-size: 36px;  /* This makes the emoji larger */
+    font-size: 32px;  /* Icon size */
     font-weight: 600;
-    color: #8b9d5e;
+    color: #8b9d5e;  /* THIS COLOR applies to text */
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: column;  /* Stack vertically */
+    align-items: center;  /* Center horizontally */
     justify-content: center;
-    gap: 6px;
+    gap: 8px;  /* Space between text and icon */
 }
- 
-    .recipe-action-btn span {
-    font-size: 18px;
+
+.recipe-action-btn span {
+    font-size: 14px;  /* Text size for "Save This Recipe" and "Print" */
+    color: #8b9d5e;  /* Same color as rating title */
 }
 
 .recipe-action-btn:hover {
@@ -879,12 +880,14 @@
         </div>
         <p class="rating-text">Click to rate!</p>
     </div>
-    <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
-        💾 <span id="saveText">Save This Recipe</span>
-    </button>
-    <button class="recipe-action-btn print-btn" id="printRecipeBtn">
-        🖨️ Print
-    </button>
+<button class="recipe-action-btn save-btn" id="saveRecipeBtn">
+    <span id="saveText">Save This Recipe</span>
+    💾
+</button>
+<button class="recipe-action-btn print-btn" id="printRecipeBtn">
+    <span>Print</span>
+    🖨️
+</button>
 </div>
 
                     <!-- Collapsible Ingredients Section -->
