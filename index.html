@@ -1251,7 +1251,7 @@ async function loadRecipeImage(recipeTitle) {
     console.log('Recipe title:', recipeTitle);
     
     try {
-        const response = await fetch('https://willclower.app.n8n.cloud/webhook/get-recipe-metadata', {
+        const response = await fetch('https://n8n-admin.willclower.com/webhook/get-recipe-metadata', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: recipeTitle })
