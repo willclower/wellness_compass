@@ -5,7 +5,7 @@
 
 class MediterraneanWellnessClient {
     constructor(baseUrl) {
-        this.baseUrl = baseUrl || 'https://willclower.app.n8n.cloud/webhook';
+        this.baseUrl = 'https://n8n-admin.willclower.com/webhook';
         this.userToken = localStorage.getItem('mw_token');
         this.currentAssistant = localStorage.getItem('mw_assistant') || 'nona';
         this.userId = localStorage.getItem('mw_user_id') || this.generateTempUserId();
