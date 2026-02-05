@@ -1432,15 +1432,39 @@ function initializeRating() {
     }
 }
 
-function saveRecipeRating(rating) {
+async function saveRecipeRating(rating) {
     const recipeTitle = window.currentRecipe?.title || 'Unknown Recipe';
+    const userId = window.MWClient.getUserId();
+    
+    // Save to localStorage (backup)
     const ratings = JSON.parse(localStorage.getItem('recipeRatings') || '{}');
     ratings[recipeTitle] = {
         rating: rating,
         timestamp: new Date().toISOString()
     };
     localStorage.setItem('recipeRatings', JSON.stringify(ratings));
-    console.log(`✅ Saved rating: ${rating} YUMs for "${recipeTitle}"`);
+    
+    // Send to backend
+    try {
+        const response = await fetch('https://willclower.app.n8n.cloud/webhook/save-recipe-rating', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userId,
+                recipe_title: recipeTitle,
+                rating: rating
+            })
+        });
+        
+        if (response.ok) {
+            console.log(`✅ Rating saved to database: ${rating} YUMs for "${recipeTitle}"`);
+        } else {
+            console.error('❌ Failed to save rating to database');
+        }
+    } catch (error) {
+        console.error('❌ Error saving rating:', error);
+        console.log('💾 Rating saved to localStorage as backup');
+    }
 }
     
     </script>
