@@ -83,7 +83,7 @@ class MediterraneanWellnessClient {
             notes: '', 
             summary2: '', 
             tags: [],
-            recipeInfo: ''
+            recipeInfo: {}
         };
         
         // Title
@@ -133,9 +133,9 @@ class MediterraneanWellnessClient {
         }
         
         // Recipe Info - Parse into structured object
-        const recipeInfoSection = text.match(/##\s+Recipe Info\s*\n+([\s\S]+?)$/);
+        const recipeInfoSection = text.match(/---\s*\n+##\s+Recipe Info\s*\n+([\s\S]+?)$|##\s+Recipe Info\s*\n+([\s\S]+?)$/);
         if (recipeInfoSection) {
-            const infoText = recipeInfoSection[1];
+            const infoText = recipeInfoSection[1] || recipeInfoSection[2];
             recipe.recipeInfo = {};
             
             // Extract servings - handle bold formatting
