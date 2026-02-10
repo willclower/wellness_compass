@@ -1335,19 +1335,7 @@ document.getElementById('instructionsHeader').addEventListener('click', function
             document.getElementById('recipePlaceholder').classList.remove('hidden');
         });
 
-        // Like button
-        document.getElementById('likeRecipeBtn').addEventListener('click', function() {
-            this.classList.toggle('liked');
-            if (this.classList.contains('liked')) {
-                document.getElementById('likeIcon').textContent = '♥';
-                document.getElementById('likeText').textContent = 'Liked';
-                // TODO: Save to backend
-            } else {
-                document.getElementById('likeIcon').textContent = '♡';
-                document.getElementById('likeText').textContent = 'Like';
-            }
-        });
-
+ 
         // Save button
         document.getElementById('saveRecipeBtn').addEventListener('click', async function() {
             if (!window.currentRecipe) return;
