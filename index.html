@@ -1241,12 +1241,12 @@ catch (error) {
                 document.getElementById('summarySection').style.display = 'none';
             }
             
-            // Store current recipe
-            window.currentRecipe = recipe;
-            // Try to get file_id from the raw response if available
-            if (data.file_id) {
-                window.currentRecipe.file_id = data.file_id;
-            }
+// Store current recipe
+window.currentRecipe = recipe;
+// Try to get file_id from recipe object if available
+if (recipe.file_id) {
+    window.currentRecipe.file_id = recipe.file_id;
+}
      initializeRating();  // ← ADD THIS LINE
         }
 
