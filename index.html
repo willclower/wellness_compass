@@ -1122,7 +1122,7 @@ catch (error) {
             console.log('recipeInfo exists:', !!recipe.recipeInfo);
             console.log('recipeInfo value:', recipe.recipeInfo);
             
-            if (recipe.recipeInfo) {
+            if (recipe.recipeInfo && Object.keys(recipe.recipeInfo).length > 0) {
                 console.log('Displaying recipe info card');
                 const infoCard = document.getElementById('recipeInfoCard');
                 const infoGrid = document.getElementById('recipeInfoGrid');
@@ -1446,7 +1446,7 @@ async function saveRecipeRating(rating) {
     
     // Send to backend
     try {
-        const response = await fetch('https://willclower.app.n8n.cloud/webhook/save-recipe-rating', {
+        const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe-rating', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
