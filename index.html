@@ -826,8 +826,8 @@
         <!-- Left Panel -->
         <div class="left-panel">
             <div class="recipe-tabs">
-                <button class="tab-button active">Recipe of the Day!</button>
-                <button class="tab-button">Saved Recipes</button>
+                <button class="tab-button active" id="todayTab">Recipe of the Day!</button>
+                <button class="tab-button" id="savedTab" onclick="window.location.href='saved_recipes.html'">Saved Recipes</button>
                 <button class="tab-button">Recipe Search History</button>
             </div>
             <div class="recipe-content">
@@ -1243,8 +1243,30 @@ catch (error) {
             
             // Store current recipe
             window.currentRecipe = recipe;
+            // Try to get file_id from the raw response if available
+            if (data.file_id) {
+                window.currentRecipe.file_id = data.file_id;
+            }
      initializeRating();  // ← ADD THIS LINE
         }
+
+        // Check if we're loading a recipe from saved recipes page
+        window.addEventListener('DOMContentLoaded', () => {
+            const loadRecipe = localStorage.getItem('loadRecipe');
+            if (loadRecipe) {
+                localStorage.removeItem('loadRecipe');
+                const recipeData = JSON.parse(loadRecipe);
+                // Request the recipe from Nona
+                const chatInput = document.getElementById('chatInput');
+                if (chatInput) {
+                    chatInput.value = `please provide the recipe for ${recipeData.title}`;
+                    // Auto-trigger send
+                    setTimeout(() => {
+                        document.getElementById('sendButton').click();
+                    }, 500);
+                }
+            }
+        });
 
 async function loadRecipeImage(recipeTitle) {
     console.log('=== LOADING IMAGE ===');
@@ -1327,19 +1349,45 @@ document.getElementById('instructionsHeader').addEventListener('click', function
         });
 
         // Save button
-        document.getElementById('saveRecipeBtn').addEventListener('click', function() {
-            this.classList.toggle('saved');
-            if (this.classList.contains('saved')) {
-                document.getElementById('saveText').textContent = 'Saved';
-                // TODO: Save to backend and localStorage
-                if (window.currentRecipe) {
+        document.getElementById('saveRecipeBtn').addEventListener('click', async function() {
+            if (!window.currentRecipe) return;
+            
+            const userId = window.MWClient.getUserId();
+            const recipe = window.currentRecipe;
+            
+            // Get file_id from current recipe (we'll need to pass this from the response)
+            const fileId = recipe.file_id || 'unknown';
+            
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        recipe_title: recipe.title,
+                        recipe_file_id: fileId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.classList.add('saved');
+                    document.getElementById('saveText').textContent = 'Saved ✓';
+                    console.log('✅ Recipe saved to collection');
+                    
+                    // Also save to localStorage as backup
                     const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
-                    const recipeId = window.currentRecipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                    saved[recipeId] = window.currentRecipe;
+                    const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                    saved[recipeId] = recipe;
                     localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                } else {
+                    console.log('ℹ️ Recipe already saved');
+                    document.getElementById('saveText').textContent = 'Already Saved';
                 }
-            } else {
-                document.getElementById('saveText').textContent = 'Save';
+            } catch (error) {
+                console.error('Error saving recipe:', error);
+                alert('Failed to save recipe');
             }
         });
 
