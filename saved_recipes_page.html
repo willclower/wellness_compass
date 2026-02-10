@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Recipes - Mediterranean Wellness</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Century Gothic', 'CenturyGothic', AppleGothic, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #1a7b8e;
+            padding: 8px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Header */
+        .page-header {
+            background: white;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            color: #1a7b8e;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Search and Filter Bar */
+        .search-bar {
+            background: white;
+            padding: 20px 30px;
+            display: flex;
+            gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #8b9f4a;
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Recipe Cards Grid */
+        .recipes-container {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        /* Recipe Card */
+        .recipe-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .recipe-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #e0e0e0;
+        }
+
+        .recipe-card-content {
+            padding: 20px;
+        }
+
+        .recipe-card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .recipe-card-summary {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .recipe-card-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .stat-icon {
+            font-size: 16px;
+        }
+
+        .recipe-card-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .tag-pill {
+            background: #e6f7f7;
+            color: #1a7b8e;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .recipe-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .rating-display {
+            display: flex;
+            gap: 4px;
+        }
+
+        .rating-emoji {
+            font-size: 18px;
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+
+        .rating-emoji.filled {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-action-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s ease;
+        }
+
+        .card-action-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .saved-date {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 30px;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .explore-btn {
+            background: linear-gradient(145deg, #8b9f4a, #7a8e3f);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .explore-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(139, 159, 74, 0.3);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        /* Re-rate Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .modal-rating {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .modal-rating-emoji {
+            font-size: 40px;
+            cursor: pointer;
+            opacity: 0.3;
+            filter: grayscale(100%);
+            transition: all 0.2s ease;
+        }
+
+        .modal-rating-emoji:hover,
+        .modal-rating-emoji.active {
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: scale(1.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background: #8b9f4a;
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background: #7a8e3f;
+        }
+
+        .modal-btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #d0d0d0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="back-button" onclick="window.location.href='index.html'">← Back to Compass</button>
+        <div class="user-section">
+            <span class="user-greeting">HELLO LAURA</span>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>💾 My Saved Recipes</h1>
+        <p>Your personal collection of delicious Mediterranean recipes</p>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search your saved recipes...">
+        <select class="filter-select" id="ratingFilter">
+            <option value="">All Ratings</option>
+            <option value="5">5 YUMs ⭐</option>
+            <option value="4">4+ YUMs</option>
+            <option value="3">3+ YUMs</option>
+        </select>
+        <select class="filter-select" id="timeFilter">
+            <option value="">Any Time</option>
+            <option value="quick">Quick (<30 min)</option>
+            <option value="medium">Medium (30-60 min)</option>
+        </select>
+    </div>
+
+    <!-- Recipes Container -->
+    <div class="recipes-container">
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">
+            🔄 Loading your saved recipes...
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">🍽️</div>
+            <h2>No Saved Recipes Yet</h2>
+            <p>Start building your Mediterranean recipe collection! Save recipes you love and they'll appear here.</p>
+            <button class="explore-btn" onclick="window.location.href='index.html'">Explore Recipes</button>
+        </div>
+
+        <!-- Recipes Grid -->
+        <div class="recipes-grid" id="recipesGrid"></div>
+    </div>
+
+    <!-- Re-rate Modal -->
+    <div class="modal-overlay" id="rerateModal">
+        <div class="modal-content">
+            <div class="modal-header">How would you rate this recipe?</div>
+            <div class="modal-rating" id="modalRating">
+                <span class="modal-rating-emoji" data-rating="1">😋</span>
+                <span class="modal-rating-emoji" data-rating="2">😋</span>
+                <span class="modal-rating-emoji" data-rating="3">😋</span>
+                <span class="modal-rating-emoji" data-rating="4">😋</span>
+                <span class="modal-rating-emoji" data-rating="5">😋</span>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="closeRerateModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" onclick="saveNewRating()">Save Rating</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="mediterranean-wellness-client.js"></script>
+    <script>
+        let savedRecipes = [];
+        let currentRerateRecipe = null;
+        let newRating = 0;
+
+        // Load saved recipes on page load
+        async function loadSavedRecipes() {
+            const userId = window.MWClient.getUserId();
+            
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/get-saved-recipes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+
+                const data = await response.json();
+                savedRecipes = data.recipes || [];
+                
+                document.getElementById('loadingState').style.display = 'none';
+                
+                if (savedRecipes.length === 0) {
+                    document.getElementById('emptyState').style.display = 'block';
+                } else {
+                    displayRecipes(savedRecipes);
+                }
+            } catch (error) {
+                console.error('Error loading saved recipes:', error);
+                document.getElementById('loadingState').innerHTML = '❌ Error loading recipes';
+            }
+        }
+
+        // Display recipes in grid
+        function displayRecipes(recipes) {
+            const grid = document.getElementById('recipesGrid');
+            grid.innerHTML = '';
+
+            recipes.forEach(recipe => {
+                const card = createRecipeCard(recipe);
+                grid.appendChild(card);
+            });
+        }
+
+        // Create recipe card element
+        function createRecipeCard(recipe) {
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            card.onclick = () => loadRecipe(recipe);
+
+            const recipeInfo = recipe.recipe_info || {};
+            const rating = recipe.user_rating || 0;
+            
+            card.innerHTML = `
+                ${recipe.image_data ? `
+                    <img src="data:image/png;base64,${recipe.image_data}" class="recipe-card-image" alt="${recipe.recipe_title}">
+                ` : `
+                    <div class="recipe-card-image" style="display: flex; align-items: center; justify-content: center; font-size: 60px;">🍽️</div>
+                `}
+                <div class="recipe-card-content">
+                    <h3 class="recipe-card-title">${recipe.recipe_title}</h3>
+                    ${recipe.summary ? `<p class="recipe-card-summary">${recipe.summary}</p>` : ''}
+                    
+                    <div class="recipe-card-stats">
+                        ${recipeInfo.servings ? `<div class="stat-item"><span class="stat-icon">👥</span> ${recipeInfo.servings} servings</div>` : ''}
+                        ${recipeInfo.total_time_minutes ? `<div class="stat-item"><span class="stat-icon">⏱️</span> ${recipeInfo.total_time_minutes} min</div>` : ''}
+                        ${recipeInfo.calories_per_serving ? `<div class="stat-item"><span class="stat-icon">🔥</span> ${recipeInfo.calories_per_serving} cal</div>` : ''}
+                    </div>
+
+                    ${recipe.tags && recipe.tags.length > 0 ? `
+                        <div class="recipe-card-tags">
+                            ${recipe.tags.slice(0, 3).map(tag => `<span class="tag-pill">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="recipe-card-footer">
+                        <div>
+                            <div class="rating-display">
+                                ${[1,2,3,4,5].map(i => `<span class="rating-emoji ${i <= rating ? 'filled' : ''}">😋</span>`).join('')}
+                            </div>
+                            <div class="saved-date">Saved ${formatDate(recipe.saved_at)}</div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn" onclick="event.stopPropagation(); openRerateModal('${recipe.recipe_file_id}', '${recipe.recipe_title}', ${rating})" title="Change rating">⭐</button>
+                            <button class="card-action-btn" onclick="event.stopPropagation(); removeRecipe('${recipe.recipe_file_id}', '${recipe.recipe_title}')" title="Remove from saved">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Load recipe into main compass page
+        function loadRecipe(recipe) {
+            // Store recipe data in localStorage to pass to main page
+            localStorage.setItem('loadRecipe', JSON.stringify({
+                title: recipe.recipe_title,
+                file_id: recipe.recipe_file_id
+            }));
+            window.location.href = 'index.html';
+        }
+
+        // Remove recipe from saved
+        async function removeRecipe(fileId, title) {
+            if (!confirm(`Remove "${title}" from saved recipes?`)) return;
+
+            const userId = window.MWClient.getUserId();
+            
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/remove-saved-recipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        recipe_file_id: fileId
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('✅ Recipe removed from saved');
+                    loadSavedRecipes(); // Reload the list
+                }
+            } catch (error) {
+                console.error('Error removing recipe:', error);
+                alert('Failed to remove recipe');
+            }
+        }
+
+        // Open re-rate modal
+        function openRerateModal(fileId, title, currentRating) {
+            currentRerateRecipe = { fileId, title };
+            newRating = currentRating;
+            
+            document.getElementById('rerateModal').classList.add('active');
+            
+            // Highlight current rating
+            const emojis = document.querySelectorAll('.modal-rating-emoji');
+            emojis.forEach((emoji, index) => {
+                emoji.classList.toggle('active', index < currentRating);
+            });
+        }
+
+        // Close re-rate modal
+        function closeRerateModal() {
+            document.getElementById('rerateModal').classList.remove('active');
+            currentRerateRecipe = null;
+            newRating = 0;
+        }
+
+        // Save new rating
+        async function saveNewRating() {
+            if (!currentRerateRecipe || newRating === 0) return;
+
+            const userId = window.MWClient.getUserId();
+            
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe-rating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        recipe_title: currentRerateRecipe.title,
+                        rating: newRating
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('✅ Rating updated');
+                    closeRerateModal();
+                    loadSavedRecipes(); // Reload to show new rating
+                }
+            } catch (error) {
+                console.error('Error updating rating:', error);
+            }
+        }
+
+        // Modal rating interaction
+        document.querySelectorAll('.modal-rating-emoji').forEach((emoji, index) => {
+            emoji.addEventListener('click', () => {
+                newRating = index + 1;
+                document.querySelectorAll('.modal-rating-emoji').forEach((e, i) => {
+                    e.classList.toggle('active', i < newRating);
+                });
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = savedRecipes.filter(recipe => 
+                recipe.recipe_title.toLowerCase().includes(searchTerm) ||
+                (recipe.summary && recipe.summary.toLowerCase().includes(searchTerm))
+            );
+            displayRecipes(filtered);
+        });
+
+        // Rating filter
+        document.getElementById('ratingFilter').addEventListener('change', (e) => {
+            const minRating = parseInt(e.target.value) || 0;
+            const filtered = savedRecipes.filter(recipe => 
+                (recipe.user_rating || 0) >= minRating
+            );
+            displayRecipes(filtered);
+        });
+
+        // Time filter
+        document.getElementById('timeFilter').addEventListener('change', (e) => {
+            const timeFilter = e.target.value;
+            let filtered = savedRecipes;
+            
+            if (timeFilter === 'quick') {
+                filtered = savedRecipes.filter(recipe => 
+                    recipe.recipe_info && recipe.recipe_info.total_time_minutes <= 30
+                );
+            } else if (timeFilter === 'medium') {
+                filtered = savedRecipes.filter(recipe => 
+                    recipe.recipe_info && 
+                    recipe.recipe_info.total_time_minutes > 30 && 
+                    recipe.recipe_info.total_time_minutes <= 60
+                );
+            }
+            
+            displayRecipes(filtered);
+        });
+
+        // Format date helper
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return 'today';
+            if (diffDays === 1) return 'yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Load recipes on page load
+        window.addEventListener('DOMContentLoaded', loadSavedRecipes);
+    </script>
+</body>
+</html>
