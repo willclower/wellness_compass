@@ -525,8 +525,8 @@
                             <div class="saved-date">Saved ${formatDate(recipe.saved_at)}</div>
                         </div>
                         <div class="card-actions">
-                            <button class="card-action-btn" onclick="event.stopPropagation(); openRerateModal('${recipe.recipe_file_id}', '${recipe.recipe_title}', ${rating})" title="Change rating">⭐</button>
-                            <button class="card-action-btn" onclick="event.stopPropagation(); removeRecipe('${recipe.recipe_file_id}', '${recipe.recipe_title}')" title="Remove from saved">🗑️</button>
+                            <button class="card-action-btn" onclick="event.stopPropagation(); openRerateModal('${recipe.recipe_title}', ${rating})" title="Change rating">⭐</button>
+                            <button class="card-action-btn" onclick="event.stopPropagation(); removeRecipe('${recipe.recipe_title}')" title="Remove from saved">🗑️</button>
                         </div>
                     </div>
                 </div>
@@ -539,14 +539,13 @@
         function loadRecipe(recipe) {
             // Store recipe data in localStorage to pass to main page
             localStorage.setItem('loadRecipe', JSON.stringify({
-                title: recipe.recipe_title,
-                file_id: recipe.recipe_file_id
+                title: recipe.recipe_title
             }));
             window.location.href = 'index.html';
         }
 
         // Remove recipe from saved
-        async function removeRecipe(fileId, title) {
+        async function removeRecipe(title) {
             if (!confirm(`Remove "${title}" from saved recipes?`)) return;
 
             const userId = window.MWClient.getUserId();
@@ -557,7 +556,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         user_id: userId,
-                        recipe_file_id: fileId
+                        recipe_title: title
                     })
                 });
 
@@ -566,6 +565,8 @@
                 if (data.success) {
                     console.log('✅ Recipe removed from saved');
                     loadSavedRecipes(); // Reload the list
+                } else {
+                    alert('Failed to remove recipe');
                 }
             } catch (error) {
                 console.error('Error removing recipe:', error);
@@ -574,8 +575,8 @@
         }
 
         // Open re-rate modal
-        function openRerateModal(fileId, title, currentRating) {
-            currentRerateRecipe = { fileId, title };
+        function openRerateModal(title, currentRating) {
+            currentRerateRecipe = { title };
             newRating = currentRating;
             
             document.getElementById('rerateModal').classList.add('active');
