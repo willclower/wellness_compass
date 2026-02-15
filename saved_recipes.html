@@ -464,7 +464,8 @@
                 
                 document.getElementById('loadingState').style.display = 'none';
                 
-                if (savedRecipes.length === 0) {
+          if (savedRecipes.length === 0) {
+                    document.getElementById('recipesGrid').innerHTML = '';
                     document.getElementById('emptyState').style.display = 'block';
                 } else {
                     displayRecipes(savedRecipes);
