@@ -1411,14 +1411,17 @@ document.getElementById('instructionsHeader').addEventListener('click', function
         });
 
         // Load initial greeting
-        window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
+            // Reset tabs to first tab on page load
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById('todayTab').classList.add('active');
+
             const messagesContainer = document.getElementById('chatMessages');
             const currentAssistant = window.MWClient.getCurrentAssistant();
             const greeting = window.MWClient.getDefaultGreeting(currentAssistant);
             
             const greetingMsg = document.createElement('div');
             greetingMsg.className = 'message assistant';
-            greetingMsg.textContent = greeting;
             messagesContainer.appendChild(greetingMsg);
         });
 // Recipe Rating System
