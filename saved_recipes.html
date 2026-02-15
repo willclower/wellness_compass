@@ -561,7 +561,8 @@
                     })
                 });
 
-                const data = await response.json();
+               const data = await response.json();
+                console.log('Remove response:', data);
                 
                 if (data.success) {
                     console.log('✅ Recipe removed from saved');
