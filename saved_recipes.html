@@ -476,11 +476,11 @@
         }
 
         // Display recipes in grid
-        function displayRecipes(recipes) {
-            const grid = document.getElementById('recipesGrid');
-            grid.innerHTML = '';
+       function displayRecipes(recipes) {
+    const grid = document.getElementById('recipesGrid');
+    grid.innerHTML = '';
 
-            recipes.forEach(recipe => {
+    recipes.filter(recipe => recipe.recipe_title).forEach(recipe => {
                 const card = createRecipeCard(recipe);
                 grid.appendChild(card);
             });
