@@ -1243,24 +1243,36 @@ window.currentRecipe = recipe;
      initializeRating();
         }
 
-        // Check if we're loading a recipe from saved recipes page
+  // Check if we're loading a recipe from saved recipes page
         window.addEventListener('DOMContentLoaded', () => {
             const loadRecipe = localStorage.getItem('loadRecipe');
             if (loadRecipe) {
                 localStorage.removeItem('loadRecipe');
                 const recipeData = JSON.parse(loadRecipe);
-                // Request the recipe from Nona
-                const chatInput = document.getElementById('messageInput');
-                if (chatInput) {
-                    chatInput.value = `please provide the recipe for ${recipeData.title}`;
-                    // Auto-trigger send
-                    setTimeout(() => {
-                        document.getElementById('sendButton').click();
-                    }, 500);
+                
+                if (recipeData.directDisplay && recipeData.recipeData && recipeData.recipeData.recipe_data) {
+                    // We have full recipe data — display directly
+                    const rd = recipeData.recipeData.recipe_data;
+                    displayRecipe(rd);
+                    loadRecipeImage(rd.title);
+                } else {
+                    // No cached data — silently query Nona
+                    document.getElementById('recipePlaceholder').classList.add('hidden');
+                    const recipeDisplay = document.getElementById('recipeDisplay');
+                    recipeDisplay.classList.add('active');
+                    document.getElementById('recipeTitle').textContent = recipeData.title;
+                    document.getElementById('recipeSummary').textContent = 'Loading recipe...';
+                    
+                    window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
+                        .then(response => {
+                            if (response.success && response.isRecipe) {
+                                const recipe = window.MWClient.parseRecipe(response.message);
+                                displayRecipe(recipe);
+                            }
+                        });
                 }
             }
         });
-
 async function loadRecipeImage(recipeTitle) {
     console.log('=== LOADING IMAGE ===');
     console.log('Recipe title:', recipeTitle);
