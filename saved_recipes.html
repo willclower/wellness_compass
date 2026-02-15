@@ -535,14 +535,15 @@
             return card;
         }
 
-        // Load recipe into main compass page
-        function loadRecipe(recipe) {
-            // Store recipe data in localStorage to pass to main page
-            localStorage.setItem('loadRecipe', JSON.stringify({
-                title: recipe.recipe_title
-            }));
-            window.location.href = 'index.html';
-        }
+      function loadRecipe(recipe) {
+    // Store full recipe data to display directly
+    localStorage.setItem('loadRecipe', JSON.stringify({
+        title: recipe.recipe_title,
+        directDisplay: true,
+        recipeData: recipe
+    }));
+    window.location.href = 'index.html';
+}
 
         // Remove recipe from saved
         async function removeRecipe(title) {
