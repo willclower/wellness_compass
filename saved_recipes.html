@@ -525,8 +525,8 @@
                             <div class="saved-date">Saved ${formatDate(recipe.saved_at)}</div>
                         </div>
                         <div class="card-actions">
-                            <button class="card-action-btn" onclick="event.stopPropagation(); openRerateModal('${recipe.recipe_title}', ${rating})" title="Change rating">⭐</button>
-                            <button class="card-action-btn" onclick="event.stopPropagation(); removeRecipe('${recipe.recipe_title}')" title="Remove from saved">🗑️</button>
+                          <button class="card-action-btn" onclick="event.stopPropagation(); openRerateModal('${recipe.recipe_title.replace(/'/g, "\\'")}', ${rating})" title="Change rating">⭐</button>
+<button class="card-action-btn" onclick="event.stopPropagation(); removeRecipe('${recipe.recipe_title.replace(/'/g, "\\'")}')" title="Remove from saved">🗑️</button>
                         </div>
                     </div>
                 </div>
