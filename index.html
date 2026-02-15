@@ -1340,11 +1340,12 @@ document.getElementById('instructionsHeader').addEventListener('click', function
                 const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        recipe_title: recipe.title,
-                        
-                    })
+      
+body: JSON.stringify({
+    user_id: userId,
+    recipe_title: recipe.title,
+    recipe_data: recipe
+})
                 });
                 
                 const data = await response.json();
