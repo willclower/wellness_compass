@@ -1259,6 +1259,21 @@ window.currentRecipe = recipe;
                     const rd = recipeData.recipeData.recipe_data;
                     displayRecipe(rd);
                     loadRecipeImage(rd.title);
+                    // Mark as already saved
+                    document.getElementById('saveRecipeBtn').classList.add('saved');
+                    document.getElementById('saveText').textContent = 'Saved ✓';
+                    // Restore YUM rating if it exists
+                    const rating = recipeData.recipeData.user_rating || 0;
+                    if (rating > 0) {
+                        const emojis = document.querySelectorAll('#yumRating .yum-emoji');
+                        emojis.forEach((emoji, index) => {
+                            if (index < rating) {
+                                emoji.classList.add('active');
+                            }
+                        });
+                        document.querySelector('.rating-text').textContent = 
+                            `You rated this ${rating} YUM${rating > 1 ? 's' : ''}!`;
+                    }
                 } else {
                     // No cached data — silently query Nona
                     document.getElementById('recipePlaceholder').classList.add('hidden');
