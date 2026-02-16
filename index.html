@@ -1255,7 +1255,6 @@ window.currentRecipe = recipe;
                 const recipeData = JSON.parse(loadRecipe);
                 
                 if (recipeData.directDisplay && recipeData.recipeData && recipeData.recipeData.recipe_data) {
-                    // We have full recipe data — display directly
                     const rd = recipeData.recipeData.recipe_data;
                     displayRecipe(rd);
                     loadRecipeImage(rd.title);
