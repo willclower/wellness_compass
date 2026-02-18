@@ -91,7 +91,7 @@ class MediterraneanWellnessClient {
         if (titleMatch) recipe.title = titleMatch[1].trim();
         
         // Introduction (first paragraph after title, before first ##)
-        const summaryMatch = text.match(/^#[^\n]+\n+(.+?)(?=\n##)/s);
+        const summaryMatch = text.match(/^#[^\n]+\n+(.+?)(?=\n##)/ms);
         if (summaryMatch) recipe.summary = summaryMatch[1].trim();
         
         // Ingredients
