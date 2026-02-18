@@ -870,6 +870,7 @@
                         <h4>📊 Nutrition & Details</h4>
                         <div class="recipe-info-grid" id="recipeInfoGrid"></div>
                         <div class="recipe-dietary-tags" id="recipeDietaryTags"></div>
+                        <div class="recipe-tags-display" id="recipeTags" style="margin-top: 8px;"></div>
                     </div>
 
                    <div class="recipe-actions-bar">
@@ -926,10 +927,6 @@
                         <p id="summaryContent"></p>
                     </div>
 
-                    <div class="recipe-section-display" id="tagsSection" style="display: none;">
-                        <h3>🏷️ Tags</h3>
-                        <div class="recipe-tags-display" id="recipeTags"></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1053,10 +1050,22 @@
                     console.log('Last 500 chars:', response.message.substring(response.message.length - 500));
                     
                   if (response.isRecipe) {
-    // Recipe: parse and display in staging area ONLY
+    // Recipe: parse and display in staging area
     const recipe = window.MWClient.parseRecipe(response.message);
     displayRecipe(recipe);
-    // Don't add anything to chat
+    
+    // Show Nona's conversational intro in chat
+    // (the text before the first markdown heading)
+    const firstHeading = response.message.indexOf('\n#');
+    const intro = firstHeading > 0 
+        ? response.message.substring(0, firstHeading).trim()
+        : '';
+    if (intro && intro.length > 10) {
+        const chatMsg = document.createElement('div');
+        chatMsg.className = 'message assistant';
+        chatMsg.innerHTML = intro.replace(/\n\n/g, '<br><br>');
+        messagesContainer.appendChild(chatMsg);
+    }
 } else {
     // Not a recipe: show in chat ONLY
     const assistantMsg = document.createElement('div');
@@ -1192,19 +1201,18 @@ catch (error) {
                 document.getElementById('recipeInfoCard').style.display = 'none';
             }
             
-            // Tags
+            // Tags — render into info card
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
             if (recipe.tags && recipe.tags.length > 0) {
-                document.getElementById('tagsSection').style.display = 'block';
-                const tagsContainer = document.getElementById('recipeTags');
-                tagsContainer.innerHTML = '';
                 recipe.tags.forEach(tag => {
                     const tagSpan = document.createElement('span');
                     tagSpan.className = 'recipe-tag-pill';
                     tagSpan.textContent = tag;
                     tagsContainer.appendChild(tagSpan);
                 });
-            } else {
-                document.getElementById('tagsSection').style.display = 'none';
+                // Ensure info card is visible even if no nutrition data
+                document.getElementById('recipeInfoCard').style.display = 'block';
             }
             
             // Ingredients
@@ -1263,15 +1271,8 @@ window.currentRecipe = recipe;
                     document.getElementById('saveText').textContent = 'Saved ✓';
                     // Restore YUM rating if it exists
                     const rating = recipeData.recipeData.user_rating || 0;
-                    if (rating > 0) {
-                        const emojis = document.querySelectorAll('#yumRating .yum-emoji');
-                        emojis.forEach((emoji, index) => {
-                            if (index < rating) {
-                                emoji.classList.add('active');
-                            }
-                        });
-                        document.querySelector('.rating-text').textContent = 
-                            `You rated this ${rating} YUM${rating > 1 ? 's' : ''}!`;
+                    if (rating > 0 && window.setRecipeRating) {
+                        window.setRecipeRating(rating);
                     }
                 } else {
                     // No cached data — silently query Nona
@@ -1333,14 +1334,9 @@ async function loadRecipeImage(recipeTitle) {
                 
                 // Show existing rating if available
                 if (data.user_rating && data.user_rating > 0) {
-                    const emojis = document.querySelectorAll('#yumRating .yum-emoji');
-                    emojis.forEach((emoji, index) => {
-                        if (index < data.user_rating) {
-                            emoji.classList.add('active');
-                        }
-                    });
-                    document.querySelector('.rating-text').textContent = 
-                        `You rated this ${data.user_rating} YUM${data.user_rating > 1 ? 's' : ''}!`;
+                    if (window.setRecipeRating) {
+                        window.setRecipeRating(data.user_rating);
+                    }
                 }            } else {
                 console.log('No image data available');
                 document.getElementById('recipeImage').style.display = 'none';
@@ -1472,12 +1468,22 @@ window.addEventListener('DOMContentLoaded', () => {
             messagesContainer.appendChild(greetingMsg);
         });
 // Recipe Rating System
-function initializeRating() {
+function initializeRating(initialRating) {
     const ratingContainer = document.getElementById('yumRating');
     if (!ratingContainer) return;
     
     const emojis = ratingContainer.querySelectorAll('.yum-emoji');
-    let currentRating = 0;
+    let currentRating = initialRating || 0;
+    
+    // Expose setter so loadRecipeImage can update after async fetch
+    window.setRecipeRating = function(rating) {
+        currentRating = rating;
+        highlightEmojis(currentRating);
+        if (currentRating > 0) {
+            document.querySelector('.rating-text').textContent = 
+                `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
+        }
+    };
     
     emojis.forEach((emoji, index) => {
         emoji.addEventListener('mouseenter', () => {
@@ -1496,6 +1502,13 @@ function initializeRating() {
     ratingContainer.addEventListener('mouseleave', () => {
         highlightEmojis(currentRating);
     });
+    
+    // Set initial state
+    highlightEmojis(currentRating);
+    if (currentRating > 0) {
+        document.querySelector('.rating-text').textContent = 
+            `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
+    }
     
     function highlightEmojis(count) {
         emojis.forEach((emoji, index) => {
