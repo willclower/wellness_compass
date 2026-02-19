@@ -830,19 +830,19 @@
         <!-- Left Panel -->
         <div class="left-panel">
             <div class="recipe-tabs">
-                <button class="tab-button active" id="todayTab">Recipe of the Day!</button>
+                <button class="tab-button active" id="todayTab">Featured Recipe</button>
                 <button class="tab-button" id="savedTab" onclick="window.location.href='saved_recipes.html'">Saved Recipes</button>
                 <button class="tab-button">Recipe Search History</button>
             </div>
             <div class="recipe-content">
                 <!-- Placeholder (shown by default) -->
                 <div class="recipe-placeholder" id="recipePlaceholder">
-                    <div class="recipe-card">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="Zucchini Pancakes" class="recipe-image">
+                    <div class="recipe-card" id="featuredRecipeCard">
+                        <img id="featuredImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="Featured Recipe" class="recipe-image">
                         <div class="recipe-details">
-                            <h3>Zucchini Pancakes</h3>
-                            <p>Light and crispy pancakes made with fresh zucchini, herbs, and a touch of Mediterranean flavor. Perfect for breakfast or a light lunch.</p>
-                            <a href="#">click here</a>
+                            <h3 id="featuredTitle">Loading featured recipe...</h3>
+                            <p id="featuredDescription">Discovering something delicious for you</p>
+                            <a href="#" id="featuredLink">click here</a>
                             <div class="recipe-meta">
                                 <span class="recipe-rating">★★★★☆</span>
                                 <span>Rate Recipe</span>
@@ -887,7 +887,7 @@
     </div>
 <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
     <span id="saveText">Save This Recipe</span>
-    💾
+    🔖
 </button>
 <button class="recipe-action-btn print-btn" id="printRecipeBtn">
     <span>Print</span>
@@ -965,12 +965,40 @@
             });
         });
 
-        // "Click here" link handler for Recipe of the Day
-        document.querySelector('.recipe-card a[href="#"]').addEventListener('click', function(e) {
+        // "Click here" link handler for Featured Recipe
+        document.getElementById('featuredLink').addEventListener('click', function(e) {
             e.preventDefault();
-            document.getElementById('messageInput').value = 'Can you share the Zucchini Pancakes recipe?';
-            sendMessage();
+            const title = document.getElementById('featuredTitle').textContent;
+            if (title && title !== 'Loading featured recipe...') {
+                document.getElementById('messageInput').value = `Can you share the ${title} recipe?`;
+                sendMessage();
+            }
         });
+
+        // Load a random featured recipe on page load
+        async function loadFeaturedRecipe() {
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/get-featured-recipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: window.MWClient.getUserId() })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.title) {
+                        document.getElementById('featuredTitle').textContent = data.title.replace(/_/g, ' ').replace(/ OTP ?$/, '');
+                        document.getElementById('featuredDescription').textContent = data.summary || 'A delicious Mediterranean recipe waiting for you!';
+                        if (data.image_data) {
+                            document.getElementById('featuredImage').src = `data:image/png;base64,${data.image_data}`;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Featured recipe load failed, using default');
+                document.getElementById('featuredTitle').textContent = 'Ask Nona for a recipe!';
+                document.getElementById('featuredDescription').textContent = 'Tell Nona what you\'re in the mood for and she\'ll find something perfect.';
+            }
+        }
 
         // Switch assistant
         async function switchToAssistant(assistantId) {
@@ -1055,22 +1083,28 @@
     displayRecipe(recipe);
     
     // Show Nona's conversational intro in chat
-    // (the text before the first markdown heading)
     const firstHeading = response.message.indexOf('\n#');
-    const intro = firstHeading > 0 
+    let intro = firstHeading > 0 
         ? response.message.substring(0, firstHeading).trim()
         : '';
     if (intro && intro.length > 10) {
+        // Clean markdown formatting
+        intro = intro.replace(/\*\*/g, '');
+        // Add line breaks between sentences for readability
+        intro = intro.replace(/\. /g, '.<br><br>');
         const chatMsg = document.createElement('div');
         chatMsg.className = 'message assistant';
-        chatMsg.innerHTML = intro.replace(/\n\n/g, '<br><br>');
+        chatMsg.innerHTML = intro;
         messagesContainer.appendChild(chatMsg);
     }
 } else {
     // Not a recipe: show in chat ONLY
     const assistantMsg = document.createElement('div');
     assistantMsg.className = 'message assistant';
-    assistantMsg.innerHTML = response.message.replace(/\n\n/g, '<br><br>');
+    // Clean markdown and add line breaks between sentences
+    let chatText = response.message.replace(/\*\*/g, '');
+    chatText = chatText.replace(/\n\n/g, '<br><br>');
+    assistantMsg.innerHTML = chatText;
     messagesContainer.appendChild(assistantMsg);
     // Don't display in staging area
 }
@@ -1201,22 +1235,24 @@ catch (error) {
                 document.getElementById('recipeInfoCard').style.display = 'none';
             }
             
-// Tags — render into info card, excluding dietary tags already shown above
-const tagsContainer = document.getElementById('recipeTags');
-tagsContainer.innerHTML = '';
-const dietaryTags = (recipe.recipeInfo && recipe.recipeInfo.dietary_tags) 
-    ? recipe.recipeInfo.dietary_tags.map(t => t.toLowerCase()) 
-    : [];
-const filteredTags = (recipe.tags || []).filter(t => !dietaryTags.includes(t.toLowerCase()));
-if (filteredTags.length > 0) {
-    filteredTags.forEach(tag => {
-        const tagSpan = document.createElement('span');
-        tagSpan.className = 'recipe-tag-pill';
-        tagSpan.textContent = tag;
-        tagsContainer.appendChild(tagSpan);
-    });
-    document.getElementById('recipeInfoCard').style.display = 'block';
-}
+            // Tags — render into info card, excluding dietary tags already shown above
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
+            const dietaryTags = (recipe.recipeInfo && recipe.recipeInfo.dietary_tags) 
+                ? recipe.recipeInfo.dietary_tags.map(t => t.toLowerCase()) 
+                : [];
+            const filteredTags = (recipe.tags || []).filter(t => !dietaryTags.includes(t.toLowerCase()));
+            if (filteredTags.length > 0) {
+                filteredTags.forEach(tag => {
+                    const tagSpan = document.createElement('span');
+                    tagSpan.className = 'recipe-tag-pill';
+                    tagSpan.textContent = tag;
+                    tagsContainer.appendChild(tagSpan);
+                });
+                // Ensure info card is visible even if no nutrition data
+                document.getElementById('recipeInfoCard').style.display = 'block';
+            }
+            
             // Ingredients
             const ingredientsList = document.getElementById('ingredientsList');
             ingredientsList.innerHTML = '';
@@ -1244,10 +1280,18 @@ if (filteredTags.length > 0) {
                 document.getElementById('notesSection').style.display = 'none';
             }
 
-            // Closing Summary
+            // Closing Summary — strip any tags that leaked in
             if (recipe.summary2) {
-                document.getElementById('summarySection').style.display = 'block';
-                document.getElementById('summaryContent').textContent = recipe.summary2;
+                let cleanSummary = recipe.summary2
+                    .replace(/\s*-?\s*\*\*Tags:?\*\*.*$/s, '')
+                    .replace(/\s*-\s*(Meal Component|Meal Time|Ethnicity|Dietary):.*$/gm, '')
+                    .trim();
+                if (cleanSummary.length > 0) {
+                    document.getElementById('summarySection').style.display = 'block';
+                    document.getElementById('summaryContent').textContent = cleanSummary;
+                } else {
+                    document.getElementById('summarySection').style.display = 'none';
+                }
             } else {
                 document.getElementById('summarySection').style.display = 'none';
             }
@@ -1469,6 +1513,9 @@ window.addEventListener('DOMContentLoaded', () => {
             const greetingMsg = document.createElement('div');
             greetingMsg.className = 'message assistant';
             messagesContainer.appendChild(greetingMsg);
+            
+            // Load random featured recipe
+            loadFeaturedRecipe();
         });
 // Recipe Rating System
 function initializeRating(initialRating) {
@@ -1478,13 +1525,20 @@ function initializeRating(initialRating) {
     const emojis = ratingContainer.querySelectorAll('.yum-emoji');
     let currentRating = initialRating || 0;
     
-    // Expose setter so loadRecipeImage can update after async fetch
+    // Set initial state
+    highlightEmojis(currentRating);
+    if (currentRating > 0) {
+        document.querySelector('.rating-text').textContent = 
+            `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
+    }
+    
+    // Expose setter for async rating load
     window.setRecipeRating = function(rating) {
         currentRating = rating;
         highlightEmojis(currentRating);
-        if (currentRating > 0) {
+        if (rating > 0) {
             document.querySelector('.rating-text').textContent = 
-                `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
+                `You rated this ${rating} YUM${rating > 1 ? 's' : ''}!`;
         }
     };
     
@@ -1505,13 +1559,6 @@ function initializeRating(initialRating) {
     ratingContainer.addEventListener('mouseleave', () => {
         highlightEmojis(currentRating);
     });
-    
-    // Set initial state
-    highlightEmojis(currentRating);
-    if (currentRating > 0) {
-        document.querySelector('.rating-text').textContent = 
-            `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
-    }
     
     function highlightEmojis(count) {
         emojis.forEach((emoji, index) => {
