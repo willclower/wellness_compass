@@ -1202,9 +1202,12 @@ catch (error) {
             }
             
 // Tags — render into info card, excluding dietary tags already shown above
+// Tags — render into info card, excluding dietary tags already shown above
 const tagsContainer = document.getElementById('recipeTags');
 tagsContainer.innerHTML = '';
-const dietaryTags = (recipe.recipeInfo?.dietary_tags || []).map(t => t.toLowerCase());
+const dietaryTags = (recipe.recipeInfo && recipe.recipeInfo.dietary_tags) 
+    ? recipe.recipeInfo.dietary_tags.map(t => t.toLowerCase()) 
+    : [];
 const filteredTags = (recipe.tags || []).filter(t => !dietaryTags.includes(t.toLowerCase()));
 if (filteredTags.length > 0) {
     filteredTags.forEach(tag => {
