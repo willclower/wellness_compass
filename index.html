@@ -955,15 +955,6 @@
             });
         });
 
-        // "Click here" link handler for Featured Recipe
-        document.getElementById('featuredLink').addEventListener('click', function(e) {
-            e.preventDefault();
-            const title = document.getElementById('featuredTitle').textContent;
-            if (title && title !== 'Loading featured recipe...') {
-                document.getElementById('messageInput').value = `Can you share the ${title} recipe?`;
-                sendMessage();
-            }
-        });
 
 async function loadFeaturedRecipe() {
             try {
