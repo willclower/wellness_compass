@@ -1386,7 +1386,8 @@ document.getElementById('instructionsHeader').addEventListener('click', function
 body: JSON.stringify({
     user_id: userId,
     recipe_title: recipe.title,
-    recipe_data: recipe
+    recipe_data: recipe,
+    document_id: recipe.document_id || null
 })
                 });
                 
