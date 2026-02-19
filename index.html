@@ -1202,9 +1202,12 @@ catch (error) {
             }
             
             // Tags — render into info card
-            const tagsContainer = document.getElementById('recipeTags');
-            tagsContainer.innerHTML = '';
-            if (recipe.tags && recipe.tags.length > 0) {
+// Tags — render into info card, excluding dietary tags already shown above
+const tagsContainer = document.getElementById('recipeTags');
+tagsContainer.innerHTML = '';
+const dietaryTags = (recipe.recipeInfo?.dietary_tags || []).map(t => t.toLowerCase());
+const filteredTags = (recipe.tags || []).filter(t => !dietaryTags.includes(t.toLowerCase()));
+if (filteredTags.length > 0) {
                 recipe.tags.forEach(tag => {
                     const tagSpan = document.createElement('span');
                     tagSpan.className = 'recipe-tag-pill';
