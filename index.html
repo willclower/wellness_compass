@@ -1201,23 +1201,20 @@ catch (error) {
                 document.getElementById('recipeInfoCard').style.display = 'none';
             }
             
-            // Tags — render into info card
 // Tags — render into info card, excluding dietary tags already shown above
 const tagsContainer = document.getElementById('recipeTags');
 tagsContainer.innerHTML = '';
 const dietaryTags = (recipe.recipeInfo?.dietary_tags || []).map(t => t.toLowerCase());
 const filteredTags = (recipe.tags || []).filter(t => !dietaryTags.includes(t.toLowerCase()));
 if (filteredTags.length > 0) {
-                recipe.tags.forEach(tag => {
-                    const tagSpan = document.createElement('span');
-                    tagSpan.className = 'recipe-tag-pill';
-                    tagSpan.textContent = tag;
-                    tagsContainer.appendChild(tagSpan);
-                });
-                // Ensure info card is visible even if no nutrition data
-                document.getElementById('recipeInfoCard').style.display = 'block';
-            }
-            
+    filteredTags.forEach(tag => {
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'recipe-tag-pill';
+        tagSpan.textContent = tag;
+        tagsContainer.appendChild(tagSpan);
+    });
+    document.getElementById('recipeInfoCard').style.display = 'block';
+}
             // Ingredients
             const ingredientsList = document.getElementById('ingredientsList');
             ingredientsList.innerHTML = '';
