@@ -975,8 +975,7 @@
             }
         });
 
-        // Load a random featured recipe on page load
-        async function loadFeaturedRecipe() {
+async function loadFeaturedRecipe() {
             try {
                 const response = await fetch('https://n8n-admin.willclower.com/webhook/get-featured-recipe', {
                     method: 'POST',
@@ -986,17 +985,13 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.title) {
-                        document.getElementById('featuredTitle').textContent = data.title.replace(/_/g, ' ').replace(/ OTP ?$/, '');
-                        document.getElementById('featuredDescription').textContent = data.summary || 'A delicious Mediterranean recipe waiting for you!';
-                        if (data.image_data) {
-                            document.getElementById('featuredImage').src = `data:image/png;base64,${data.image_data}`;
-                        }
+                        const cleanTitle = data.title.replace(/_/g, ' ').replace(/ OTP ?$/, '');
+                        document.getElementById('messageInput').value = `Can you share the ${cleanTitle} recipe?`;
+                        sendMessage();
                     }
                 }
             } catch (error) {
-                console.log('Featured recipe load failed, using default');
-                document.getElementById('featuredTitle').textContent = 'Ask Nona for a recipe!';
-                document.getElementById('featuredDescription').textContent = 'Tell Nona what you\'re in the mood for and she\'ll find something perfect.';
+                console.log('Featured recipe load failed');
             }
         }
 
