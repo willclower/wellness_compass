@@ -1130,8 +1130,12 @@ catch (error) {
     console.log('Recipe title:', recipe.title);
     
     console.log('=== DISPLAY RECIPE DEBUG ===');
-            console.log('Recipe object:', recipe);
-            
+    console.log('Recipe object:', recipe);
+
+     // Reset save button state for new recipe
+    document.getElementById('saveRecipeBtn').classList.remove('saved');
+    document.getElementById('saveText').textContent = 'Save This Recipe';
+    
             // Hide placeholder, show recipe
             document.getElementById('recipePlaceholder').classList.add('hidden');
             const recipeDisplay = document.getElementById('recipeDisplay');
