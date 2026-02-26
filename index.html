@@ -1107,6 +1107,12 @@ catch (error) {
             document.getElementById('saveRecipeBtn').classList.remove('saved');
             document.getElementById('saveText').textContent = 'Save This Recipe';
 
+            // Check if this recipe was previously saved in this session
+            if (sessionStorage.getItem('savedRecipe_' + recipe.title)) {
+                document.getElementById('saveRecipeBtn').classList.add('saved');
+                document.getElementById('saveText').textContent = 'Saved ✓';
+            }
+
             // FIX: Reset YUM rating state for each new recipe
             const emojis = document.querySelectorAll('#yumRating .yum-emoji');
             emojis.forEach(emoji => emoji.classList.remove('active'));
@@ -1257,50 +1263,8 @@ window.currentRecipe = recipe;
      initializeRating();
         }
 
-  // Check if we're loading a recipe from saved recipes page
-        window.addEventListener('DOMContentLoaded', () => {
-            const loadRecipe = localStorage.getItem('loadRecipe');
-            if (loadRecipe) {
-                localStorage.removeItem('loadRecipe');
-                const recipeData = JSON.parse(loadRecipe);
-                
-                if (recipeData.directDisplay && recipeData.recipeData && recipeData.recipeData.recipe_data) {
-                    const rd = recipeData.recipeData.recipe_data;
-                    displayRecipe(rd);
-                    loadRecipeImage(rd.title);
-                    // Mark as already saved
-                    document.getElementById('saveRecipeBtn').classList.add('saved');
-                    document.getElementById('saveText').textContent = 'Saved ✓';
-                    // Restore YUM rating if it exists
-                    const rating = recipeData.recipeData.user_rating || 0;
-                    if (rating > 0) {
-                        const emojis = document.querySelectorAll('#yumRating .yum-emoji');
-                        emojis.forEach((emoji, index) => {
-                            if (index < rating) {
-                                emoji.classList.add('active');
-                            }
-                        });
-                        document.querySelector('.rating-text').textContent = 
-                            `You rated this ${rating} YUM${rating > 1 ? 's' : ''}!`;
-                    }
-                } else {
-                    // No cached data — silently query Nona
-                    document.getElementById('recipePlaceholder').classList.add('hidden');
-                    const recipeDisplay = document.getElementById('recipeDisplay');
-                    recipeDisplay.classList.add('active');
-                    document.getElementById('recipeTitle').textContent = recipeData.title;
-                    document.getElementById('recipeSummary').textContent = 'Loading recipe...';
-                    
-                    window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
-                        .then(response => {
-                            if (response.success && response.isRecipe) {
-                                const recipe = window.MWClient.parseRecipe(response.message);
-                                displayRecipe(recipe);
-                            }
-                        });
-                }
-            }
-        });
+  // Track whether we loaded from saved recipes (used by pageshow)
+        let _loadedFromSaved = false;
 async function loadRecipeImage(recipeTitle) {
     console.log('=== LOADING IMAGE ===');
     console.log('Recipe title:', recipeTitle);
@@ -1419,6 +1383,9 @@ body: JSON.stringify({
                     document.getElementById('saveText').textContent = 'Saved ✓';
                     console.log('✅ Recipe saved to collection');
                     
+                    // Track save state in sessionStorage for bfcache restore
+                    sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
+                    
                     // Also save to localStorage as backup
                     const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
                     const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
@@ -1428,6 +1395,7 @@ body: JSON.stringify({
                     // Already saved is still a success state visually
                     this.classList.add('saved');
                     document.getElementById('saveText').textContent = 'Saved ✓';
+                    sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
                     console.log('ℹ️ Recipe already saved');
                 }
             } catch (error) {
@@ -1477,26 +1445,61 @@ body: JSON.stringify({
             printWindow.document.close();
         });
 
-        // FIX: Use pageshow instead of DOMContentLoaded to handle bfcache
-        // This fires both on fresh load AND when returning via back button
+        // Single consolidated handler for page load and bfcache restore
 window.addEventListener('pageshow', (event) => {
-            // Reset tabs to first tab on page load (including back-forward cache)
+            // Reset tabs to first tab on every page show
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById('todayTab').classList.add('active');
 
-            // Reset save button when returning from another page
-            // (will be correctly set to Saved if loading from saved recipes via DOMContentLoaded handler)
-            if (!localStorage.getItem('loadRecipe')) {
-                document.getElementById('saveRecipeBtn').classList.remove('saved');
-                document.getElementById('saveText').textContent = 'Save This Recipe';
+            // Check if we're loading a recipe from saved recipes page
+            const loadRecipe = localStorage.getItem('loadRecipe');
+            if (loadRecipe && !_loadedFromSaved) {
+                _loadedFromSaved = true;
+                localStorage.removeItem('loadRecipe');
+                const recipeData = JSON.parse(loadRecipe);
+                
+                if (recipeData.directDisplay && recipeData.recipeData && recipeData.recipeData.recipe_data) {
+                    const rd = recipeData.recipeData.recipe_data;
+                    displayRecipe(rd);
+                    loadRecipeImage(rd.title);
+                    // Mark as already saved (it came from saved recipes)
+                    document.getElementById('saveRecipeBtn').classList.add('saved');
+                    document.getElementById('saveText').textContent = 'Saved ✓';
+                    // Restore YUM rating if it exists
+                    const rating = recipeData.recipeData.user_rating || 0;
+                    if (rating > 0) {
+                        const emojis = document.querySelectorAll('#yumRating .yum-emoji');
+                        emojis.forEach((emoji, index) => {
+                            if (index < rating) {
+                                emoji.classList.add('active');
+                            }
+                        });
+                        document.querySelector('.rating-text').textContent = 
+                            `You rated this ${rating} YUM${rating > 1 ? 's' : ''}!`;
+                    }
+                } else {
+                    // No cached data — silently query Nona
+                    document.getElementById('recipePlaceholder').classList.add('hidden');
+                    const recipeDisplay = document.getElementById('recipeDisplay');
+                    recipeDisplay.classList.add('active');
+                    document.getElementById('recipeTitle').textContent = recipeData.title;
+                    document.getElementById('recipeSummary').textContent = 'Loading recipe...';
+                    
+                    window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
+                        .then(response => {
+                            if (response.success && response.isRecipe) {
+                                const recipe = window.MWClient.parseRecipe(response.message);
+                                displayRecipe(recipe);
+                            }
+                        });
+                }
             }
 
+            // Add greeting only if chat is empty (avoid duplicates on bfcache restore)
             const messagesContainer = document.getElementById('chatMessages');
-            const currentAssistant = window.MWClient.getCurrentAssistant();
-            const greeting = window.MWClient.getDefaultGreeting(currentAssistant);
-            
-            // Only add greeting if chat is empty (avoid duplicates on bfcache restore)
             if (messagesContainer.children.length === 0) {
+                const currentAssistant = window.MWClient.getCurrentAssistant();
+                const greeting = window.MWClient.getDefaultGreeting(currentAssistant);
                 const greetingMsg = document.createElement('div');
                 greetingMsg.className = 'message assistant';
                 greetingMsg.textContent = greeting;
