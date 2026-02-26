@@ -484,7 +484,39 @@
     recipes.filter(recipe => recipe.recipe_title).forEach(recipe => {
                 const card = createRecipeCard(recipe);
                 grid.appendChild(card);
+                
+                // Fetch image from backend if not embedded in saved data
+                if (!recipe.image_data && recipe.recipe_title) {
+                    loadCardImage(card, recipe.recipe_title);
+                }
             });
+        }
+
+        // Fetch image for a recipe card from get-recipe-metadata endpoint
+        async function loadCardImage(card, recipeTitle) {
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/get-recipe-metadata', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: recipeTitle, user_id: window.MWClient.getUserId() })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.image_data) {
+                        const placeholder = card.querySelector('.recipe-card-image');
+                        if (placeholder && placeholder.tagName !== 'IMG') {
+                            const img = document.createElement('img');
+                            img.src = `data:image/png;base64,${data.image_data}`;
+                            img.className = 'recipe-card-image';
+                            img.alt = recipeTitle;
+                            placeholder.replaceWith(img);
+                        }
+                    }
+                }
+            } catch (error) {
+                // Silently fail — placeholder emoji stays
+                console.log('Could not load image for:', recipeTitle);
+            }
         }
 
         // Create recipe card element
