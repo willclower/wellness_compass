@@ -48,6 +48,7 @@ class MediterraneanWellnessClient {
     message: messageText,
     assistant: this.currentAssistant,
     ...data,
+chatMessage: data.chatMessage
     isRecipe: data.isRecipe !== undefined ? data.isRecipe : this.isRecipeResponse(messageText)
 };
             } catch (e) {
