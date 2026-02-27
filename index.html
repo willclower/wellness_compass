@@ -1054,16 +1054,23 @@
                     console.log('Last 500 chars:', response.message.substring(response.message.length - 500));
                     
 if (response.isRecipe) {
-    // Recipe: parse and display in staging area
     const recipe = window.MWClient.parseRecipe(response.message);
     displayRecipe(recipe);
     
-    // Show Nona's warm intro + relationship question in chat
+    // Show Nona's warm intro in chat
     if (response.chatMessage) {
         const assistantMsg = document.createElement('div');
         assistantMsg.className = 'message assistant';
         assistantMsg.innerHTML = response.chatMessage.replace(/\n/g, '<br>');
         messagesContainer.appendChild(assistantMsg);
+    }
+    
+    // Show relationship question as separate bubble
+    if (response.chatFollowUp) {
+        const followUpMsg = document.createElement('div');
+        followUpMsg.className = 'message assistant';
+        followUpMsg.innerHTML = response.chatFollowUp.replace(/\n/g, '<br>');
+        messagesContainer.appendChild(followUpMsg);
     }
 } else {
     // Not a recipe: show in chat ONLY
