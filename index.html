@@ -1206,13 +1206,20 @@ catch (error) {
                     `;
                 }
                 
-                // Add dietary tags
+// Add tags to Nutrition & Details card
                 dietaryTags.innerHTML = '';
-                if (recipe.recipeInfo.dietary_tags && recipe.recipeInfo.dietary_tags.length > 0) {
-                    console.log('Adding dietary tags:', recipe.recipeInfo.dietary_tags);
+                if (recipe.tags && recipe.tags.length > 0) {
+                    recipe.tags.forEach(tag => {
+                        const tagSpan = document.createElement('span');
+                        tagSpan.className = 'recipe-tag-pill';
+                        tagSpan.textContent = tag;
+                        dietaryTags.appendChild(tagSpan);
+                    });
+                } else if (recipe.recipeInfo.dietary_tags && recipe.recipeInfo.dietary_tags.length > 0) {
+                    // Fallback to dietary_tags from recipeInfo
                     recipe.recipeInfo.dietary_tags.forEach(tag => {
                         const tagSpan = document.createElement('span');
-                        tagSpan.className = 'dietary-tag';
+                        tagSpan.className = 'recipe-tag-pill';
                         tagSpan.textContent = tag;
                         dietaryTags.appendChild(tagSpan);
                     });
@@ -1222,21 +1229,9 @@ catch (error) {
                 document.getElementById('recipeInfoCard').style.display = 'none';
             }
             
-            // Tags
-            if (recipe.tags && recipe.tags.length > 0) {
-                document.getElementById('tagsSection').style.display = 'block';
-                const tagsContainer = document.getElementById('recipeTags');
-                tagsContainer.innerHTML = '';
-                recipe.tags.forEach(tag => {
-                    const tagSpan = document.createElement('span');
-                    tagSpan.className = 'recipe-tag-pill';
-                    tagSpan.textContent = tag;
-                    tagsContainer.appendChild(tagSpan);
-                });
-            } else {
-                document.getElementById('tagsSection').style.display = 'none';
-            }
-            
+            // Hide standalone tags section (tags now in Nutrition card)
+            document.getElementById('tagsSection').style.display = 'none';
+     
             // Ingredients
             const ingredientsList = document.getElementById('ingredientsList');
             ingredientsList.innerHTML = '';
