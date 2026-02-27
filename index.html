@@ -1076,9 +1076,16 @@ if (response.isRecipe) {
     // Not a recipe: show in chat ONLY
     const assistantMsg = document.createElement('div');
     assistantMsg.className = 'message assistant';
-   assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
+    assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
     messagesContainer.appendChild(assistantMsg);
-    // Don't display in staging area
+    
+    // Show relationship question as separate bubble
+    if (response.chatFollowUp) {
+        const followUpMsg = document.createElement('div');
+        followUpMsg.className = 'message assistant';
+        followUpMsg.innerHTML = response.chatFollowUp.replace(/\n/g, '<br>');
+        messagesContainer.appendChild(followUpMsg);
+    }
 }
                 } else {
                     const errorMsg = document.createElement('div');
