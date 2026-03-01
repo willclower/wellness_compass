@@ -1079,6 +1079,43 @@ if (response.isRecipe) {
     assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
     messagesContainer.appendChild(assistantMsg);
     
+    // Render gap buttons if present
+    if (response.gapButtons && response.gapButtons.length > 0) {
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.flexWrap = 'wrap';
+        btnContainer.style.gap = '8px';
+        btnContainer.style.padding = '8px 12px';
+        
+        response.gapButtons.forEach(btn => {
+            const button = document.createElement('button');
+            button.textContent = btn.label;
+            button.style.cssText = 'padding: 8px 16px; border-radius: 20px; border: 1px solid #4a7c59; background: white; color: #4a7c59; cursor: pointer; font-size: 14px; transition: all 0.2s;';
+            button.addEventListener('mouseenter', () => {
+                button.style.background = '#4a7c59';
+                button.style.color = 'white';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.background = 'white';
+                button.style.color = '#4a7c59';
+            });
+            button.addEventListener('click', () => {
+                btnContainer.remove();
+                const input = document.getElementById('messageInput');
+                if (btn.action === 'request_original') {
+                    input.value = 'REQUEST_ORIGINAL:' + btn.value;
+                } else {
+                    input.value = 'please provide the recipe for ' + btn.value;
+                }
+                sendMessage();
+            });
+            btnContainer.appendChild(button);
+        });
+        
+        messagesContainer.appendChild(btnContainer);
+    }
+    
     // Show relationship question as separate bubble
     if (response.chatFollowUp) {
         const followUpMsg = document.createElement('div');
