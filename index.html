@@ -1100,16 +1100,33 @@ if (response.isRecipe) {
                 button.style.background = 'white';
                 button.style.color = '#4a7c59';
             });
-            button.addEventListener('click', () => {
-                btnContainer.remove();
-                const input = document.getElementById('messageInput');
-                if (btn.action === 'request_original') {
-                    input.value = 'REQUEST_ORIGINAL:' + btn.value;
-                } else {
-                    input.value = 'please provide the recipe for ' + btn.value;
-                }
-                sendMessage();
-            });
+button.addEventListener('click', () => {
+    btnContainer.remove();
+    if (btn.action === 'request_original') {
+        // Show friendly message in chat, send command behind the scenes
+        const messagesContainer = document.getElementById('chatMessages');
+        const userMsg = document.createElement('div');
+        userMsg.className = 'message user';
+        userMsg.textContent = 'Please research ' + btn.value + ' for me!';
+        messagesContainer.appendChild(userMsg);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Send command to backend directly
+        window.MWClient.sendMessage('REQUEST_ORIGINAL:' + btn.value).then(response => {
+            if (response.success && response.message) {
+                const assistantMsg = document.createElement('div');
+                assistantMsg.className = 'message assistant';
+                assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
+                messagesContainer.appendChild(assistantMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+    } else {
+        const input = document.getElementById('messageInput');
+        input.value = 'please provide the recipe for ' + btn.value;
+        sendMessage();
+    }
+});
             btnContainer.appendChild(button);
         });
         
