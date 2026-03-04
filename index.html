@@ -1516,7 +1516,57 @@ body: JSON.stringify({
         });
 
         // Single consolidated handler for page load and bfcache restore
-window.addEventListener('pageshow', (event) => {
+
+        // Featured Recipe - silently loads either a recipe_ready delivery or daily featured recipe
+        async function loadFeaturedRecipe() {
+            const userId = window.MWClient.getUserId();
+            if (!userId) return;
+
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/get-featured-recipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                if (!data.success || !data.recipe_name) return;
+
+                console.log('✅ Featured recipe:', data.recipe_name, data.source);
+
+                // Silently ask Nona for the full recipe (no user bubble in chat)
+                const nonaResponse = await window.MWClient.sendMessage(
+                    `please provide the recipe for ${data.recipe_name}`
+                );
+
+                if (nonaResponse.success && nonaResponse.isRecipe) {
+                    const recipe = window.MWClient.parseRecipe(nonaResponse.message);
+                    displayRecipe(recipe);
+
+                    // Show Nona's intro in chat
+                    const messagesContainer = document.getElementById('chatMessages');
+                    if (nonaResponse.chatMessage) {
+                        const introMsg = document.createElement('div');
+                        introMsg.className = 'message assistant';
+                        introMsg.innerHTML = nonaResponse.chatMessage.replace(/\n/g, '<br>');
+                        messagesContainer.appendChild(introMsg);
+                    }
+                    if (nonaResponse.chatFollowUp) {
+                        const followMsg = document.createElement('div');
+                        followMsg.className = 'message assistant';
+                        followMsg.innerHTML = nonaResponse.chatFollowUp.replace(/\n/g, '<br>');
+                        messagesContainer.appendChild(followMsg);
+                    }
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            } catch (error) {
+                console.log('Featured recipe load failed (non-blocking):', error.message);
+            }
+        }
+        
+        window.addEventListener('pageshow', (event) => {
             // Reset tabs to first tab on every page show
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById('todayTab').classList.add('active');
