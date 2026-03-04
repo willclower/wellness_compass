@@ -9,12 +9,19 @@ class MediterraneanWellnessClient {
         this.userToken = localStorage.getItem('mw_token');
         this.currentAssistant = localStorage.getItem('mw_assistant') || 'nona';
         this.userId = localStorage.getItem('mw_user_id') || this.generateTempUserId();
+        this.sessionId = this.generateSessionId();
     }
 
     generateTempUserId() {
         const tempId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('mw_user_id', tempId);
         return tempId;
+    }
+
+    generateSessionId() {
+        // Daily session: resets each calendar day so chat memory stays fresh
+        const today = new Date().toISOString().split('T')[0]; // "2026-03-05"
+        return this.userId + '_' + today;
     }
 
     async sendMessage(message) {
@@ -27,7 +34,7 @@ class MediterraneanWellnessClient {
                 body: JSON.stringify({
                     chatInput: message,
                     userId: this.userId,
-                    sessionId: this.userId,
+                    sessionId: this.sessionId,
                     userName: 'User'
                 })
             });
@@ -284,4 +291,4 @@ class MediterraneanWellnessClient {
 }
 
 window.MWClient = new MediterraneanWellnessClient();
-console.log('MW Client initialized - User:', window.MWClient.getUserId(), 'Assistant:', window.MWClient.getCurrentAssistant());
+console.log('MW Client initialized - User:', window.MWClient.getUserId(), 'Session:', window.MWClient.sessionId, 'Assistant:', window.MWClient.getCurrentAssistant());
