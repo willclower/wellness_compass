@@ -1536,6 +1536,36 @@ body: JSON.stringify({
 
                 console.log('✅ Featured recipe:', data.recipe_name, data.source);
 
+                // Nona announces the featured recipe with context
+                const messagesContainer = document.getElementById('chatMessages');
+                const recipeName = data.recipe_name;
+                
+                let nonaGreetings;
+                if (data.source === 'recipe_ready') {
+                    nonaGreetings = [
+                        `Remember when you asked about ${recipeName}? Well, it's ready! Let me set the table... 🍽️`,
+                        `Tesoro, I have wonderful news — your ${recipeName} is fresh out of the kitchen! 👩‍🍳`,
+                        `You asked, and Nona delivered! Your ${recipeName} is ready — one moment... ✨`,
+                        `Ah, I've been so excited to share this! Your ${recipeName} turned out beautifully 🍅`,
+                        `The kitchen team worked on your ${recipeName} and I think you're going to love it! 🌿`
+                    ];
+                } else {
+                    nonaGreetings = [
+                        `I picked something special for you today — ${recipeName}! Let me get it ready... 🍽️`,
+                        `Ooh, wait until you see today's recipe! One moment while I plate up the ${recipeName}... ✨`,
+                        `I couldn't resist sharing this one today — ${recipeName}! Coming right up, tesoro! 👩‍🍳`,
+                        `Today calls for something delicious — let me show you this ${recipeName}! 🍅`,
+                        `I have a feeling you'll love today's pick! Getting the ${recipeName} ready for you... 🌿`
+                    ];
+                }
+                
+                const loadingMsg = document.createElement('div');
+                loadingMsg.className = 'message assistant';
+                loadingMsg.id = 'featured-loading';
+                loadingMsg.textContent = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)];
+                messagesContainer.appendChild(loadingMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
                 // Silently ask Nona for the full recipe (no user bubble in chat)
                 const nonaResponse = await window.MWClient.sendMessage(
                     `please provide the recipe for ${data.recipe_name}`
