@@ -1570,6 +1570,10 @@ body: JSON.stringify({
                 const nonaResponse = await window.MWClient.sendMessage(
                     `please provide the recipe for ${data.recipe_name}`
                 );
+                // Remove loading message
+                const loader = document.getElementById('featured-loading');
+                if (loader) loader.remove();
+                
 
                 if (nonaResponse.success && nonaResponse.isRecipe) {
                     const recipe = window.MWClient.parseRecipe(nonaResponse.message);
