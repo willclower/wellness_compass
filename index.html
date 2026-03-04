@@ -1625,6 +1625,10 @@ body: JSON.stringify({
                 greetingMsg.textContent = greeting;
                 messagesContainer.appendChild(greetingMsg);
             }
+      // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
+            if (!_loadedFromSaved && !loadRecipe) {
+                loadFeaturedRecipe();
+            }
         });
 // Recipe Rating System
 function initializeRating() {
