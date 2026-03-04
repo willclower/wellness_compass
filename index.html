@@ -839,15 +839,10 @@
                 <!-- Placeholder (shown by default) -->
                 <div class="recipe-placeholder" id="recipePlaceholder">
                     <div class="recipe-card">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="Zucchini Pancakes" class="recipe-image">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f0f0f0'/%3E%3Ctext x='60' y='65' text-anchor='middle' font-size='40' fill='%23ccc'%3E👩‍🍳%3C/text%3E%3C/svg%3E" alt="Featured Recipe" class="recipe-image">
                         <div class="recipe-details">
-                            <h3>Zucchini Pancakes</h3>
-                            <p>Light and crispy pancakes made with fresh zucchini, herbs, and a touch of Mediterranean flavor. Perfect for breakfast or a light lunch.</p>
-                            <a href="#">click here</a>
-                            <div class="recipe-meta">
-                                <span class="recipe-rating">★★★★☆</span>
-                                <span>Rate Recipe</span>
-                            </div>
+                            <h3 id="placeholderTitle">Nona is picking today's recipe...</h3>
+                            <p id="placeholderDesc">One moment while she finds something special for you!</p>
                         </div>
                     </div>
                 </div>
@@ -967,13 +962,6 @@
                 document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
             });
-        });
-
-        // "Click here" link handler for Recipe of the Day
-        document.querySelector('.recipe-card a[href="#"]').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('messageInput').value = 'Can you share the Zucchini Pancakes recipe?';
-            sendMessage();
         });
 
         // Switch assistant
@@ -1532,7 +1520,13 @@ body: JSON.stringify({
                 if (!response.ok) return;
 
                 const data = await response.json();
-                if (!data.success || !data.recipe_name) return;
+                if (!data.success || !data.recipe_name) {
+                    const placeholderTitle = document.getElementById('placeholderTitle');
+                    const placeholderDesc = document.getElementById('placeholderDesc');
+                    if (placeholderTitle) placeholderTitle.textContent = "Ask Nona for a recipe!";
+                    if (placeholderDesc) placeholderDesc.textContent = "Type a dish name in the chat and she'll find it for you.";
+                    return;
+                }
 
                 console.log('✅ Featured recipe:', data.recipe_name, data.source);
 
@@ -1543,26 +1537,26 @@ body: JSON.stringify({
                 let nonaGreetings;
                 if (data.source === 'recipe_ready') {
                     nonaGreetings = [
-                        `Remember when you asked about ${recipeName}? Well, it's ready! Let me set the table... 🍽️`,
-                        `Tesoro, I have wonderful news — your ${recipeName} is fresh out of the kitchen! 👩‍🍳`,
-                        `You asked, and Nona delivered! Your ${recipeName} is ready — one moment... ✨`,
-                        `Ah, I've been so excited to share this! Your ${recipeName} turned out beautifully 🍅`,
-                        `The kitchen team worked on your ${recipeName} and I think you're going to love it! 🌿`
+                        `Remember when you asked about ${recipeName}?\nWell, it's ready!\nLet me set the table... 🍽️`,
+                        `Tesoro, I have wonderful news!\nYour ${recipeName} is fresh out of the kitchen! 👩‍🍳`,
+                        `You asked, and Nona delivered!\nYour ${recipeName} is ready.\nOne moment... ✨`,
+                        `Ah, I've been so excited to share this!\nYour ${recipeName} turned out beautifully 🍅`,
+                        `The kitchen team worked on your ${recipeName}.\nI think you're going to love it! 🌿`
                     ];
                 } else {
                     nonaGreetings = [
-                        `I picked something special for you today — ${recipeName}! Let me get it ready... 🍽️`,
-                        `Ooh, wait until you see today's recipe! One moment while I plate up the ${recipeName}... ✨`,
-                        `I couldn't resist sharing this one today — ${recipeName}! Coming right up, tesoro! 👩‍🍳`,
-                        `Today calls for something delicious — let me show you this ${recipeName}! 🍅`,
-                        `I have a feeling you'll love today's pick! Getting the ${recipeName} ready for you... 🌿`
+                        `I picked something special for you today — ${recipeName}!\nLet me get it ready... 🍽️`,
+                        `Ooh, wait until you see today's recipe!\nOne moment while I plate up the ${recipeName}... ✨`,
+                        `I couldn't resist sharing this one today — ${recipeName}!\nComing right up, tesoro! 👩‍🍳`,
+                        `Today calls for something delicious.\nLet me show you this ${recipeName}! 🍅`,
+                        `I have a feeling you'll love today's pick!\nGetting the ${recipeName} ready for you... 🌿`
                     ];
                 }
                 
                 const loadingMsg = document.createElement('div');
                 loadingMsg.className = 'message assistant';
                 loadingMsg.id = 'featured-loading';
-                loadingMsg.textContent = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)];
+                loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/\n/g, '<br>');
                 messagesContainer.appendChild(loadingMsg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -1578,6 +1572,18 @@ body: JSON.stringify({
                 if (nonaResponse.success && nonaResponse.isRecipe) {
                     const recipe = window.MWClient.parseRecipe(nonaResponse.message);
                     displayRecipe(recipe);
+
+                    // Mark this featured recipe as delivered so it doesn't repeat
+                    if (data.queue_id) {
+                        fetch('https://n8n-admin.willclower.com/webhook/mark-featured-delivered', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                queue_id: data.queue_id, 
+                                user_id: userId 
+                            })
+                        }).catch(err => console.log('Mark delivered failed (non-blocking):', err.message));
+                    }
 
                     // Show Nona's intro in chat
                     const messagesContainer = document.getElementById('chatMessages');
