@@ -1049,7 +1049,7 @@ if (response.isRecipe) {
     if (response.chatMessage) {
         const assistantMsg = document.createElement('div');
         assistantMsg.className = 'message assistant';
-        assistantMsg.innerHTML = response.chatMessage.replace(/\n/g, '<br>');
+assistantMsg.innerHTML = introText.replace(/\.\s+/g, '.<br><br>');
         messagesContainer.appendChild(assistantMsg);
     }
     
