@@ -1348,7 +1348,7 @@
             const typingIndicator = document.createElement('div');
             typingIndicator.className = 'message assistant';
             typingIndicator.id = 'typing-indicator';
-            typingIndicator.innerHTML = '<em>typing...</em>';
+    typingIndicator.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
             messagesContainer.appendChild(typingIndicator);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
