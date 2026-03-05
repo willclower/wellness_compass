@@ -1166,11 +1166,8 @@ if (response.isRecipe) {
         });
         button.addEventListener('click', () => {
             btnContainer.remove();
-            const followUpText = response.chatFollowUp
-                .replace(/^Would you like me to /i, 'Please ')
-                .replace(/\?[^?]*$/, '');
-            const input = document.getElementById('messageInput');
-            input.value = followUpText;
+    const input = document.getElementById('messageInput');
+            input.value = 'Yes! Can you suggest three options? ' + response.chatFollowUp;
             sendMessage();
         });
         btnContainer.appendChild(button);
@@ -1662,11 +1659,8 @@ body: JSON.stringify({
                         });
                         button.addEventListener('click', () => {
                             btnContainer.remove();
-                            const followUpText = nonaResponse.chatFollowUp
-                                .replace(/^Would you like me to /i, 'Please ')
-                                .replace(/\?[^?]*$/, '');
-                            const input = document.getElementById('messageInput');
-                            input.value = followUpText;
+         const input = document.getElementById('messageInput');
+            input.value = 'Yes! Can you suggest three options? ' + nonaResponse.chatFollowUp;
                             sendMessage();
                         });
                         btnContainer.appendChild(button);
