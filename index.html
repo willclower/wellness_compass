@@ -1470,7 +1470,7 @@ if (response.chatFollowUp) {
                     const messagesContainer = document.getElementById('chatMessages');
                     const userMsg = document.createElement('div');
                     userMsg.className = 'message user';
-                    userMsg.textContent = 'Please research ' + btn.value + ' for me!';
+      userMsg.textContent = 'Please look up the ' + btn.value + ' recipe for me, and let me know when it\'s ready!';
                     messagesContainer.appendChild(userMsg);
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                     
