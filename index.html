@@ -1054,7 +1054,7 @@ if (response.isRecipe) {
     }
     
     // Show follow-up as clickable offer button
-    if (response.chatFollowUp && suggestions.length < 2) {
+if (response.chatFollowUp) {
         const btnContainer = document.createElement('div');
         btnContainer.className = 'message assistant';
         btnContainer.style.display = 'flex';
@@ -1194,7 +1194,7 @@ if (response.isRecipe) {
     }
     
     // Show follow-up as clickable offer button
-    if (response.chatFollowUp) {
+if (response.chatFollowUp && suggestions.length < 2) {
         const btnContainer = document.createElement('div');
         btnContainer.className = 'message assistant';
         btnContainer.style.display = 'flex';
