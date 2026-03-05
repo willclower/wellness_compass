@@ -1083,13 +1083,65 @@ if (response.isRecipe) {
         messagesContainer.appendChild(btnContainer);
     }
 } else {
-    // Not a recipe: show in chat ONLY
-    const assistantMsg = document.createElement('div');
-    assistantMsg.className = 'message assistant';
-    assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
-    messagesContainer.appendChild(assistantMsg);
+    // Not a recipe: check for numbered suggestions (e.g. "1. **Recipe Name** - description")
+    const suggestionPattern = /\d+\.\s*\*\*([^*]+)\*\*/g;
+    const suggestions = [];
+    let match;
+    while ((match = suggestionPattern.exec(response.message)) !== null) {
+        suggestions.push(match[1].trim());
+    }
     
-    // Render gap buttons if present
+    if (suggestions.length >= 2) {
+        // Strip the numbered list from the message, show only the intro
+        const introEnd = response.message.search(/\d+\.\s*\*\*/);
+        let introText = introEnd > 0 ? response.message.substring(0, introEnd).trim() : '';
+        
+        // Also strip any closing text after the last suggestion
+        if (introText) {
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'message assistant';
+            assistantMsg.innerHTML = introText.replace(/\n/g, '<br>');
+            messagesContainer.appendChild(assistantMsg);
+        }
+        
+        // Render suggestions as clickable buttons
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.flexDirection = 'column';
+        btnContainer.style.gap = '8px';
+        btnContainer.style.padding = '8px 12px';
+        
+        suggestions.forEach(name => {
+            const button = document.createElement('button');
+            button.textContent = name;
+            button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a7c59; background: white; color: #4a7c59; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left;';
+            button.addEventListener('mouseenter', () => {
+                button.style.background = '#4a7c59';
+                button.style.color = 'white';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.background = 'white';
+                button.style.color = '#4a7c59';
+            });
+            button.addEventListener('click', () => {
+                btnContainer.remove();
+                const input = document.getElementById('messageInput');
+                input.value = 'please provide the recipe for ' + name;
+                sendMessage();
+            });
+            btnContainer.appendChild(button);
+        });
+        
+        messagesContainer.appendChild(btnContainer);
+    } else {
+        // Normal chat response — no suggestions detected
+        const assistantMsg = document.createElement('div');
+        assistantMsg.className = 'message assistant';
+        assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
+        messagesContainer.appendChild(assistantMsg);
+    }
+    
     if (response.gapButtons && response.gapButtons.length > 0) {
         const btnContainer = document.createElement('div');
         btnContainer.className = 'message assistant';
