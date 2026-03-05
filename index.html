@@ -757,6 +757,308 @@
         .recipe-placeholder.hidden {
             display: none;
         }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+
+        /* Tablet: 768px - 1024px */
+        @media (max-width: 1024px) {
+            .assistants-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-area {
+                grid-template-columns: 1fr;
+                padding: 15px 20px;
+            }
+
+            .chat-panel {
+                position: relative;
+                top: 0;
+                height: 500px;
+            }
+
+            .recipe-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .recipe-image-display {
+                width: 180px;
+                height: 180px;
+            }
+
+            .logo-text h1 {
+                font-size: 26px;
+            }
+        }
+
+        /* Mobile: under 768px */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 8px 15px;
+            }
+
+            .user-greeting {
+                font-size: 12px;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-icons {
+                gap: 10px;
+            }
+
+            .nav-icons button {
+                font-size: 16px;
+            }
+
+            .header-section {
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .compass-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
+            }
+
+            .logo-text h1 {
+                font-size: 22px;
+            }
+
+            .assistants-section {
+                padding: 15px;
+            }
+
+            .assistants-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .assistant-card {
+                padding: 10px;
+                gap: 8px;
+                border-width: 2px;
+                border-radius: 12px;
+            }
+
+            .assistant-avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .assistant-info h3 {
+                font-size: 13px;
+            }
+
+            .assistant-info p {
+                font-size: 11px;
+            }
+
+            .content-area {
+                grid-template-columns: 1fr;
+                padding: 10px 15px;
+                gap: 15px;
+            }
+
+            .recipe-tabs {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .tab-button {
+                padding: 12px 10px;
+                font-size: 13px;
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .recipe-content {
+                padding: 15px;
+                min-height: 300px;
+            }
+
+            .chat-panel {
+                position: relative;
+                top: 0;
+                height: 450px;
+                border-radius: 15px;
+            }
+
+            .chat-messages {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .message {
+                max-width: 90%;
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+
+            .chat-input-area {
+                padding: 10px;
+                gap: 8px;
+            }
+
+            .chat-input-area input {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .chat-input-area button {
+                padding: 10px 18px;
+                font-size: 13px;
+            }
+
+            /* Recipe display */
+            .recipe-header-bar {
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+
+            .recipe-title {
+                font-size: 20px;
+            }
+
+            .recipe-intro-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .recipe-image-display {
+                width: 100%;
+                height: 200px;
+                border-radius: 8px;
+            }
+
+            .recipe-summary {
+                font-size: 15px;
+            }
+
+            .recipe-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .recipe-info-item .value {
+                font-size: 16px;
+            }
+
+            .recipe-actions-bar {
+                gap: 8px;
+            }
+
+            .recipe-action-btn {
+                font-size: 30px;
+                padding: 10px 12px;
+                gap: 8px;
+            }
+
+            .recipe-action-btn span {
+                font-size: 12px;
+            }
+
+            .recipe-rating h4 {
+                font-size: 12px;
+            }
+
+            .collapsible-header {
+                font-size: 18px;
+                padding: 12px 15px;
+            }
+
+            .collapsible-header .arrow {
+                font-size: 22px;
+            }
+
+            .ingredients-list li {
+                font-size: 15px;
+                padding: 8px 10px;
+            }
+
+            .instructions-list li {
+                padding: 12px 12px 12px 48px;
+                font-size: 14px;
+            }
+
+            .instructions-list li::before {
+                width: 26px;
+                height: 26px;
+                font-size: 14px;
+                left: 12px;
+                top: 12px;
+            }
+
+            .recipe-card {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .recipe-image {
+                width: 100%;
+                height: 150px;
+            }
+        }
+
+        /* Small mobile: under 480px */
+        @media (max-width: 480px) {
+            .assistants-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .assistant-card {
+                padding: 8px;
+                gap: 6px;
+            }
+
+            .assistant-avatar {
+                width: 30px;
+                height: 30px;
+            }
+
+            .assistant-info h3 {
+                font-size: 12px;
+            }
+
+            .assistant-info p {
+                font-size: 10px;
+            }
+
+            .logo-text h1 {
+                font-size: 18px;
+            }
+
+            .tab-button {
+                font-size: 12px;
+                padding: 10px 8px;
+            }
+
+            .chat-panel {
+                height: 400px;
+            }
+
+            .recipe-info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .recipe-actions-bar {
+                flex-wrap: wrap;
+            }
+
+            .recipe-action-btn {
+                flex: 1 1 45%;
+            }
+
+            .recipe-rating {
+                flex: 1 1 100%;
+            }
+        }    
     </style>
 </head>
 <body>
