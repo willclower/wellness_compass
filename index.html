@@ -1053,12 +1053,37 @@ if (response.isRecipe) {
         messagesContainer.appendChild(assistantMsg);
     }
     
-    // Show relationship question as separate bubble
+    // Show follow-up as clickable offer button
     if (response.chatFollowUp) {
-        const followUpMsg = document.createElement('div');
-        followUpMsg.className = 'message assistant';
-        followUpMsg.innerHTML = response.chatFollowUp.replace(/\n/g, '<br>');
-        messagesContainer.appendChild(followUpMsg);
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.flexWrap = 'wrap';
+        btnContainer.style.gap = '8px';
+        btnContainer.style.padding = '8px 12px';
+        
+        const button = document.createElement('button');
+        button.textContent = response.chatFollowUp;
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.addEventListener('mouseenter', () => {
+            button.style.background = '#4a9c8a';
+            button.style.color = 'white';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.background = 'white';
+            button.style.color = '#4a9c8a';
+        });
+        button.addEventListener('click', () => {
+            btnContainer.remove();
+            const followUpText = response.chatFollowUp
+                .replace(/^Would you like me to /i, 'Please ')
+                .replace(/\?[^?]*$/, '');
+            const input = document.getElementById('messageInput');
+            input.value = followUpText;
+            sendMessage();
+        });
+        btnContainer.appendChild(button);
+        messagesContainer.appendChild(btnContainer);
     }
 } else {
     // Not a recipe: show in chat ONLY
@@ -1088,45 +1113,68 @@ if (response.isRecipe) {
                 button.style.background = 'white';
                 button.style.color = '#4a7c59';
             });
-button.addEventListener('click', () => {
-    btnContainer.remove();
-    if (btn.action === 'request_original') {
-        // Show friendly message in chat, send command behind the scenes
-        const messagesContainer = document.getElementById('chatMessages');
-        const userMsg = document.createElement('div');
-        userMsg.className = 'message user';
-        userMsg.textContent = 'Please research ' + btn.value + ' for me!';
-        messagesContainer.appendChild(userMsg);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
-        // Send command to backend directly
-        window.MWClient.sendMessage('REQUEST_ORIGINAL:' + btn.value).then(response => {
-            if (response.success && response.message) {
-                const assistantMsg = document.createElement('div');
-                assistantMsg.className = 'message assistant';
-                assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
-                messagesContainer.appendChild(assistantMsg);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        });
-    } else {
-        const input = document.getElementById('messageInput');
-        input.value = 'please provide the recipe for ' + btn.value;
-        sendMessage();
-    }
-});
+            button.addEventListener('click', () => {
+                btnContainer.remove();
+                if (btn.action === 'request_original') {
+                    const messagesContainer = document.getElementById('chatMessages');
+                    const userMsg = document.createElement('div');
+                    userMsg.className = 'message user';
+                    userMsg.textContent = 'Please research ' + btn.value + ' for me!';
+                    messagesContainer.appendChild(userMsg);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                    window.MWClient.sendMessage('REQUEST_ORIGINAL:' + btn.value).then(response => {
+                        if (response.success && response.message) {
+                            const assistantMsg = document.createElement('div');
+                            assistantMsg.className = 'message assistant';
+                            assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
+                            messagesContainer.appendChild(assistantMsg);
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }
+                    });
+                } else {
+                    const input = document.getElementById('messageInput');
+                    input.value = 'please provide the recipe for ' + btn.value;
+                    sendMessage();
+                }
+            });
             btnContainer.appendChild(button);
         });
         
         messagesContainer.appendChild(btnContainer);
     }
     
-    // Show relationship question as separate bubble
+    // Show follow-up as clickable offer button
     if (response.chatFollowUp) {
-        const followUpMsg = document.createElement('div');
-        followUpMsg.className = 'message assistant';
-        followUpMsg.innerHTML = response.chatFollowUp.replace(/\n/g, '<br>');
-        messagesContainer.appendChild(followUpMsg);
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.flexWrap = 'wrap';
+        btnContainer.style.gap = '8px';
+        btnContainer.style.padding = '8px 12px';
+        
+        const button = document.createElement('button');
+        button.textContent = response.chatFollowUp;
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.addEventListener('mouseenter', () => {
+            button.style.background = '#4a9c8a';
+            button.style.color = 'white';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.background = 'white';
+            button.style.color = '#4a9c8a';
+        });
+        button.addEventListener('click', () => {
+            btnContainer.remove();
+            const followUpText = response.chatFollowUp
+                .replace(/^Would you like me to /i, 'Please ')
+                .replace(/\?[^?]*$/, '');
+            const input = document.getElementById('messageInput');
+            input.value = followUpText;
+            sendMessage();
+        });
+        btnContainer.appendChild(button);
+        messagesContainer.appendChild(btnContainer);
     }
 }
                 } else {
@@ -1594,10 +1642,35 @@ body: JSON.stringify({
                         messagesContainer.appendChild(introMsg);
                     }
                     if (nonaResponse.chatFollowUp) {
-                        const followMsg = document.createElement('div');
-                        followMsg.className = 'message assistant';
-                        followMsg.innerHTML = nonaResponse.chatFollowUp.replace(/\n/g, '<br>');
-                        messagesContainer.appendChild(followMsg);
+                        const btnContainer = document.createElement('div');
+                        btnContainer.className = 'message assistant';
+                        btnContainer.style.display = 'flex';
+                        btnContainer.style.flexWrap = 'wrap';
+                        btnContainer.style.gap = '8px';
+                        btnContainer.style.padding = '8px 12px';
+                        
+                        const button = document.createElement('button');
+                        button.textContent = nonaResponse.chatFollowUp;
+                        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+                        button.addEventListener('mouseenter', () => {
+                            button.style.background = '#4a9c8a';
+                            button.style.color = 'white';
+                        });
+                        button.addEventListener('mouseleave', () => {
+                            button.style.background = 'white';
+                            button.style.color = '#4a9c8a';
+                        });
+                        button.addEventListener('click', () => {
+                            btnContainer.remove();
+                            const followUpText = nonaResponse.chatFollowUp
+                                .replace(/^Would you like me to /i, 'Please ')
+                                .replace(/\?[^?]*$/, '');
+                            const input = document.getElementById('messageInput');
+                            input.value = followUpText;
+                            sendMessage();
+                        });
+                        btnContainer.appendChild(button);
+                        messagesContainer.appendChild(btnContainer);
                     }
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
