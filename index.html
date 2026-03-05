@@ -1598,7 +1598,7 @@ body: JSON.stringify({
                 const loadingMsg = document.createElement('div');
                 loadingMsg.className = 'message assistant';
                 loadingMsg.id = 'featured-loading';
-                loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/\n/g, '<br>');
+                loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/\n/g, '<br><br>');
                 messagesContainer.appendChild(loadingMsg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
