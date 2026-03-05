@@ -278,7 +278,7 @@ class MediterraneanWellnessClient {
 
     getDefaultGreeting(assistantId) {
         const greetings = {
-            'nona': 'Ciao bella! Ready to cook something delicious today?',
+            'nona': 'Ciao! Ready to cook something delicious today?',
             'dundee': 'Hey there! Ready to crush your workout today?',
             'chiara': 'Welcome. Let us find some peace together.',
             'lina': 'Hi! Let us create a nutrition plan that works for you.'
