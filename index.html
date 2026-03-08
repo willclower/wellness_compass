@@ -1375,7 +1375,7 @@ if (response.isRecipe) {
     if (response.chatMessage) {
         const assistantMsg = document.createElement('div');
         assistantMsg.className = 'message assistant';
-assistantMsg.innerHTML = introText.replace(/\.\s+/g, '.<br><br>');
+assistantMsg.innerHTML = response.chatMessage.replace(/\.\s+/g, '.<br><br>');
         messagesContainer.appendChild(assistantMsg);
     }
     
@@ -1426,7 +1426,7 @@ if (response.chatFollowUp) {
         if (introText) {
             const assistantMsg = document.createElement('div');
             assistantMsg.className = 'message assistant';
-            assistantMsg.innerHTML = introText.replace(/\n/g, '<br>');
+   assistantMsg.innerHTML = introText.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
             messagesContainer.appendChild(assistantMsg);
         }
         
@@ -1464,7 +1464,7 @@ if (response.chatFollowUp) {
         // Normal chat response — no suggestions detected
         const assistantMsg = document.createElement('div');
         assistantMsg.className = 'message assistant';
-        assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
+assistantMsg.innerHTML = response.message.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
         messagesContainer.appendChild(assistantMsg);
     }
     
@@ -1502,7 +1502,7 @@ if (response.chatFollowUp) {
                         if (response.success && response.message) {
                             const assistantMsg = document.createElement('div');
                             assistantMsg.className = 'message assistant';
-                            assistantMsg.innerHTML = response.message.replace(/\n/g, '<br>');
+     assistantMsg.innerHTML = response.message.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
                             messagesContainer.appendChild(assistantMsg);
                             messagesContainer.scrollTop = messagesContainer.scrollHeight;
                         }
@@ -2011,7 +2011,7 @@ body: JSON.stringify({
                     if (nonaResponse.chatMessage) {
                         const introMsg = document.createElement('div');
                         introMsg.className = 'message assistant';
-                        introMsg.innerHTML = nonaResponse.chatMessage.replace(/\n/g, '<br>');
+    introMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
                         messagesContainer.appendChild(introMsg);
                     }
                     if (nonaResponse.chatFollowUp) {
