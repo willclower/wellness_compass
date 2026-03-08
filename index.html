@@ -1376,6 +1376,7 @@ if (response.isRecipe) {
         const assistantMsg = document.createElement('div');
         assistantMsg.className = 'message assistant';
 assistantMsg.innerHTML = response.chatMessage.replace(/\.\s+/g, '.<br><br>');
+        
         messagesContainer.appendChild(assistantMsg);
     }
     
