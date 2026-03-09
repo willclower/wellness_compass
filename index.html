@@ -1380,8 +1380,8 @@ assistantMsg.innerHTML = response.chatMessage.replace(/\.\s+/g, '.<br><br>');
         messagesContainer.appendChild(assistantMsg);
     }
     
-// Show follow-up as clickable offer button
-if (response.chatFollowUp) {
+// Show follow-up CTA options as clickable buttons
+if (response.chatFollowUp && response.chatFollowUp.length > 0) {
     const btnContainer = document.createElement('div');
     btnContainer.className = 'message assistant';
     btnContainer.style.display = 'flex';
@@ -1389,24 +1389,26 @@ if (response.chatFollowUp) {
     btnContainer.style.gap = '8px';
     btnContainer.style.padding = '8px 12px';
 
-    const button = document.createElement('button');
-    button.textContent = response.chatFollowUp;
-    button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
-    button.addEventListener('mouseenter', () => {
-        button.style.background = '#4a9c8a';
-        button.style.color = 'white';
+    response.chatFollowUp.forEach(opt => {
+        const button = document.createElement('button');
+        button.textContent = opt.label;
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.addEventListener('mouseenter', () => {
+            button.style.background = '#4a9c8a';
+            button.style.color = 'white';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.background = 'white';
+            button.style.color = '#4a9c8a';
+        });
+        button.addEventListener('click', () => {
+            btnContainer.remove();
+            const input = document.getElementById('messageInput');
+            input.value = opt.send;
+            sendMessage();
+        });
+        btnContainer.appendChild(button);
     });
-    button.addEventListener('mouseleave', () => {
-        button.style.background = 'white';
-        button.style.color = '#4a9c8a';
-    });
-    button.addEventListener('click', () => {
-        btnContainer.remove();
-        const input = document.getElementById('messageInput');
-        input.value = 'Yes! ' + response.chatFollowUp;
-        sendMessage();
-    });
-    btnContainer.appendChild(button);
     messagesContainer.appendChild(btnContainer);
 }
 } else {
@@ -1520,8 +1522,8 @@ assistantMsg.innerHTML = response.message.replace(/\.\s+/g, '.<br><br>').replace
         messagesContainer.appendChild(btnContainer);
     }
     
-// Show follow-up as clickable offer button
-if (response.chatFollowUp && suggestions.length < 2) {
+// Show follow-up CTA options as clickable buttons
+if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.length < 2) {
     const btnContainer = document.createElement('div');
     btnContainer.className = 'message assistant';
     btnContainer.style.display = 'flex';
@@ -1529,24 +1531,26 @@ if (response.chatFollowUp && suggestions.length < 2) {
     btnContainer.style.gap = '8px';
     btnContainer.style.padding = '8px 12px';
 
-    const button = document.createElement('button');
-    button.textContent = response.chatFollowUp;
-    button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
-    button.addEventListener('mouseenter', () => {
-        button.style.background = '#4a9c8a';
-        button.style.color = 'white';
+    response.chatFollowUp.forEach(opt => {
+        const button = document.createElement('button');
+        button.textContent = opt.label;
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.addEventListener('mouseenter', () => {
+            button.style.background = '#4a9c8a';
+            button.style.color = 'white';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.background = 'white';
+            button.style.color = '#4a9c8a';
+        });
+        button.addEventListener('click', () => {
+            btnContainer.remove();
+            const input = document.getElementById('messageInput');
+            input.value = opt.send;
+            sendMessage();
+        });
+        btnContainer.appendChild(button);
     });
-    button.addEventListener('mouseleave', () => {
-        button.style.background = 'white';
-        button.style.color = '#4a9c8a';
-    });
-    button.addEventListener('click', () => {
-        btnContainer.remove();
-        const input = document.getElementById('messageInput');
-        input.value = 'Yes! ' + response.chatFollowUp;
-        sendMessage();
-    });
-    btnContainer.appendChild(button);
     messagesContainer.appendChild(btnContainer);
 }
 }
@@ -2015,7 +2019,7 @@ body: JSON.stringify({
     introMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
                         messagesContainer.appendChild(introMsg);
                     }
-                    if (nonaResponse.chatFollowUp) {
+                    if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
                         const btnContainer = document.createElement('div');
                         btnContainer.className = 'message assistant';
                         btnContainer.style.display = 'flex';
@@ -2023,24 +2027,26 @@ body: JSON.stringify({
                         btnContainer.style.gap = '8px';
                         btnContainer.style.padding = '8px 12px';
                         
-                        const button = document.createElement('button');
-                        button.textContent = nonaResponse.chatFollowUp;
-                        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
-                        button.addEventListener('mouseenter', () => {
-                            button.style.background = '#4a9c8a';
-                            button.style.color = 'white';
+                        nonaResponse.chatFollowUp.forEach(opt => {
+                            const button = document.createElement('button');
+                            button.textContent = opt.label;
+                            button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+                            button.addEventListener('mouseenter', () => {
+                                button.style.background = '#4a9c8a';
+                                button.style.color = 'white';
+                            });
+                            button.addEventListener('mouseleave', () => {
+                                button.style.background = 'white';
+                                button.style.color = '#4a9c8a';
+                            });
+                            button.addEventListener('click', () => {
+                                btnContainer.remove();
+                                const input = document.getElementById('messageInput');
+                                input.value = opt.send;
+                                sendMessage();
+                            });
+                            btnContainer.appendChild(button);
                         });
-                        button.addEventListener('mouseleave', () => {
-                            button.style.background = 'white';
-                            button.style.color = '#4a9c8a';
-                        });
-                        button.addEventListener('click', () => {
-                            btnContainer.remove();
-         const input = document.getElementById('messageInput');
-            input.value = nonaResponse.chatFollowUp;
-                            sendMessage();
-                        });
-                        btnContainer.appendChild(button);
                         messagesContainer.appendChild(btnContainer);
                     }
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
