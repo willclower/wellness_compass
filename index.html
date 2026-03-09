@@ -2037,7 +2037,7 @@ body: JSON.stringify({
                         button.addEventListener('click', () => {
                             btnContainer.remove();
          const input = document.getElementById('messageInput');
-            input.value = 'Yes! Can you suggest three options? ' + nonaResponse.chatFollowUp;
+            input.value = nonaResponse.chatFollowUp;
                             sendMessage();
                         });
                         btnContainer.appendChild(button);
