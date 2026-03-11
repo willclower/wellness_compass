@@ -1934,6 +1934,42 @@ body: JSON.stringify({
         // Single consolidated handler for page load and bfcache restore
 
         // Featured Recipe - silently loads either a recipe_ready delivery or daily featured recipe
+// Proactive message state — persists until user sends their next message
+        let _pendingProactiveLogId = null;
+
+        async function loadProactiveMessages() {
+            const userId = window.MWClient.getUserId();
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/get-proactive-messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                if (!response.ok) return;
+                const data = await response.json();
+                if (!data.success || !data.message) return;
+
+                _pendingProactiveLogId = data.log_id;
+
+                const messagesContainer = document.getElementById('chatMessages');
+                const proactiveMsg = document.createElement('div');
+                proactiveMsg.className = 'message assistant';
+                proactiveMsg.textContent = data.message;
+                messagesContainer.appendChild(proactiveMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                await fetch('https://n8n-admin.willclower.com/webhook/mark-proactive-delivered', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ log_id: data.log_id, user_id: userId })
+                });
+
+                console.log('✅ Proactive message delivered, log_id:', data.log_id);
+            } catch (e) {
+                console.warn('Proactive message load failed:', e);
+            }
+        }
+
         async function loadFeaturedRecipe() {
             const userId = window.MWClient.getUserId();
             if (!userId) return;
@@ -2119,8 +2155,9 @@ body: JSON.stringify({
                 messagesContainer.appendChild(greetingMsg);
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
-            if (!_loadedFromSaved && !loadRecipe) {
+     if (!_loadedFromSaved && !loadRecipe) {
                 loadFeaturedRecipe();
+                loadProactiveMessages();
             }
         });
 // Recipe Rating System
