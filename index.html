@@ -2156,9 +2156,8 @@ body: JSON.stringify({
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
      if (!_loadedFromSaved && !loadRecipe) {
-                loadFeaturedRecipe();
                 loadProactiveMessages();
-            }
+                loadFeaturedRecipe();            }
         });
 // Recipe Rating System
 function initializeRating() {
