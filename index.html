@@ -2021,7 +2021,7 @@ proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').repla
                 loadingMsg.className = 'message assistant';
                 loadingMsg.id = 'featured-loading';
 loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/([.!?])\s+/g, '$1<br><br>') 
-    + '<br><div class=\"typing-dots\"
+    + '<br><div class="typing-dots" style="margin-top:6px"><span></span><span></span><span></span></div>';
                 messagesContainer.appendChild(loadingMsg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
