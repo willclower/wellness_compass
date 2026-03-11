@@ -1470,7 +1470,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         // Normal chat response — no suggestions detected
         const assistantMsg = document.createElement('div');
         assistantMsg.className = 'message assistant';
-assistantMsg.innerHTML = response.message.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
+assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
         messagesContainer.appendChild(assistantMsg);
     }
     
@@ -1508,10 +1508,9 @@ assistantMsg.innerHTML = response.message.replace(/\.\s+/g, '.<br><br>').replace
                         if (response.success && response.message) {
                             const assistantMsg = document.createElement('div');
                             assistantMsg.className = 'message assistant';
-     assistantMsg.innerHTML = response.message.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
+assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
                             messagesContainer.appendChild(assistantMsg);
-                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                        }
+                            messagesContainer.scrollTop                        }
                     });
                 } else {
                     const input = document.getElementById('messageInput');
@@ -1955,7 +1954,7 @@ body: JSON.stringify({
                 const messagesContainer = document.getElementById('chatMessages');
                 const proactiveMsg = document.createElement('div');
                 proactiveMsg.className = 'message assistant';
- proactiveMsg.innerHTML = data.message.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
+proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
                 messagesContainer.appendChild(proactiveMsg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
