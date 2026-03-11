@@ -1353,8 +1353,11 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             try {
-                // Send to backend
-                const response = await window.MWClient.sendMessage(message);
+      // Send to backend
+                const response = await window.MWClient.sendMessage(message, _pendingProactiveLogId);
+
+                // Reset proactive flag — this message has now captured the response
+                _pendingProactiveLogId = null;
 
                 // Remove typing indicator
                 typingIndicator.remove();
