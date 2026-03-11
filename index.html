@@ -1776,8 +1776,9 @@ async function loadRecipeImage(recipeTitle) {
                 img.onerror = () => {
                     console.error('❌ Image failed to render');
                 };
-                img.onload = () => {
+    img.onload = () => {
                     console.log('✅ Image successfully rendered');
+                    loadProactiveMessages();
                 };
                 
                 // Convert base64 to data URI
@@ -1954,7 +1955,7 @@ body: JSON.stringify({
                 const messagesContainer = document.getElementById('chatMessages');
                 const proactiveMsg = document.createElement('div');
                 proactiveMsg.className = 'message assistant';
-                proactiveMsg.textContent = data.message;
+ proactiveMsg.innerHTML = data.message.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
                 messagesContainer.appendChild(proactiveMsg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -2156,7 +2157,7 @@ body: JSON.stringify({
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
     if (!_loadedFromSaved && !loadRecipe) {
-                loadFeaturedRecipe().then(() => loadProactiveMessages());
+  loadFeaturedRecipe();
             }
         });
 // Recipe Rating System
