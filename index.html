@@ -1966,9 +1966,11 @@ proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').repla
                 });
 
                 console.log('✅ Proactive message delivered, log_id:', data.log_id);
-            } catch (e) {
-                console.warn('Proactive message load failed:', e);
-            }
+          } catch (e) {
+    if (!(e instanceof SyntaxError)) {
+        console.warn('Proactive message load failed:', e);
+    }
+}
         }
 
         async function loadFeaturedRecipe() {
