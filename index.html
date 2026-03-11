@@ -1775,10 +1775,9 @@ async function loadRecipeImage(recipeTitle) {
                 img.onerror = () => {
                     console.error('❌ Image failed to render');
                 };
-    img.onload = () => {
-                    console.log('✅ Image successfully rendered');
-                    loadProactiveMessages();
-                };
+   img.onload = () => {
+    console.log('✅ Image successfully rendered');
+};
                 
                 // Convert base64 to data URI
                 const dataUri = `data:image/png;base64,${data.image_data}`;
@@ -2157,6 +2156,7 @@ loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.le
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
     if (!_loadedFromSaved && !loadRecipe) {
   loadFeaturedRecipe();
+loadProactiveMessages();
             }
         });
 // Recipe Rating System
