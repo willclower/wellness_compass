@@ -1944,8 +1944,10 @@ body: JSON.stringify({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: userId })
                 });
-                if (!response.ok) return;
-                const data = await response.json();
+   if (!response.ok) return;
+const text = await response.text();
+if (!text || !text.trim()) return;
+const data = JSON.parse(text);
                 if (!data.success || !data.message) return;
 
                 _pendingProactiveLogId = data.log_id;
