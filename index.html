@@ -2155,9 +2155,9 @@ body: JSON.stringify({
                 messagesContainer.appendChild(greetingMsg);
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
-     if (!_loadedFromSaved && !loadRecipe) {
-                loadProactiveMessages();
-                loadFeaturedRecipe();            }
+    if (!_loadedFromSaved && !loadRecipe) {
+                loadFeaturedRecipe().then(() => loadProactiveMessages());
+            }
         });
 // Recipe Rating System
 function initializeRating() {
