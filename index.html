@@ -1357,7 +1357,7 @@
             try {
       // Send to backend
                 const response = await window.MWClient.sendMessage(message, _pendingProactiveLogId);
-
+console.log('RAW RESPONSE:', JSON.stringify(response));
                 // Reset proactive flag — this message has now captured the response
                 _pendingProactiveLogId = null;
 
