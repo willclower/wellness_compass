@@ -53,9 +53,9 @@ async sendMessage(message, proactiveLogId = null) {
                 
    return {
     success: true,
+    ...data,
     message: messageText,
     assistant: this.currentAssistant,
-    ...data,
     isRecipe: data.isRecipe !== undefined ? data.isRecipe : this.isRecipeResponse(messageText)
 };
             } catch (e) {
