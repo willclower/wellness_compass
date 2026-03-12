@@ -1571,8 +1571,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
 
 if (response.intake_completed && !featuredRecipeLoaded) {
 sessionStorage.setItem('featuredRecipeLoadedThisSession', 'true');
-localStorage.setItem('featuredRecipeDate', today);
-    localStorage.setItem('mw_intake_completed', 'true');
+
     loadFeaturedRecipe();
 }
 
