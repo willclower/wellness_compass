@@ -1374,7 +1374,7 @@ console.log('RAW RESPONSE:', JSON.stringify(response));
                     console.log('Last 500 chars:', response.message.substring(response.message.length - 500));
                     
 if (response.isRecipe) {
-const recipe = window.MWClient.parseRecipe(nonaResponse.message);
+const recipe = window.MWClient.parseRecipe(Response.message);
     displayRecipe(recipe);
     
     // Show Nona's warm intro in chat
