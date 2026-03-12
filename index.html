@@ -2173,7 +2173,8 @@ loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.le
                 messagesContainer.appendChild(greetingMsg);
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
-    if (!_loadedFromSaved && !loadRecipe) {
+if (!_loadedFromSaved && !loadRecipe) {
+console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
 loadProactiveMessages();
 if (localStorage.getItem('mw_intake_completed') === 'true') {
     featuredRecipeLoaded = true;
