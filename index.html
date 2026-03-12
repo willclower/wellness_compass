@@ -2047,7 +2047,11 @@ loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.le
 if (nonaResponse.success && nonaResponse.isRecipe) {
     const recipe = window.MWClient.parseRecipe(nonaResponse.message);
 displayRecipe(recipe);
-    setTimeout(loadProactiveMessages, 2000);
+    console.log('Setting timeout for proactive messages');
+    setTimeout(() => {
+        console.log('Timeout fired - calling loadProactiveMessages');
+        loadProactiveMessages();
+    }, 2000);
     
     // Show Nona's chat message
     
