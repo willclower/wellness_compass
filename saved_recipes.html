@@ -377,7 +377,7 @@
 <body>
     <!-- Top Bar -->
     <div class="top-bar">
-<button class="back-button" onclick="history.back()">← Back to Compass</button>
+<button class="back-button" onclick="sessionStorage.setItem('returningFromSaved', 'true'); history.back()">← Back to Compass</button>
         <div class="user-section">
             <span class="user-greeting">HELLO LAURA</span>
         </div>
@@ -417,7 +417,7 @@
             <div class="empty-state-icon">🍽️</div>
             <h2>No Saved Recipes Yet</h2>
             <p>Start building your Mediterranean recipe collection! Save recipes you love and they'll appear here.</p>
-           <button class="explore-btn" onclick="history.back()">Explore Recipes</button>
+           <button class="explore-btn" onclick="sessionStorage.setItem('returningFromSaved', 'true'); history.back()">Explore Recipes</button>
         </div>
 
         <!-- Recipes Grid -->
@@ -576,6 +576,7 @@
         directDisplay: true,
         recipeData: recipe
     }));
+    sessionStorage.setItem('returningFromSaved', 'true');
     window.location.href = 'index.html';
 }
 
