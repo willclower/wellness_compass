@@ -1323,6 +1323,8 @@
 
 let featuredRecipeLoaded = sessionStorage.getItem('featuredRecipeLoaded') === 'true';
         // Chat functionality with real backend
+console.log('featuredRecipeLoaded on load:', featuredRecipeLoaded);
+console.log('sessionStorage value:', sessionStorage.getItem('featuredRecipeLoaded'));
         document.getElementById('sendButton').addEventListener('click', sendMessage);
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
