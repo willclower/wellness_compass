@@ -1321,7 +1321,7 @@
         }
 
 
-   let featuredRecipeLoaded = false; 
+let featuredRecipeLoaded = sessionStorage.getItem('featuredRecipeLoaded') === 'true';
         // Chat functionality with real backend
         document.getElementById('sendButton').addEventListener('click', sendMessage);
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
@@ -1569,7 +1569,8 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
 if (response.intake_completed && !featuredRecipeLoaded) {
-    featuredRecipeLoaded = true;
+featuredRecipeLoaded = true;
+sessionStorage.setItem('featuredRecipeLoaded', 'true');
     localStorage.setItem('mw_intake_completed', 'true');
     loadFeaturedRecipe();
 }
@@ -2213,7 +2214,8 @@ if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
 
 if (localStorage.getItem('mw_intake_completed') === 'true') {
-    featuredRecipeLoaded = true;
+featuredRecipeLoaded = true;
+sessionStorage.setItem('featuredRecipeLoaded', 'true');
     loadFeaturedRecipe();
 }
             }
