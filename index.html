@@ -1373,8 +1373,9 @@ console.log('RAW RESPONSE:', JSON.stringify(response));
                     console.log('Last 500 chars:', response.message.substring(response.message.length - 500));
                     
 if (response.isRecipe) {
-    const recipe = window.MWClient.parseRecipe(response.message);
+const recipe = window.MWClient.parseRecipe(nonaResponse.message);
     displayRecipe(recipe);
+    setTimeout(loadProactiveMessages, 2000);
     
     // Show Nona's warm intro in chat
     if (response.chatMessage) {
@@ -2207,7 +2208,7 @@ if (nonaResponse.success && nonaResponse.isRecipe) {
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
 if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
-loadProactiveMessages();
+
 if (localStorage.getItem('mw_intake_completed') === 'true') {
     featuredRecipeLoaded = true;
     loadFeaturedRecipe();
