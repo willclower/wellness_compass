@@ -1321,9 +1321,8 @@
         }
 
 
-const today = new Date().toISOString().split('T')[0];
-const lastFeaturedDate = localStorage.getItem('featuredRecipeDate');
-let featuredRecipeLoaded = lastFeaturedDate === today;
+let featuredRecipeLoaded = sessionStorage.getItem('featuredRecipeLoadedThisSession') === 'true';
+        
         // Chat functionality with real backend
         document.getElementById('sendButton').addEventListener('click', sendMessage);
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
@@ -1571,7 +1570,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
 if (response.intake_completed && !featuredRecipeLoaded) {
-featuredRecipeLoaded = true;
+sessionStorage.setItem('featuredRecipeLoadedThisSession', 'true');
 localStorage.setItem('featuredRecipeDate', today);
     localStorage.setItem('mw_intake_completed', 'true');
     loadFeaturedRecipe();
@@ -2216,8 +2215,8 @@ setTimeout(() => {
 if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
 
-if (localStorage.getItem('mw_intake_completed') === 'true') {
-    featuredRecipeLoaded = true;
+if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
+    sessionStorage.setItem('featuredRecipeLoadedThisSession', 'true');
     localStorage.setItem('featuredRecipeDate', today);
     loadFeaturedRecipe();
 }
