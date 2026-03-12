@@ -1321,7 +1321,8 @@
         }
 
 
-let featuredRecipeLoaded = sessionStorage.getItem('featuredRecipeLoaded') === 'true';
+let featuredRecipeLoaded = sessionStorage.getItem('returningFromSaved') === 'true';
+sessionStorage.removeItem('returningFromSaved');
         // Chat functionality with real backend
 console.log('featuredRecipeLoaded on load:', featuredRecipeLoaded);
 console.log('sessionStorage value:', sessionStorage.getItem('featuredRecipeLoaded'));
@@ -1572,7 +1573,6 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
 
 if (response.intake_completed && !featuredRecipeLoaded) {
 featuredRecipeLoaded = true;
-sessionStorage.setItem('featuredRecipeLoaded', 'true');
     localStorage.setItem('mw_intake_completed', 'true');
     loadFeaturedRecipe();
 }
@@ -2218,7 +2218,6 @@ console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStora
 
 if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
 featuredRecipeLoaded = true;
-sessionStorage.setItem('featuredRecipeLoaded', 'true');
     loadFeaturedRecipe();
 }
             }
