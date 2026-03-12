@@ -399,7 +399,18 @@
 
     <!-- Recipes Container -->
     <div class="recipes-container">
-        <!-- Loading State -->\n        <div class=\"loading\" id=\"loadingState\">\n            🔄 Loading your saved recipes...\n        </div>\n\n        <!-- Empty State -->\n        <div class=\"empty-state\" id=\"emptyState\" style=\"display: none;\">\n            <div class=\"empty-state-icon\">🍽️</div>\n            <h2>No Saved Recipes Yet</h2>\n            <p>Start building your Mediterranean recipe collection! Save recipes you love and they'll appear here.</p>\n            <button class=\"explore-btn\" onclick=\"history.back()\">Return to The Compass</button>\n        </div>
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">
+            🔄 Loading your saved recipes...
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">🍽️</div>
+            <h2>No Saved Recipes Yet</h2>
+            <p>Start building your Mediterranean recipe collection! Save recipes you love and they'll appear here.</p>
+            <button class="explore-btn" onclick="history.back()">Return to The Compass</button>
+        </div>
 
         <!-- Recipes Grid -->
         <div class="recipes-grid" id="recipesGrid"></div>
