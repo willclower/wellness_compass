@@ -1568,11 +1568,10 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
                 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                // Trigger featured recipe load once intake is confirmed complete
-                if (response.intake_completed && !featuredRecipeLoaded) {
-                    featuredRecipeLoaded = true;
-                    loadFeaturedRecipe();
-                }
+   if (response.intake_completed && !featuredRecipeLoaded && !response.isRecipe) {
+    featuredRecipeLoaded = true;
+    loadFeaturedRecipe();
+}
 
             } 
 catch (error) {
