@@ -2175,6 +2175,10 @@ loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.le
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
     if (!_loadedFromSaved && !loadRecipe) {
 loadProactiveMessages();
+if (localStorage.getItem('mw_intake_completed') === 'true') {
+    featuredRecipeLoaded = true;
+    loadFeaturedRecipe();
+}
             }
         });
 // Recipe Rating System
