@@ -1568,8 +1568,9 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
                 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-   if (response.intake_completed && !featuredRecipeLoaded && !response.isRecipe) {
+if (response.intake_completed && !featuredRecipeLoaded) {
     featuredRecipeLoaded = true;
+    localStorage.setItem('mw_intake_completed', 'true');
     loadFeaturedRecipe();
 }
 
