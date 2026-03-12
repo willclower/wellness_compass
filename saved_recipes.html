@@ -374,7 +374,7 @@
         }
     </style>
 </head>
-<button class="back-button" onclick="history.back()">← Back to Compass</button>
+<button class="back-button" onclick="history.back()">← Return to The Compass</button>
     <!-- Page Header -->
     <div class="page-header">
         <h1>🔖 My Saved Recipes</h1>
@@ -399,12 +399,7 @@
 
     <!-- Recipes Container -->
     <div class="recipes-container">
-        <!-- Loading State -->
-        <div class="loading" id="loadingState">
-            🔄 Loading your saved recipes...
-        </div>
-
-<button class="explore-btn" onclick="history.back()">Explore Recipes</button>
+        <!-- Loading State -->\n        <div class=\"loading\" id=\"loadingState\">\n            🔄 Loading your saved recipes...\n        </div>\n\n        <!-- Empty State -->\n        <div class=\"empty-state\" id=\"emptyState\" style=\"display: none;\">\n            <div class=\"empty-state-icon\">🍽️</div>\n            <h2>No Saved Recipes Yet</h2>\n            <p>Start building your Mediterranean recipe collection! Save recipes you love and they'll appear here.</p>\n            <button class=\"explore-btn\" onclick=\"history.back()\">Return to The Compass</button>\n        </div>
 
         <!-- Recipes Grid -->
         <div class="recipes-grid" id="recipesGrid"></div>
