@@ -2216,9 +2216,9 @@ setTimeout(() => {
 if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
 
-if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
-featuredRecipeLoaded = true;
-localStorage.setItem('featuredRecipeDate', today);
+if (localStorage.getItem('mw_intake_completed') === 'true') {
+    featuredRecipeLoaded = true;
+    localStorage.setItem('featuredRecipeDate', today);
     loadFeaturedRecipe();
 }
             }
