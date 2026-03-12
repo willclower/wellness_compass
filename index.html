@@ -1320,6 +1320,8 @@
             }
         }
 
+
+   let featuredRecipeLoaded = false; 
         // Chat functionality with real backend
         document.getElementById('sendButton').addEventListener('click', sendMessage);
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
@@ -2166,7 +2168,6 @@ loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.le
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
     if (!_loadedFromSaved && !loadRecipe) {
-  loadFeaturedRecipe();
 loadProactiveMessages();
             }
         });
