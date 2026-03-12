@@ -2044,10 +2044,42 @@ loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.le
                 const loader = document.getElementById('featured-loading');
                 if (loader) loader.remove();
                 
-
-            if (nonaResponse.success && nonaResponse.isRecipe) {
+if (nonaResponse.success && nonaResponse.isRecipe) {
     const recipe = window.MWClient.parseRecipe(nonaResponse.message);
     displayRecipe(recipe);
+    
+    // Show Nona's chat message
+    if (nonaResponse.chatMessage) {
+        const assistantMsg = document.createElement('div');
+        assistantMsg.className = 'message assistant';
+        assistantMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>');
+        messagesContainer.appendChild(assistantMsg);
+    }
+    
+    // Show CTA buttons
+    if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;';
+        nonaResponse.chatFollowUp.forEach(opt => {
+            const button = document.createElement('button');
+            button.textContent = opt.label;
+            button.style.cssText = 'padding:10px 16px;border-radius:20px;border:1px solid #4a9c8a;background:white;color:#4a9c8a;cursor:pointer;font-size:14px;transition:all 0.2s;text-align:left;line-height:1.4;';
+            button.addEventListener('mouseenter', () => { button.style.background='#4a9c8a'; button.style.color='white'; });
+            button.addEventListener('mouseleave', () => { button.style.background='white'; button.style.color='#4a9c8a'; });
+            button.addEventListener('click', () => {
+                btnContainer.remove();
+                const input = document.getElementById('messageInput');
+                input.value = opt.send;
+                sendMessage();
+            });
+            btnContainer.appendChild(button);
+        });
+        messagesContainer.appendChild(btnContainer);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    
 } else if (nonaResponse.success && nonaResponse.message) {
     const intakeMsgContainer = document.getElementById('chatMessages');
     const msgDiv = document.createElement('div');
