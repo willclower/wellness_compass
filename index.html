@@ -1375,7 +1375,6 @@ console.log('RAW RESPONSE:', JSON.stringify(response));
 if (response.isRecipe) {
 const recipe = window.MWClient.parseRecipe(nonaResponse.message);
     displayRecipe(recipe);
-    setTimeout(loadProactiveMessages, 2000);
     
     // Show Nona's warm intro in chat
     if (response.chatMessage) {
@@ -2047,7 +2046,10 @@ loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.le
                 
 if (nonaResponse.success && nonaResponse.isRecipe) {
     const recipe = window.MWClient.parseRecipe(nonaResponse.message);
-    displayRecipe(recipe);
+displayRecipe(recipe);
+    setTimeout(loadProactiveMessages, 2000);
+    
+    // Show Nona's chat message
     
     // Show Nona's chat message
     if (nonaResponse.chatMessage) {
