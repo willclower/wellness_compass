@@ -2216,7 +2216,6 @@ console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStora
 
 if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
     sessionStorage.setItem('featuredRecipeLoadedThisSession', 'true');
-    localStorage.setItem('featuredRecipeDate', today);
     loadFeaturedRecipe();
 }
             }
