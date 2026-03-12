@@ -1321,11 +1321,10 @@
         }
 
 
-let featuredRecipeLoaded = sessionStorage.getItem('returningFromSaved') === 'true';
-sessionStorage.removeItem('returningFromSaved');
+const today = new Date().toISOString().split('T')[0];
+const lastFeaturedDate = localStorage.getItem('featuredRecipeDate');
+let featuredRecipeLoaded = lastFeaturedDate === today;
         // Chat functionality with real backend
-console.log('featuredRecipeLoaded on load:', featuredRecipeLoaded);
-console.log('sessionStorage value:', sessionStorage.getItem('featuredRecipeLoaded'));
         document.getElementById('sendButton').addEventListener('click', sendMessage);
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
@@ -1573,6 +1572,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
 
 if (response.intake_completed && !featuredRecipeLoaded) {
 featuredRecipeLoaded = true;
+localStorage.setItem('featuredRecipeDate', today);
     localStorage.setItem('mw_intake_completed', 'true');
     loadFeaturedRecipe();
 }
@@ -2218,6 +2218,7 @@ console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStora
 
 if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
 featuredRecipeLoaded = true;
+localStorage.setItem('featuredRecipeDate', today);
     loadFeaturedRecipe();
 }
             }
