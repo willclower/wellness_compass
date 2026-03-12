@@ -2152,7 +2152,8 @@ setTimeout(() => {
             }
         }
         
-        window.addEventListener('pageshow', (event) => {
+ window.addEventListener('pageshow', (event) => {
+    if (event.persisted) return;
             // Reset tabs to first tab on every page show
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById('todayTab').classList.add('active');
