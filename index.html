@@ -1570,6 +1570,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
 if (response.intake_completed && !featuredRecipeLoaded) {
+    featuredRecipeLoaded = true;
     loadFeaturedRecipe();
 }
 
@@ -2213,7 +2214,7 @@ if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
 
 if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
-
+    featuredRecipeLoaded = true;
     loadFeaturedRecipe();
 }
             }
