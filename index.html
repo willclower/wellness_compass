@@ -2079,13 +2079,17 @@ proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').repla
                     ];
                 }
                 
-                const loadingMsg = document.createElement('div');
+const loadingMsg = document.createElement('div');
                 loadingMsg.className = 'message assistant';
                 loadingMsg.id = 'featured-loading';
-loadingMsg.innerHTML = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/([.!?])\s+/g, '$1<br><br>') 
-    + '<br><div class="typing-dots" style="margin-top:6px"><span></span><span></span><span></span></div>';
                 messagesContainer.appendChild(loadingMsg);
+                const greetingHtml = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/([.!?])\s+/g, '$1<br><br>');
+                const dotsHtml = '<br><div class="typing-dots" style="margin-top:6px"><span></span><span></span><span></span></div>';
+                typewriterEffect(loadingMsg, greetingHtml, 20, () => {
+                    loadingMsg.innerHTML += dotsHtml;
+                });
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
 
                 // Silently ask Nona for the full recipe (no user bubble in chat)
                 const nonaResponse = await window.MWClient.sendMessage(
@@ -2107,8 +2111,8 @@ setTimeout(() => {
     if (nonaResponse.chatMessage) {
         const assistantMsg = document.createElement('div');
         assistantMsg.className = 'message assistant';
-        assistantMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>');
-        messagesContainer.appendChild(assistantMsg);
+messagesContainer.appendChild(assistantMsg);
+        typewriterEffect(assistantMsg, nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>'));
     }
     
     // Show CTA buttons
