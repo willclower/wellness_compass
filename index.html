@@ -1289,8 +1289,9 @@
                 this.classList.add('active');
             });
         });
-
-function typewriterEffect(element, html, speed = 48, onComplete = null) {
+const TYPEWRITER_SPEED = 48;
+        
+function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
     const segments = [];
     let remaining = html;
     while (remaining.length > 0) {
@@ -1329,7 +1330,7 @@ function typewriterEffect(element, html, speed = 48, onComplete = null) {
             if (charIdx < seg.content.length) {
                 element.innerHTML += seg.content.charAt(charIdx);
                 charIdx++;
-                setTimeout(type, speed);
+                setTimeout(type, TYPEWRITER_SPEED);
             } else {
                 segIdx++;
                 charIdx = 0;
