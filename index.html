@@ -1290,8 +1290,7 @@
             });
         });
 
-function typewriterEffect(element, html, speed = 30) {
-    // Convert HTML to segments: tags (instant) and text (typed)
+function typewriterEffect(element, html, speed = 24, onComplete = null) {
     const segments = [];
     let remaining = html;
     while (remaining.length > 0) {
@@ -1317,7 +1316,10 @@ function typewriterEffect(element, html, speed = 30) {
     let charIdx = 0;
 
     function type() {
-        if (segIdx >= segments.length) return;
+        if (segIdx >= segments.length) {
+            if (onComplete) onComplete();
+            return;
+        }
         const seg = segments[segIdx];
         if (seg.type === 'tag') {
             element.innerHTML += seg.content;
