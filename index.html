@@ -1472,7 +1472,8 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
     messagesContainer.appendChild(btnContainer);
 }
 } else {
-    // Not a recipe: check for numbered suggestions (e.g. "1. **Recipe Name** - description")
+    // Not a recipe: check for numbered suggestions ONLY when seeking recommendations
+    const isRecommendation = response.user_intent === 'seeking_recommendation';
     const suggestionPattern = /\d+\.\s*\*\*([^*]+)\*\*/g;
     const suggestions = [];
     let match;
@@ -1480,7 +1481,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         suggestions.push(match[1].trim());
     }
     
-    if (suggestions.length >= 2) {
+  if (isRecommendation && suggestions.length >= 2) {
         // Strip the numbered list from the message, show only the intro
         const introEnd = response.message.search(/\d+\.\s*\*\*/);
         let introText = introEnd > 0 ? response.message.substring(0, introEnd).trim() : '';
