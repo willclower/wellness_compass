@@ -117,7 +117,7 @@ async sendMessage(message, proactiveLogId = null) {
             recipe.instructions = instructionsSection[1].split('\n')
                 .map(line => line.trim())
                 .filter(line => /^\d+\./.test(line))
-                .map(line => line.replace(/^\d+\.\s*/, '').trim());
+                .map(line => line.replace(/^\d+\.\s*/, '').replace(/\*\*/g, '').trim());
         }
         
         // Play With Your Food
