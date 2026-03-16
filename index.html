@@ -2125,7 +2125,14 @@ setTimeout(() => {
     }, 2000);    
     // Show Nona's chat message
   // Skip chatMessage for featured recipes — the greeting already covers it
-    
+     // But DO show relationship comment if present
+    if (nonaResponse.relationshipComment) {
+        const commentMsg = document.createElement('div');
+        commentMsg.className = 'message assistant';
+        messagesContainer.appendChild(commentMsg);
+        typewriterEffect(commentMsg, nonaResponse.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
+    }
+
     // Show CTA buttons
     if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
         const btnContainer = document.createElement('div');
