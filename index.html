@@ -1815,7 +1815,7 @@ catch (error) {
             // Closing Summary
             if (recipe.summary2) {
                 document.getElementById('summarySection').style.display = 'block';
-                document.getElementById('summaryContent').textContent = recipe.summary2;
+       document.getElementById('summaryContent').textContent = recipe.summary2.replace(/\*\*/g, '');
             } else {
                 document.getElementById('summarySection').style.display = 'none';
             }
@@ -2260,7 +2260,7 @@ setTimeout(() => {
                     const recipeDisplay = document.getElementById('recipeDisplay');
                     recipeDisplay.classList.add('active');
                     document.getElementById('recipeTitle').textContent = recipeData.title;
-                    document.getElementById('recipeSummary').textContent = 'Loading recipe...';
+           document.getElementById('recipeSummary').textContent = recipe.summary.replace(/\*\*/g, '');
                     
                     window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
                         .then(response => {
