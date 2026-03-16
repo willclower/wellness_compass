@@ -1524,12 +1524,26 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         });
         
         messagesContainer.appendChild(btnContainer);
-    } else {
-        // Normal chat response — no suggestions detected
-        const assistantMsg = document.createElement('div');
-        assistantMsg.className = 'message assistant';
-messagesContainer.appendChild(assistantMsg);
-        typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+} else {
+        // Normal chat response — split numbered tips into separate bubbles
+        const numberedPattern = /(?:^|\n)(?=\d+\.\s*\*\*)/;
+        const parts = response.message.split(numberedPattern).map(p => p.trim()).filter(Boolean);
+        
+        if (parts.length >= 3) {
+            // Multiple numbered items detected — render each in its own bubble
+            parts.forEach(part => {
+                const bubble = document.createElement('div');
+                bubble.className = 'message assistant';
+                messagesContainer.appendChild(bubble);
+                typewriterEffect(bubble, part.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+            });
+        } else {
+            // Standard single bubble
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'message assistant';
+            messagesContainer.appendChild(assistantMsg);
+            typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+        }
     }
     
     if (response.gapButtons && response.gapButtons.length > 0) {
