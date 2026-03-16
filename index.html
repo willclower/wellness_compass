@@ -1694,7 +1694,7 @@ catch (error) {
             document.getElementById('recipeTitle').textContent = recipe.title;
             console.log('Title set:', recipe.title);
             
-            document.getElementById('recipeSummary').textContent = recipe.summary;
+    document.getElementById('recipeSummary').textContent = recipe.summary.replace(/\*\*/g, '');
             console.log('Summary set:', recipe.summary);
             console.log('Summary length:', recipe.summary ? recipe.summary.length : 0);
             
