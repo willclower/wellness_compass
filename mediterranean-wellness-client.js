@@ -111,13 +111,28 @@ async sendMessage(message, proactiveLogId = null) {
                .map(line => line.replace(/^-\s*/, '').replace(/\*\*/g, '').trim());
         }
         
-        // Instructions
+// Instructions - collect numbered steps with their sub-content
         const instructionsSection = text.match(/##\s+What To Do\s*\n+([\s\S]+?)(?=\n##)/);
         if (instructionsSection) {
-            recipe.instructions = instructionsSection[1].split('\n')
-                .map(line => line.trim())
-                .filter(line => /^\d+\./.test(line))
-                .map(line => line.replace(/^\d+\.\s*/, '').replace(/\*\*/g, '').trim());
+            const lines = instructionsSection[1].split('\n');
+            const steps = [];
+            let currentStep = '';
+            
+            for (const rawLine of lines) {
+                const line = rawLine.trim();
+                if (!line) continue;
+                
+                if (/^\d+\./.test(line)) {
+                    if (currentStep) steps.push(currentStep.replace(/\*\*/g, '').trim());
+                    currentStep = line.replace(/^\d+\.\s*/, '');
+                } else if (currentStep && (line.startsWith('-') || line.length > 0)) {
+                    const cleanLine = line.replace(/^-\s*/, '').replace(/\*\*/g, '');
+                    currentStep += ' ' + cleanLine;
+                }
+            }
+            if (currentStep) steps.push(currentStep.replace(/\*\*/g, '').trim());
+            
+            recipe.instructions = steps;
         }
         
         // Play With Your Food
