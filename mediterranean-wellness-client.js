@@ -95,11 +95,11 @@ async sendMessage(message, proactiveLogId = null) {
         };
         
         // Title
-        const titleMatch = text.match(/^#\s+(.+)$/m);
+        const titleMatch = text.match(/^#{1,3}\s+(.+)$/m);
         if (titleMatch) recipe.title = titleMatch[1].trim();
         
         // Introduction (first paragraph after title, before first ##)
-        const summaryMatch = text.match(/^#[^\n]+\n+(.+?)(?=\n##)/ms);
+        const summaryMatch = text.match(/^#{1,3}[^\n]+\n+(.+?)(?=\n##)/ms);
         if (summaryMatch) recipe.summary = summaryMatch[1].trim();
         
         // Ingredients
@@ -138,7 +138,7 @@ async sendMessage(message, proactiveLogId = null) {
         // Play With Your Food
         const notesSection = text.match(/##\s+Play With Your Food\s*\n+([\s\S]+?)(?=\n##|$)/);
         if (notesSection) {
-            recipe.notes = notesSection[1].trim();
+            recipe.notes = notesSection[1].replace(/\*\*/g, '').trim();
         }
         
         // Summary (closing)
