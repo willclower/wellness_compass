@@ -758,6 +758,55 @@
             display: none;
         }
 
+/* Nona Imagery */
+.nona-staging-figure {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nona-static-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.nona-hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Chat message with Nona avatar */
+.message-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 85%;
+}
+
+.message-row.user-row {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.message-row .nona-chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.message-row .message {
+    max-width: none;
+}
+
 /* Typing indicator dots */
 .typing-dots {
     display: inline-flex;
@@ -1115,7 +1164,7 @@
         <div class="assistants-grid">
             <div class="assistant-card active">
                 <div class="assistant-avatar">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 70'%3E%3Ccircle cx='35' cy='35' r='35' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="Nona">
+                    <img src="assets/nona/Nona_ProfilePic_Face.png" alt="Nona">
                 </div>
                 <div class="assistant-info">
                     <h3>Nona</h3>
@@ -1165,7 +1214,13 @@
                 <!-- Placeholder (shown by default) -->
                 <div class="recipe-placeholder" id="recipePlaceholder">
                     <div class="recipe-card">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f0f0f0'/%3E%3Ctext x='60' y='65' text-anchor='middle' font-size='40' fill='%23ccc'%3E👩‍🍳%3C/text%3E%3C/svg%3E" alt="Featured Recipe" class="recipe-image">
+                        <div class="nona-staging-figure">
+                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none" style="display:none;"
+                                src="assets/nona/Nona_WavesHello_Hero.mp4"
+                                poster="assets/nona/Nona_Standing_Static.png">
+                            </video>
+                            <img id="nonaStaticImg" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
+                        </div>
                         <div class="recipe-details">
                             <h3 id="placeholderTitle">Nona is picking today's recipe...</h3>
                             <p id="placeholderDesc">One moment while she finds something special for you!</p>
@@ -1271,6 +1326,52 @@
 
     <script src="mediterranean-wellness-client.js"></script>
     <script>
+        // --- Nona Imagery Helpers ---
+        const NONA_ASSETS = {
+            profilePic: 'assets/nona/Nona_ProfilePic_Face.png',
+            standingStatic: 'assets/nona/Nona_Standing_Static.png',
+            welcomeHero: 'assets/nona/Nona_WavesHello_Hero.mp4',
+            welcomeChat: 'assets/nona/Nona_WavesHello_chat.mp4'
+        };
+
+        function createAssistantMsg(container) {
+            const row = document.createElement('div');
+            row.className = 'message-row';
+
+            const avatar = document.createElement('img');
+            avatar.className = 'nona-chat-avatar';
+            avatar.src = NONA_ASSETS.profilePic;
+            avatar.alt = 'Nona';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message assistant';
+
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+            container.appendChild(row);
+            return bubble;
+        }
+
+        function playNonaHero(videoSrc) {
+            const video = document.getElementById('nonaHeroVideo');
+            const staticImg = document.getElementById('nonaStaticImg');
+            if (!video || !staticImg) return;
+
+            video.src = videoSrc || NONA_ASSETS.welcomeHero;
+            video.style.display = 'block';
+            staticImg.style.display = 'none';
+            video.load();
+            video.play().catch(() => {
+                // Autoplay blocked — fall back to static
+                video.style.display = 'none';
+                staticImg.style.display = 'block';
+            });
+            video.addEventListener('ended', () => {
+                video.style.display = 'none';
+                staticImg.style.display = 'block';
+            }, { once: true });
+        }
+
         // Basic interactivity
         document.querySelectorAll('.assistant-card').forEach(card => {
             card.addEventListener('click', function() {
@@ -1403,11 +1504,22 @@ let featuredRecipeLoaded = false;
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             // Show typing indicator
+            const typingRow = document.createElement('div');
+            typingRow.className = 'message-row';
+            typingRow.id = 'typing-indicator';
+
+            const typingAvatar = document.createElement('img');
+            typingAvatar.className = 'nona-chat-avatar';
+            typingAvatar.src = NONA_ASSETS.profilePic;
+            typingAvatar.alt = 'Nona';
+
             const typingIndicator = document.createElement('div');
             typingIndicator.className = 'message assistant';
-            typingIndicator.id = 'typing-indicator';
     typingIndicator.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
-            messagesContainer.appendChild(typingIndicator);
+
+            typingRow.appendChild(typingAvatar);
+            typingRow.appendChild(typingIndicator);
+            messagesContainer.appendChild(typingRow);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             try {
@@ -1418,7 +1530,7 @@ console.log('RAW RESPONSE:', JSON.stringify(response));
                 _pendingProactiveLogId = null;
 
                 // Remove typing indicator
-                typingIndicator.remove();
+                typingRow.remove();
 
                 // Check if response contains a recipe
                 if (response.success && response.message) {
@@ -1434,9 +1546,7 @@ const recipe = window.MWClient.parseRecipe(response.message);
     
     // Show Nona's warm intro in chat
     if (response.chatMessage) {
-        const assistantMsg = document.createElement('div');
-        assistantMsg.className = 'message assistant';
-messagesContainer.appendChild(assistantMsg);
+        const assistantMsg = createAssistantMsg(messagesContainer);
         typewriterEffect(assistantMsg, response.chatMessage.replace(/\.\s+/g, '.<br><br>'));
     }
     
@@ -1488,9 +1598,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         
         // Also strip any closing text after the last suggestion
         if (introText) {
-            const assistantMsg = document.createElement('div');
-            assistantMsg.className = 'message assistant';
-  messagesContainer.appendChild(assistantMsg);
+            const assistantMsg = createAssistantMsg(messagesContainer);
             typewriterEffect(assistantMsg, introText.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>'));
         }
         
@@ -1532,16 +1640,12 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         if (parts.length >= 3) {
             // Multiple numbered items detected — render each in its own bubble
             parts.forEach(part => {
-                const bubble = document.createElement('div');
-                bubble.className = 'message assistant';
-                messagesContainer.appendChild(bubble);
+                const bubble = createAssistantMsg(messagesContainer);
                 typewriterEffect(bubble, part.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
             });
         } else {
             // Standard single bubble
-            const assistantMsg = document.createElement('div');
-            assistantMsg.className = 'message assistant';
-            messagesContainer.appendChild(assistantMsg);
+            const assistantMsg = createAssistantMsg(messagesContainer);
             typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
         }
     }
@@ -1578,11 +1682,10 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
                     
                     window.MWClient.sendMessage('REQUEST_ORIGINAL:' + btn.value).then(response => {
                         if (response.success && response.message) {
-                            const assistantMsg = document.createElement('div');
-                            assistantMsg.className = 'message assistant';
+                            const assistantMsg = createAssistantMsg(messagesContainer);
 assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
-                            messagesContainer.appendChild(assistantMsg);
-                            messagesContainer.scrollTop                        }
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }
                     });
                 } else {
                     const input = document.getElementById('messageInput');
@@ -1629,31 +1732,28 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
 }
 }
                 } else {
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'message assistant';
-                    errorMsg.style.whiteSpace = 'pre-line';  // Preserve line breaks
+                    const errorMsg = createAssistantMsg(messagesContainer);
+                    errorMsg.style.whiteSpace = 'pre-line';
                     errorMsg.textContent = response.error || 'Sorry, something went wrong. Please try again.';
-                    messagesContainer.appendChild(errorMsg);
                 }
                 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
 if (response.intake_completed && !featuredRecipeLoaded) {
     featuredRecipeLoaded = true;
+    playNonaHero(NONA_ASSETS.welcomeHero);
     loadFeaturedRecipe();
 }
 
             } 
 catch (error) {
-    typingIndicator.remove();
+    typingRow.remove();
     
     console.error('@@@ CAUGHT ERROR @@@', error);
     console.error('Error stack:', error.stack);
     
-    const errorMsg = document.createElement('div');
-    errorMsg.className = 'message assistant';
+    const errorMsg = createAssistantMsg(messagesContainer);
     errorMsg.textContent = 'Connection error. Please check your internet and try again.';
-    messagesContainer.appendChild(errorMsg);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }                
              
@@ -1689,6 +1789,9 @@ catch (error) {
             document.getElementById('recipePlaceholder').classList.add('hidden');
             const recipeDisplay = document.getElementById('recipeDisplay');
             recipeDisplay.classList.add('active');
+            
+            // Play Nona animation in staging (presenting dish when available, welcome wave for now)
+            playNonaHero(NONA_ASSETS.welcomeHero);
             
             // Populate content
             document.getElementById('recipeTitle').textContent = recipe.title;
@@ -2030,10 +2133,8 @@ const data = JSON.parse(text);
                 _pendingProactiveLogId = data.log_id;
 
                 const messagesContainer = document.getElementById('chatMessages');
-                const proactiveMsg = document.createElement('div');
-                proactiveMsg.className = 'message assistant';
+                const proactiveMsg = createAssistantMsg(messagesContainer);
 proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
-                messagesContainer.appendChild(proactiveMsg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
                 await fetch('https://n8n-admin.willclower.com/webhook/mark-proactive-delivered', {
@@ -2097,10 +2198,18 @@ proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').repla
                     ];
                 }
                 
-const loadingMsg = document.createElement('div');
+const loadingRow = document.createElement('div');
+                loadingRow.className = 'message-row';
+                loadingRow.id = 'featured-loading';
+                const loadingAvatar = document.createElement('img');
+                loadingAvatar.className = 'nona-chat-avatar';
+                loadingAvatar.src = NONA_ASSETS.profilePic;
+                loadingAvatar.alt = 'Nona';
+                const loadingMsg = document.createElement('div');
                 loadingMsg.className = 'message assistant';
-                loadingMsg.id = 'featured-loading';
-                messagesContainer.appendChild(loadingMsg);
+                loadingRow.appendChild(loadingAvatar);
+                loadingRow.appendChild(loadingMsg);
+                messagesContainer.appendChild(loadingRow);
                 const greetingHtml = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/([.!?])\s+/g, '$1<br><br>');
                 const dotsHtml = '<br><div class="typing-dots" style="margin-top:6px"><span></span><span></span><span></span></div>';
                 typewriterEffect(loadingMsg, greetingHtml, 20, () => {
@@ -2127,9 +2236,7 @@ setTimeout(() => {
   // Skip chatMessage for featured recipes — the greeting already covers it
      // But DO show relationship comment if present
     if (nonaResponse.relationshipComment) {
-        const commentMsg = document.createElement('div');
-        commentMsg.className = 'message assistant';
-        messagesContainer.appendChild(commentMsg);
+        const commentMsg = createAssistantMsg(messagesContainer);
         typewriterEffect(commentMsg, nonaResponse.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
     }
 
@@ -2159,10 +2266,8 @@ setTimeout(() => {
     
 } else if (nonaResponse.success && nonaResponse.message) {
     const intakeMsgContainer = document.getElementById('chatMessages');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'message assistant';
+    const msgDiv = createAssistantMsg(intakeMsgContainer);
     msgDiv.innerHTML = nonaResponse.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
-    intakeMsgContainer.appendChild(msgDiv);
     intakeMsgContainer.scrollTop = intakeMsgContainer.scrollHeight;
                 
                     // Mark this featured recipe as delivered so it doesn't repeat
@@ -2180,10 +2285,8 @@ setTimeout(() => {
                     // Show Nona's intro in chat
                     const messagesContainer = document.getElementById('chatMessages');
                     if (nonaResponse.chatMessage) {
-                        const introMsg = document.createElement('div');
-                        introMsg.className = 'message assistant';
+                        const introMsg = createAssistantMsg(messagesContainer);
     introMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
-                        messagesContainer.appendChild(introMsg);
                     }
                     if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
                         const btnContainer = document.createElement('div');
@@ -2277,10 +2380,15 @@ setTimeout(() => {
             if (messagesContainer.children.length === 0) {
                 const currentAssistant = window.MWClient.getCurrentAssistant();
                 const greeting = window.MWClient.getDefaultGreeting(currentAssistant);
-                const greetingMsg = document.createElement('div');
-                greetingMsg.className = 'message assistant';
-                greetingMsg.textContent = greeting;
-                messagesContainer.appendChild(greetingMsg);
+                if (currentAssistant === 'nona') {
+                    const greetingMsg = createAssistantMsg(messagesContainer);
+                    greetingMsg.textContent = greeting;
+                } else {
+                    const greetingMsg = document.createElement('div');
+                    greetingMsg.className = 'message assistant';
+                    greetingMsg.textContent = greeting;
+                    messagesContainer.appendChild(greetingMsg);
+                }
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
 if (!_loadedFromSaved && !loadRecipe) {
