@@ -1214,18 +1214,20 @@
                 <!-- Placeholder (shown by default) -->
                 <div class="recipe-placeholder" id="recipePlaceholder">
                     <div class="recipe-card">
-                        <div class="nona-staging-figure">
-                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none" style="display:none;"
-                                src="assets/nona/Nona_WavesHello_Hero.mp4"
-                                poster="assets/nona/Nona_Standing_Static.png">
-                            </video>
-                            <img id="nonaStaticImg" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
-                        </div>
                         <div class="recipe-details">
                             <h3 id="placeholderTitle">Nona is picking today's recipe...</h3>
                             <p id="placeholderDesc">One moment while she finds something special for you!</p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Nona Hero Figure — persists across placeholder/recipe states -->
+                <div class="nona-staging-figure" id="nonaStagingFigure">
+                    <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none" style="display:none;"
+                        src="assets/nona/Nona_WavesHello_Hero.mp4"
+                        poster="assets/nona/Nona_Standing_Static.png">
+                    </video>
+                    <img id="nonaStaticImg" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
                 </div>
 
                 <!-- Recipe Display (hidden by default, shown when Nona shares a recipe) -->
@@ -1797,7 +1799,10 @@ catch (error) {
             document.getElementById('recipeTitle').textContent = recipe.title;
             console.log('Title set:', recipe.title);
             
-    document.getElementById('recipeSummary').textContent = recipe.summary.replace(/\*\*/g, '');
+    document.getElementById('recipeSummary').textContent = recipe.summary
+        .replace(/\*\*/g, '')
+        .replace(/^#{1,6}\s+[^\n]+\n*/gm, '')
+        .trim();
             console.log('Summary set:', recipe.summary);
             console.log('Summary length:', recipe.summary ? recipe.summary.length : 0);
             
@@ -1910,7 +1915,14 @@ catch (error) {
             if (recipe.notes) {
                 document.getElementById('notesSection').style.display = 'block';
                 const notesList = document.getElementById('notesList');
-                notesList.textContent = recipe.notes;
+                // Strip markdown: bold markers, list dashes, clean up
+                const cleanNotes = recipe.notes
+                    .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold** → bold
+                    .split('\n')
+                    .map(line => line.replace(/^-\s*/, '• ').trim())
+                    .filter(line => line.length > 0)
+                    .join('\n');
+                notesList.textContent = cleanNotes;
             } else {
                 document.getElementById('notesSection').style.display = 'none';
             }
@@ -2363,7 +2375,10 @@ setTimeout(() => {
                     const recipeDisplay = document.getElementById('recipeDisplay');
                     recipeDisplay.classList.add('active');
                     document.getElementById('recipeTitle').textContent = recipeData.title;
-           document.getElementById('recipeSummary').textContent = recipe.summary.replace(/\*\*/g, '');
+           document.getElementById('recipeSummary').textContent = (recipe.summary || '')
+                .replace(/\*\*/g, '')
+                .replace(/^#{1,6}\s+[^\n]+\n*/gm, '')
+                .trim();
                     
                     window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
                         .then(response => {
