@@ -1985,6 +1985,7 @@ document.getElementById('recipeSummary').textContent = (recipe.summary || '')
 // Store current recipe
 window.currentRecipe = recipe;
      initializeRating();
+}
 
   // Track whether we loaded from saved recipes (used by pageshow)
         let _loadedFromSaved = false;
@@ -2171,8 +2172,7 @@ body: JSON.stringify({
         // Single consolidated handler for page load and bfcache restore
 
         // Featured Recipe - silently loads either a recipe_ready delivery or daily featured recipe
-// Proactive message state — persists until user sends their next message
-        let _pendingProactiveLogId = null;
+// Proactive message state — uses _pendingProactiveLogId declared at top of script
 
         async function loadProactiveMessages() {
             const userId = window.MWClient.getUserId();
