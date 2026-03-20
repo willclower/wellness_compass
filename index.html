@@ -323,7 +323,7 @@
             border-radius: 20px;
             display: flex;
             flex-direction: column;
-            height: 600px;
+            height: calc(100vh - 40px);
             box-shadow: 0 6px 16px rgba(110, 197, 192, 0.2);
             position: sticky;
             top: 20px;
@@ -1271,7 +1271,7 @@
     </div>
 <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
     <span id="saveText">Save This Recipe</span>
-     🔖 
+     <span id="saveIcon">🤍</span> 
 </button>
 <button class="recipe-action-btn print-btn" id="printRecipeBtn">
     <span>Print</span>
@@ -1778,13 +1778,15 @@ catch (error) {
 
             // FIX: Reset save button state for each new recipe
             document.getElementById('saveRecipeBtn').classList.remove('saved');
-            document.getElementById('saveText').textContent = 'Save This Recipe';
-
+ document.getElementById('saveText').textContent = 'Save This Recipe';
+            document.getElementById('saveIcon').textContent = '🤍';
+     
             // Check if this recipe was previously saved in this session
             if (sessionStorage.getItem('savedRecipe_' + recipe.title)) {
                 document.getElementById('saveRecipeBtn').classList.add('saved');
-                document.getElementById('saveText').textContent = 'Saved ✓';
-            }
+ document.getElementById('saveText').textContent = 'Saved ✓';
+                document.getElementById('saveIcon').textContent = '❤️';
+            }            }
 
             // FIX: Reset YUM rating state for each new recipe
             const emojis = document.querySelectorAll('#yumRating .yum-emoji');
@@ -2060,9 +2062,9 @@ body: JSON.stringify({
                 // FIX: Both new save and already-saved show the same saved state
                 if (data.success) {
                     this.classList.add('saved');
-                    document.getElementById('saveText').textContent = 'Saved ✓';
-                    console.log('✅ Recipe saved to collection');
-                    
+  document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
+                    console.log('✅ Recipe saved to collection');                    
                     // Track save state in sessionStorage for bfcache restore
                     sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
                     
@@ -2074,10 +2076,10 @@ body: JSON.stringify({
                 } else {
                     // Already saved is still a success state visually
                     this.classList.add('saved');
-                    document.getElementById('saveText').textContent = 'Saved ✓';
+ document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
                     sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
-                    console.log('ℹ️ Recipe already saved');
-                }
+                    console.log('ℹ️ Recipe already saved');                }
             } catch (error) {
                 console.error('Error saving recipe:', error);
                 alert('Failed to save recipe');
