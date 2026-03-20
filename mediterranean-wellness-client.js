@@ -24,7 +24,7 @@ class MediterraneanWellnessClient {
         return this.userId + '_' + today;
     }
 
-async sendMessage(message, proactiveLogId = null) {
+async sendMessage(message, proactiveLogId = null, signal = null) {
         try {
             const webhookPath = `${this.currentAssistant}_chat`;
             
@@ -37,8 +37,10 @@ async sendMessage(message, proactiveLogId = null) {
                     sessionId: this.sessionId,
                     userName: 'User',
                     ...(proactiveLogId && { loadProactive: true, proactive_log_id: proactiveLogId })
-                })
+                }),
+                ...(signal && { signal })
             });
+            
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
