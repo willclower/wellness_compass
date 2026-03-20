@@ -383,7 +383,15 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(110, 197, 192, 0.4);
         }
+.chat-input-area button.stop-btn {
+            background: linear-gradient(145deg, #e05555, #c94444);
+            box-shadow: 0 4px 10px rgba(224, 85, 85, 0.3);
+        }
 
+        .chat-input-area button.stop-btn:hover {
+            background: linear-gradient(145deg, #c94444, #b33a3a);
+            box-shadow: 0 6px 14px rgba(224, 85, 85, 0.4);
+        }
         .message {
             padding: 12px 16px;
             border-radius: 18px;
@@ -1492,13 +1500,28 @@ let featuredRecipeLoaded = false;
             if (e.key === 'Enter') sendMessage();
         });
 
-        async function sendMessage() {
+let _abortController = null;
+
+async function sendMessage() {
+            const sendBtn = document.getElementById('sendButton');
+            
+            // If currently waiting, abort the request
+            if (_abortController) {
+                _abortController.abort();
+                _abortController = null;
+                sendBtn.textContent = 'Send';
+                sendBtn.classList.remove('stop-btn');
+                const typing = document.getElementById('typing-indicator');
+                if (typing) typing.remove();
+                return;
+            }
+
             console.log('=== SEND MESSAGE FUNCTION CALLED ===');
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             console.log('Message:', message);
             if (!message) return;
-
+    
             const messagesContainer = document.getElementById('chatMessages');
             
             // Add user message
@@ -1529,16 +1552,27 @@ let featuredRecipeLoaded = false;
             messagesContainer.appendChild(typingRow);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+// Toggle to Stop button
+            _abortController = new AbortController();
+            sendBtn.textContent = 'Stop';
+            sendBtn.classList.add('stop-btn');
+
             try {
       // Send to backend
-                const response = await window.MWClient.sendMessage(message, _pendingProactiveLogId);
+                const response = await window.MWClient.sendMessage(message, _pendingProactiveLogId, _abortController.signal);
+                
 console.log('RAW RESPONSE:', JSON.stringify(response));
                 // Reset proactive flag — this message has now captured the response
                 _pendingProactiveLogId = null;
 
-                // Remove typing indicator
+// Remove typing indicator
                 typingRow.remove();
-
+                
+                // Reset Send button
+                _abortController = null;
+                sendBtn.textContent = 'Send';
+                sendBtn.classList.remove('stop-btn');
+                
                 // Check if response contains a recipe
                 if (response.success && response.message) {
                     console.log('=== RECIPE DEBUG ===');
@@ -1754,6 +1788,12 @@ if (response.intake_completed && !featuredRecipeLoaded) {
             } 
 catch (error) {
     typingRow.remove();
+    _abortController = null;
+    sendBtn.textContent = 'Send';
+    sendBtn.classList.remove('stop-btn');
+    
+    // Don't show error for intentional abort
+    if (error.name === 'AbortError') return;
     
     console.error('@@@ CAUGHT ERROR @@@', error);
     console.error('Error stack:', error.stack);
@@ -1761,7 +1801,7 @@ catch (error) {
     const errorMsg = createAssistantMsg(messagesContainer);
     errorMsg.textContent = 'Connection error. Please check your internet and try again.';
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}                
+}            
              
         }
 
