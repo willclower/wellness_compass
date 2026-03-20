@@ -759,16 +759,12 @@
         }
 
 /* Nona Imagery */
-.nona-staging-figure {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 10px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.nona-intro-figure {
+    width: 150px;
+    min-width: 150px;
+    height: 150px;
+    flex-shrink: 0;
 }
-
 .nona-static-img {
     width: 100%;
     height: 100%;
@@ -1221,14 +1217,7 @@
                     </div>
                 </div>
 
-                <!-- Nona Hero Figure — persists across placeholder/recipe states -->
-                <div class="nona-staging-figure" id="nonaStagingFigure">
-                    <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none" style="display:none;"
-                        src="assets/nona/Nona_WavesHello_Hero.mp4"
-                        poster="assets/nona/Nona_Standing_Static.png">
-                    </video>
-                    <img id="nonaStaticImg" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
-                </div>
+    
 
                 <!-- Recipe Display (hidden by default, shown when Nona shares a recipe) -->
                 <div class="recipe-display" id="recipeDisplay">
@@ -1237,13 +1226,19 @@
                         <button class="close-recipe-btn" id="closeRecipeBtn" title="Close recipe">×</button>
                     </div>
 
-                    <div class="recipe-intro-section">
+              <div class="recipe-intro-section">
+                        <div class="nona-intro-figure" id="nonaIntroFigure">
+                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none"
+                                src="assets/nona/Nona_WavesHello_Hero.mp4">
+                            </video>
+                            <img id="nonaStaticImg" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
+                        </div>
                         <div class="recipe-summary-column">
                             <p class="recipe-summary" id="recipeSummary"></p>
                         </div>
                         <img id="recipeImage" class="recipe-image-display" style="display: none;" />
                     </div>
-
+                    
                     <!-- Recipe Info Card -->
                     <div class="recipe-info-card" id="recipeInfoCard" style="display: none;">
                         <h4>📊 Nutrition & Details</h4>
@@ -1363,14 +1358,16 @@
             video.style.display = 'block';
             staticImg.style.display = 'none';
             video.load();
-            video.play().catch(() => {
-                // Autoplay blocked — fall back to static
+video.play().then(() => {
+                staticImg.style.display = 'none';
+            }).catch(() => {
+                // Autoplay blocked — keep static visible
                 video.style.display = 'none';
                 staticImg.style.display = 'block';
             });
+ // Freeze on last frame — do not revert to static
             video.addEventListener('ended', () => {
-                video.style.display = 'none';
-                staticImg.style.display = 'block';
+                video.pause();
             }, { once: true });
         }
 
@@ -1458,6 +1455,8 @@ function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
             switchMsg.textContent = 'Switching assistants...';
             messagesContainer.appendChild(switchMsg);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Start Nona video during loading
+                playNonaHero(NONA_ASSETS.welcomeHero);
             
             try {
                 const response = await window.MWClient.switchAssistant(assistantId);
@@ -1792,8 +1791,7 @@ catch (error) {
             const recipeDisplay = document.getElementById('recipeDisplay');
             recipeDisplay.classList.add('active');
             
-            // Play Nona animation in staging (presenting dish when available, welcome wave for now)
-            playNonaHero(NONA_ASSETS.welcomeHero);
+
             
             // Populate content
             document.getElementById('recipeTitle').textContent = recipe.title;
