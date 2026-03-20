@@ -1502,6 +1502,7 @@ let featuredRecipeLoaded = false;
         });
 
 let _abortController = null;
+let _pendingProactiveLogId = null;
 
 async function sendMessage() {
             const sendBtn = document.getElementById('sendButton');
