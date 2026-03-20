@@ -2421,11 +2421,7 @@ setTimeout(() => {
                     document.getElementById('recipePlaceholder').classList.add('hidden');
                     const recipeDisplay = document.getElementById('recipeDisplay');
                     recipeDisplay.classList.add('active');
-                    document.getElementById('recipeTitle').textContent = recipeData.title;
-           document.getElementById('recipeSummary').textContent = (recipe.summary || '')
-                .replace(/\*\*/g, '')
-                .replace(/^#{1,6}\s+[^\n]+\n*/gm, '')
-                .trim();
+document.getElementById('recipeSummary').textContent = '';
                     
                     window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
                         .then(response => {
