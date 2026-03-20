@@ -1462,8 +1462,7 @@ function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
             switchMsg.textContent = 'Switching assistants...';
             messagesContainer.appendChild(switchMsg);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            // Start Nona video during loading
-                playNonaHero(NONA_ASSETS.welcomeHero);
+   
             
             try {
                 const response = await window.MWClient.switchAssistant(assistantId);
@@ -2233,7 +2232,9 @@ const loadingRow = document.createElement('div');
                     loadingMsg.innerHTML += dotsHtml;
                 });
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                
+
+                    // Start Nona video during loading
+                playNonaHero(NONA_ASSETS.welcomeHero);
 
                 // Silently ask Nona for the full recipe (no user bubble in chat)
                 const nonaResponse = await window.MWClient.sendMessage(
