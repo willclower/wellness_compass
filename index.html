@@ -759,11 +759,21 @@
         }
 
 /* Nona Imagery */
-.nona-intro-figure {
-    width: 150px;
-    min-width: 150px;
-    height: 150px;
+.nona-placeholder-figure {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nona-intro-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
     flex-shrink: 0;
+    align-self: flex-start;
 }
 .nona-static-img {
     width: 100%;
@@ -1208,8 +1218,14 @@
             </div>
             <div class="recipe-content">
                 <!-- Placeholder (shown by default) -->
-                <div class="recipe-placeholder" id="recipePlaceholder">
+<div class="recipe-placeholder" id="recipePlaceholder">
                     <div class="recipe-card">
+                        <div class="nona-placeholder-figure">
+                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none"
+                                src="assets/nona/Nona_WavesHello_Hero.mp4">
+                            </video>
+                            <img id="nonaPlaceholderStatic" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
+                        </div>
                         <div class="recipe-details">
                             <h3 id="placeholderTitle">Nona is picking today's recipe...</h3>
                             <p id="placeholderDesc">One moment while she finds something special for you!</p>
@@ -1226,13 +1242,8 @@
                         <button class="close-recipe-btn" id="closeRecipeBtn" title="Close recipe">×</button>
                     </div>
 
-              <div class="recipe-intro-section">
-                        <div class="nona-intro-figure" id="nonaIntroFigure">
-                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none"
-                                src="assets/nona/Nona_WavesHello_Hero.mp4">
-                            </video>
-                            <img id="nonaStaticImg" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
-                        </div>
+    <div class="recipe-intro-section">
+                        <img id="nonaStaticImg" class="nona-intro-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
                         <div class="recipe-summary-column">
                             <p class="recipe-summary" id="recipeSummary"></p>
                         </div>
@@ -1349,23 +1360,19 @@
             return bubble;
         }
 
-        function playNonaHero(videoSrc) {
+function playNonaHero(videoSrc) {
             const video = document.getElementById('nonaHeroVideo');
-            const staticImg = document.getElementById('nonaStaticImg');
-            if (!video || !staticImg) return;
+            const staticImg = document.getElementById('nonaPlaceholderStatic');
+            if (!video) return;
 
             video.src = videoSrc || NONA_ASSETS.welcomeHero;
             video.style.display = 'block';
-            staticImg.style.display = 'none';
+            if (staticImg) staticImg.style.display = 'none';
             video.load();
-video.play().then(() => {
-                staticImg.style.display = 'none';
-            }).catch(() => {
-                // Autoplay blocked — keep static visible
+            video.play().catch(() => {
                 video.style.display = 'none';
-                staticImg.style.display = 'block';
+                if (staticImg) staticImg.style.display = 'block';
             });
- // Freeze on last frame — do not revert to static
             video.addEventListener('ended', () => {
                 video.pause();
             }, { once: true });
