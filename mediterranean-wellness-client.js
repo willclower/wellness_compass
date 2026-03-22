@@ -77,7 +77,7 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
             return {
                 success: false,
                 error: error.message,
-                message: 'The search was stopped. Can I help you find something else?'
+                message: 'I stopped the search for you. But no problem tesoro, can I help you find something else?'
             };
         }
     }
