@@ -69,12 +69,15 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
                 };
             }
 
-        } catch (error) {
+} catch (error) {
+            if (error.name === 'AbortError') {
+                return { success: false, aborted: true, message: '' };
+            }
             console.error('Send message error:', error);
             return {
                 success: false,
                 error: error.message,
-                message: 'Unable to connect to assistant. Please try again.'
+                message: 'The search was stopped. Can I help you find something else?'
             };
         }
     }
