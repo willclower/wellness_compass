@@ -2165,10 +2165,10 @@ body: JSON.stringify({
                     <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
                     <h2>What To Do</h2>
                     <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
-                    ${recipe.notes.length > 0 ? `
+${recipe.notes && recipe.notes.length > 0 ? `
                         <div class="notes">
                             <h2>Notes</h2>
-                            <ul>${recipe.notes.map(n => `<li>${n}</li>`).join('')}</ul>
+                            <div style="white-space: pre-line;">${recipe.notes}</div>
                         </div>
                     ` : ''}
                     <button onclick="window.print()">Print Recipe</button>
