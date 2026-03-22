@@ -1774,7 +1774,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
     messagesContainer.appendChild(btnContainer);
 }
 }
-                } else {
+} else if (!response.aborted) {
                     const errorMsg = createAssistantMsg(messagesContainer);
                     errorMsg.style.whiteSpace = 'pre-line';
                     errorMsg.textContent = response.error || 'Sorry, something went wrong. Please try again.';
