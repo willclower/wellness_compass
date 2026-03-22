@@ -596,10 +596,17 @@
                const data = await response.json();
                 console.log('Remove response:', data);
                 
-                if (data.success) {
+if (data.success) {
                     console.log('✅ Recipe removed from saved');
+                    // Clear client-side save state
+                    const recipeId = title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+                    delete saved[recipeId];
+                    localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                    sessionStorage.removeItem('savedRecipe_' + title);
                     loadSavedRecipes(); // Reload the list
-                } else {
+
+} else {
                     alert('Failed to remove recipe');
                 }
             } catch (error) {
