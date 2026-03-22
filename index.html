@@ -1791,7 +1791,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
                 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-if (response.intake_completed && !featuredRecipeLoaded) {
+if (response.intake_completed && !featuredRecipeLoaded && !_loadedFromSaved) {
     featuredRecipeLoaded = true;
     loadFeaturedRecipe();
 }
@@ -2412,8 +2412,10 @@ setTimeout(() => {
                     displayRecipe(rd);
                     loadRecipeImage(rd.title);
                     // Mark as already saved (it came from saved recipes)
-                    document.getElementById('saveRecipeBtn').classList.add('saved');
+document.getElementById('saveRecipeBtn').classList.add('saved');
                     document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
+                    
                     // Restore YUM rating if it exists
                     const rating = recipeData.recipeData.user_rating || 0;
                     if (rating > 0) {
