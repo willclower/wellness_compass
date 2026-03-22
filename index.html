@@ -1280,7 +1280,7 @@ height: calc(100vh - 250px);
     </div>
 <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
     <span id="saveText">Save This Recipe</span>
-     <span id="saveIcon">🤍</span> 
+     <span id="saveIcon" style="font-size: 24px;">🤍</span> 
 </button>
 <button class="recipe-action-btn print-btn" id="printRecipeBtn">
     <span>Print</span>
@@ -1576,13 +1576,12 @@ console.log('RAW RESPONSE:', JSON.stringify(response));
                 sendBtn.classList.remove('stop-btn');
                 
                 // Check if response contains a recipe
-                if (response.success && response.message) {
- // Safety violation — show message only, skip all suggestions/recipes
-                    if (response.safety_violation) {
-                        const safetyMsg = createAssistantMsg(messagesContainer);
-                        typewriterEffect(safetyMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    } else
+                if (response.safety_violation) {
+                    // Safety violation — show message only, skip all suggestions/recipes
+                    const safetyMsg = createAssistantMsg(messagesContainer);
+                    typewriterEffect(safetyMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else if (response.success && response.message) {
                         
                     console.log('=== RECIPE DEBUG ===');
                     console.log('Is Recipe:', response.isRecipe);
