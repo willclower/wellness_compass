@@ -1577,6 +1577,13 @@ console.log('RAW RESPONSE:', JSON.stringify(response));
                 
                 // Check if response contains a recipe
                 if (response.success && response.message) {
+ // Safety violation — show message only, skip all suggestions/recipes
+                    if (response.safety_violation) {
+                        const safetyMsg = createAssistantMsg(messagesContainer);
+                        typewriterEffect(safetyMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    } else
+                        
                     console.log('=== RECIPE DEBUG ===');
                     console.log('Is Recipe:', response.isRecipe);
                     console.log('Raw Message Length:', response.message.length);
