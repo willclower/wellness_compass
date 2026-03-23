@@ -2064,10 +2064,12 @@ async function loadRecipeImage(recipeTitle) {
                 // FIX: Check if recipe is already saved and update button
                 if (data.is_saved) {
                     document.getElementById('saveRecipeBtn').classList.add('saved');
-                    document.getElementById('saveText').textContent = 'Saved ✓';
+document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
                 }
             } else {
                 console.log('No image data available');
+                
                 document.getElementById('recipeImage').style.display = 'none';
             }
         } else {
@@ -2424,7 +2426,8 @@ setTimeout(() => {
                     loadRecipeImage(rd.title);
                     // Mark as already saved (it came from saved recipes)
                     document.getElementById('saveRecipeBtn').classList.add('saved');
-                    document.getElementById('saveText').textContent = 'Saved ✓';
+      document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
                     // Restore YUM rating if it exists
                     const rating = recipeData.recipeData.user_rating || 0;
                     if (rating > 0) {
