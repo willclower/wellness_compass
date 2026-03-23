@@ -2101,52 +2101,56 @@ document.getElementById('instructionsHeader').addEventListener('click', function
             document.getElementById('recipePlaceholder').classList.remove('hidden');
         });
 
- 
-        // Save button
+// Save button — toggles between save and unsave
         document.getElementById('saveRecipeBtn').addEventListener('click', async function() {
             if (!window.currentRecipe) return;
             
             const userId = window.MWClient.getUserId();
             const recipe = window.currentRecipe;
+            const isSaved = this.classList.contains('saved');
             
             try {
-                const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-      
-body: JSON.stringify({
-    user_id: userId,
-    recipe_title: recipe.title,
-    recipe_data: recipe
-})
-                });
-                
-                const data = await response.json();
-                
-                // FIX: Both new save and already-saved show the same saved state
-                if (data.success) {
-                    this.classList.add('saved');
-  document.getElementById('saveText').textContent = 'Saved ✓';
-                    document.getElementById('saveIcon').textContent = '❤️';
-                    console.log('✅ Recipe saved to collection');                    
-                    // Track save state in sessionStorage for bfcache restore
-                    sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
-                    
-                    // Also save to localStorage as backup
-                    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
-                    const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                    saved[recipeId] = recipe;
-                    localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                if (isSaved) {
+                    // UNSAVE
+                    const response = await fetch('https://n8n-admin.willclower.com/webhook/remove-saved-recipe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId, recipe_title: recipe.title })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.classList.remove('saved');
+                        document.getElementById('saveText').textContent = 'Save This Recipe';
+                        document.getElementById('saveIcon').textContent = '🤍';
+                        sessionStorage.removeItem('savedRecipe_' + recipe.title);
+                        const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+                        const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                        delete saved[recipeId];
+                        localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                        console.log('🗑️ Recipe removed from saved');
+                    }
                 } else {
-                    // Already saved is still a success state visually
-                    this.classList.add('saved');
- document.getElementById('saveText').textContent = 'Saved ✓';
-                    document.getElementById('saveIcon').textContent = '❤️';
-                    sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
-                    console.log('ℹ️ Recipe already saved');                }
+                    // SAVE
+                    const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId, recipe_title: recipe.title, recipe_data: recipe })
+                    });
+                    const data = await response.json();
+                    if (data.success || data.is_saved) {
+                        this.classList.add('saved');
+                        document.getElementById('saveText').textContent = 'Saved ✓';
+                        document.getElementById('saveIcon').textContent = '❤️';
+                        sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
+                        const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+                        const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                        saved[recipeId] = recipe;
+                        localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                        console.log('✅ Recipe saved to collection');
+                    }
+                }
             } catch (error) {
-                console.error('Error saving recipe:', error);
-                alert('Failed to save recipe');
+                console.error('Error toggling save:', error);
             }
         });
 
@@ -2409,6 +2413,18 @@ setTimeout(() => {
         
  window.addEventListener('pageshow', (event) => {
 
+     // Re-sync save button state on bfcache restore
+            if (event.persisted && window.currentRecipe) {
+                const recipeTitle = window.currentRecipe.title;
+                const stillSaved = sessionStorage.getItem('savedRecipe_' + recipeTitle);
+                const btn = document.getElementById('saveRecipeBtn');
+                if (!stillSaved && btn.classList.contains('saved')) {
+                    btn.classList.remove('saved');
+                    document.getElementById('saveText').textContent = 'Save This Recipe';
+                    document.getElementById('saveIcon').textContent = '🤍';
+                }
+            }
+     
             // Reset tabs to first tab on every page show
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById('todayTab').classList.add('active');
