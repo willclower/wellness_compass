@@ -2136,18 +2136,16 @@ document.getElementById('instructionsHeader').addEventListener('click', function
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ user_id: userId, recipe_title: recipe.title, recipe_data: recipe })
                     });
-                    const data = await response.json();
-                    if (data.success || data.is_saved) {
-                        this.classList.add('saved');
-                        document.getElementById('saveText').textContent = 'Saved ✓';
-                        document.getElementById('saveIcon').textContent = '❤️';
-                        sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
-                        const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
-                        const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                        saved[recipeId] = recipe;
-                        localStorage.setItem('savedRecipes', JSON.stringify(saved));
-                        console.log('✅ Recipe saved to collection');
-                    }
+   const data = await response.json();
+                    this.classList.add('saved');
+                    document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
+                    sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
+                    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+                    const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                    saved[recipeId] = recipe;
+                    localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                    console.log('✅ Recipe saved to collection');
                 }
             } catch (error) {
                 console.error('Error toggling save:', error);
