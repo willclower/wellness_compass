@@ -1208,11 +1208,8 @@ height: calc(100vh - 250px);
             return bubble;
         }
 
-function playNonaHero(videoSrc) {
-            const video = document.getElementById('nonaHeroVideo');
-            const staticImg = document.getElementById('nonaPlaceholderStatic');
-
-    window.addEventListener('pagehide', () => {
+// Clean up video on page hide (bfcache) — registered once
+        window.addEventListener('pagehide', () => {
             const video = document.getElementById('nonaHeroVideo');
             if (video) {
                 video.pause();
@@ -1220,6 +1217,11 @@ function playNonaHero(videoSrc) {
                 video.load();
             }
         });
+
+function playNonaHero(videoSrc) {
+            const video = document.getElementById('nonaHeroVideo');
+            const staticImg = document.getElementById('nonaPlaceholderStatic');
+
     if (!video) return;
 
             video.src = videoSrc || NONA_ASSETS.welcomeHero;
@@ -1447,6 +1449,12 @@ const recipe = window.MWClient.parseRecipe(response.message);
     if (response.chatMessage) {
         const assistantMsg = createAssistantMsg(messagesContainer);
         typewriterEffect(assistantMsg, response.chatMessage.replace(/\.\s+/g, '.<br><br>'));
+    }
+
+    // Show relationship building comment if present
+    if (response.relationshipComment) {
+        const commentMsg = createAssistantMsg(messagesContainer);
+        typewriterEffect(commentMsg, response.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
     }
     
 // Show follow-up CTA options as clickable buttons
@@ -2093,6 +2101,16 @@ const loadingRow = document.createElement('div');
 if (nonaResponse.success && nonaResponse.isRecipe) {
     const recipe = window.MWClient.parseRecipe(nonaResponse.message);
 displayRecipe(recipe);
+
+    // Mark featured recipe as delivered so it doesn't repeat
+    if (data.queue_id) {
+        fetch('https://n8n-admin.willclower.com/webhook/mark-featured-delivered', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ queue_id: data.queue_id, user_id: userId })
+        }).catch(err => console.log('Mark delivered failed (non-blocking):', err.message));
+    }
+
 setTimeout(() => {
         loadProactiveMessages();
     }, 2000);    
