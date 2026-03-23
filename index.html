@@ -1283,8 +1283,8 @@ height: calc(100vh - 250px);
      <span id="saveIcon" style="font-size: 36px;">🤍</span> 
 </button>
 <button class="recipe-action-btn print-btn" id="printRecipeBtn">
-    <span>Print</span>
-    🖨️
+    <span>Download</span>
+    ⬇️
 </button>
 </div>
 
@@ -2180,10 +2180,10 @@ document.getElementById('instructionsHeader').addEventListener('click', function
                     <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
                     <h2>What To Do</h2>
                     <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
-                    ${recipe.notes.length > 0 ? `
+${recipe.notes && recipe.notes.length > 0 ? `
                         <div class="notes">
-                            <h2>Notes</h2>
-                            <ul>${recipe.notes.map(n => `<li>${n}</li>`).join('')}</ul>
+                            <h2>Play With Your Food</h2>
+                            <div style="white-space: pre-line;">${recipe.notes}</div>
                         </div>
                     ` : ''}
                     <button onclick="window.print()">Print Recipe</button>
