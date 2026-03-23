@@ -1372,7 +1372,16 @@ height: calc(100vh - 250px);
 function playNonaHero(videoSrc) {
             const video = document.getElementById('nonaHeroVideo');
             const staticImg = document.getElementById('nonaPlaceholderStatic');
-            if (!video) return;
+
+    window.addEventListener('pagehide', () => {
+            const video = document.getElementById('nonaHeroVideo');
+            if (video) {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+            }
+        });
+    if (!video) return;
 
             video.src = videoSrc || NONA_ASSETS.welcomeHero;
             video.style.display = 'block';
@@ -1382,8 +1391,10 @@ function playNonaHero(videoSrc) {
                 video.style.display = 'none';
                 if (staticImg) staticImg.style.display = 'block';
             });
-            video.addEventListener('ended', () => {
+video.addEventListener('ended', () => {
                 video.pause();
+                video.removeAttribute('src');
+                video.load();
             }, { once: true });
         }
 
