@@ -1082,7 +1082,7 @@ margin: 0 0 8px 0;
         <div class="left-panel">
             <div class="recipe-tabs">
                 <button class="tab-button active" id="todayTab">Featured Recipe</button>
-                <button class="tab-button" id="savedTab" onclick="window.location.href='saved_recipes.html'">Saved Recipes</button>
+ <button class="tab-button" id="savedTab" onclick="saveStateAndNavigate('saved_recipes.html')">Saved Recipes</button>
                 <button class="tab-button">Recipe Search History</button>
             </div>
             <div class="recipe-content">
@@ -1254,7 +1254,19 @@ video.addEventListener('ended', () => {
                 document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
             });
-        });
+});
+
+function saveStateAndNavigate(url) {
+    // Save chat state
+    const chatEl = document.getElementById('chatMessages');
+    if (chatEl) sessionStorage.setItem('mw_chat_state', chatEl.innerHTML);
+    // Save recipe state
+    if (window.currentRecipe && document.getElementById('recipeDisplay').classList.contains('active')) {
+        sessionStorage.setItem('mw_recipe_state', JSON.stringify({ recipe: window.currentRecipe }));
+    }
+    window.location.href = url;
+}
+
 const TYPEWRITER_SPEED = 48;
         
 function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
@@ -2264,12 +2276,30 @@ document.getElementById('recipeSummary').textContent = '';
                                 displayRecipe(recipe);
                             }
                         });
+}
+            } else {
+                // Back-to-compass path: restore previous recipe from sessionStorage
+                const savedRecipeState = sessionStorage.getItem('mw_recipe_state');
+                if (savedRecipeState) {
+                    _loadedFromSaved = true;
+                    const recipeState = JSON.parse(savedRecipeState);
+                    sessionStorage.removeItem('mw_recipe_state');
+                    if (recipeState.recipe) {
+                        window.currentRecipe = recipeState.recipe;
+                        displayRecipe(recipeState.recipe);
+                        loadRecipeImage(recipeState.recipe.title);
+                    }
                 }
             }
 
-            // Add greeting only if chat is empty (avoid duplicates on bfcache restore)
+            // Restore chat from sessionStorage, or show greeting if empty
             const messagesContainer = document.getElementById('chatMessages');
-            if (messagesContainer.children.length === 0) {
+            const savedChat = sessionStorage.getItem('mw_chat_state');
+            if (messagesContainer.children.length === 0 && savedChat) {
+                messagesContainer.innerHTML = savedChat;
+                sessionStorage.removeItem('mw_chat_state');
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else if (messagesContainer.children.length === 0) {
                 const currentAssistant = window.MWClient.getCurrentAssistant();
                 const greeting = window.MWClient.getDefaultGreeting(currentAssistant);
                 if (currentAssistant === 'nona') {
@@ -2282,7 +2312,8 @@ document.getElementById('recipeSummary').textContent = '';
                     messagesContainer.appendChild(greetingMsg);
                 }
             }
-      // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
+     
+     featured recipe (recipe_ready or daily) unless loading from saved recipes
 if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
 
