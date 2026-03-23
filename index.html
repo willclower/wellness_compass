@@ -443,7 +443,7 @@ height: calc(100vh - 250px);
     font-style: italic;
     color: #666;
     line-height: 1.6;
-    margin: 0;
+margin: 0 0 8px 0;
     font-size: 16px;
 }
 
@@ -1134,22 +1134,20 @@ height: calc(100vh - 250px);
                                     <span>⬇️</span>
                                     <span>Download</span>
                                 </button>
-                            </div>
+    <!-- Tags -->
+                            <div class="recipe-tags-row" id="recipeTags"></div>
                         </div>
                     </div>
 
-                    <!-- Tags -->
-                    <div class="recipe-tags-row" id="recipeTags"></div>
-
                     <!-- Ingredients — always visible -->
                     <div class="recipe-section">
-                        <h3>📝 What You'll Need</h3>
+                        <h3> Ingredients</h3>
                         <ul class="ingredients-list" id="ingredientsList"></ul>
                     </div>
 
                     <!-- Instructions — always visible -->
                     <div class="recipe-section">
-                        <h3>👩‍🍳 What To Do</h3>
+                        <h3> Instructions </h3>
                         <ol class="instructions-list" id="instructionsList"></ol>
                     </div>
 
