@@ -1462,8 +1462,8 @@ const recipe = window.MWClient.parseRecipe(response.message);
         typewriterEffect(assistantMsg, response.chatMessage.replace(/\.\s+/g, '.<br><br>'));
     }
 
-    // Show relationship building comment if present
-    if (response.relationshipComment) {
+// Show relationship building comment if present (skip if same as chatMessage)
+    if (response.relationshipComment && response.relationshipComment !== response.chatMessage) {
         const commentMsg = createAssistantMsg(messagesContainer);
         typewriterEffect(commentMsg, response.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
     }
@@ -1660,7 +1660,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
                 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-if (response.intake_completed && !featuredRecipeLoaded) {
+if (response.intake_completed && !featuredRecipeLoaded && !document.getElementById('recipeDisplay').classList.contains('active')) {
     featuredRecipeLoaded = true;
     loadFeaturedRecipe();
 }
