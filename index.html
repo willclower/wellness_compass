@@ -1280,7 +1280,7 @@ height: calc(100vh - 250px);
     </div>
 <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
     <span id="saveText">Save This Recipe</span>
-     <span id="saveIcon" style="font-size: 24px;">🤍</span> 
+     <span id="saveIcon" style="font-size: 36px;">🤍</span> 
 </button>
 <button class="recipe-action-btn print-btn" id="printRecipeBtn">
     <span>Print</span>
@@ -2413,9 +2413,9 @@ setTimeout(() => {
 
             // Check if we're loading a recipe from saved recipes page
             const loadRecipe = localStorage.getItem('loadRecipe');
-            if (loadRecipe && !_loadedFromSaved) {
+ if (loadRecipe) {
                 _loadedFromSaved = true;
-                localStorage.removeItem('loadRecipe');
+     localStorage.removeItem('loadRecipe');
                 const recipeData = JSON.parse(loadRecipe);
                 
                 if (recipeData.directDisplay && recipeData.recipeData && recipeData.recipeData.recipe_data) {
