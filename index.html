@@ -223,56 +223,7 @@
     min-height: 400px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-/* Recipe Rating System */
-.recipe-rating {
-    flex: 1;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 12px 16px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.recipe-rating:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-    .recipe-rating h4 {
-    margin: 0 0 8px 0;
-    color: #333;
-    font-size: 14px;
-    font-weight: 600;
-}
-        
-.yum-rating {
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    margin: 8px 0;
-}
-
-.yum-emoji {
-    font-size: 24px;
-    cursor: pointer;
-    opacity: 0.3;
-    transition: all 0.2s ease;
-    filter: grayscale(100%);
-}
-
-.rating-text {
-    font-size: 11px;
-    color: #666;
-    margin: 4px 0 0 0;
-}
-
-.yum-emoji:hover,
-.yum-emoji.active {
-    opacity: 1;
-    filter: grayscale(0%);
-    transform: scale(1.2);
-}
+/* Recipe Rating — handled by .yum-rating-inline in recipe display CSS */
         .recipe-card {
             display: flex;
             gap: 20px;
@@ -413,7 +364,7 @@ height: calc(100vh - 250px);
         }
 
       
-/* Recipe Display Enhancements */
+/* Recipe Display — Compact Layout */
 .recipe-display {
     display: none;
     padding-left: 20px;
@@ -433,8 +384,8 @@ height: calc(100vh - 250px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 3px solid #8b9f4a;
         }
 
@@ -463,301 +414,253 @@ height: calc(100vh - 250px);
             color: #333;
         }
 
-.recipe-intro-section {
+/* Hero block: image left, summary + meta + actions right */
+.recipe-hero {
     display: flex;
-    flex-direction: row-reverse;
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     align-items: flex-start;
-    justify-content: flex-end;  /* flex-end in row-reverse = left side */
 }
 
-.recipe-summary-column {
-    flex: 1;  /* Take up remaining space */
-}
-        .recipe-summary {
-            font-style: italic;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 0;
-            font-size: 18px;
-        }
-
-        .recipe-image-display {
-            width: 225px;
-            height: 225px;
-            border-radius: 12px;
-            object-fit: cover;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            flex-shrink: 0;
-            display: none;  /* Hidden by default, shown via JS when loaded */
-        }
-
-        .recipe-info-card {
-            background: linear-gradient(145deg, #fff9e6, #ffffff);
-            border: 2px solid #ffd700;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .recipe-info-card h4 {
-            color: #8b9f4a;
-            font-size: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .recipe-info-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .recipe-info-item {
-            text-align: center;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        }
-
-        .recipe-info-item .label {
-            font-size: 12px;
-            color: #999;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-
-        .recipe-info-item .value {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .recipe-dietary-tags {
-            margin-top: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .dietary-tag {
-            background: #6ec5c0;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        /* Collapsible sections */
-     .collapsible-header {
-    background: linear-gradient(145deg, #8b9f4a, #7a8e3f);
-    color: white;
-    border: none;
-    padding: 15px 20px;
-    width: 100%;
-    text-align: left;
-    font-size: 24px;  /* Increased from 16px */
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 8px;
-    margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-        .collapsible-header:hover {
-            background: linear-gradient(145deg, #7a8e3f, #6a7d35);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(139, 159, 74, 0.3);
-        }
-
-    .collapsible-header .arrow {
-    font-size: 28px;  /* Increased from 20px */
-    transition: transform 0.3s ease;
+.recipe-hero-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+    display: none;
 }
 
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .collapsible-content.active {
-            max-height: 2000px;
-            margin-bottom: 25px;
-        }
-
-        .recipe-tags-display {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .recipe-tag-pill {
-            background: linear-gradient(145deg, #6ec5c0, #5ab4af);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .recipe-actions-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-.recipe-action-btn {
+.recipe-hero-right {
     flex: 1;
-    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.recipe-summary {
+    font-style: italic;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 16px;
+}
+
+.recipe-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 14px;
+    color: #555;
+}
+
+.recipe-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.recipe-meta-item .meta-label {
+    color: #999;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.recipe-meta-item .meta-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Compact actions row: rating + save + download inline */
+.recipe-actions-compact {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.yum-rating-inline {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.yum-rating-inline .yum-emoji {
+    font-size: 22px;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: all 0.2s ease;
+}
+
+.yum-rating-inline .yum-emoji:hover {
+    transform: scale(1.3);
+    opacity: 0.8;
+}
+
+.yum-rating-inline .yum-emoji.active {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.rating-text-inline {
+    font-size: 12px;
+    color: #999;
+    margin-left: 4px;
+}
+
+.action-btn-compact {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
     border: 2px solid #e0e0e0;
     background: white;
-    border-radius: 8px;
-    font-size: 40px;  /* Icon size */
-    font-weight: 600;
-    color: #1a7b8e;  /* THIS COLOR applies to text */
+    border-radius: 20px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;  /* Stack vertically */
-    align-items: center;  /* Center horizontally */
-    justify-content: center;
-    gap: 12px;  /* Space between text and icon */
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a7b8e;
+    transition: all 0.2s ease;
 }
 
-.recipe-action-btn span {
-    font-size: 14px;  /* Text size for "Save This Recipe" and "Print" */
-    color: #1a7b8e;  /* Same color as rating title */
+.action-btn-compact:hover {
+    background: #e6f7f7;
+    border-color: #1a7b8e;
+    transform: translateY(-1px);
 }
 
-.recipe-action-btn:hover {
-    background: linear-gradient(145deg, #e6f7f7, #ffffff);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-}
-
-.recipe-rating:hover {
-    background: linear-gradient(145deg, #e6f7f7, #ffffff);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-}
-        .recipe-action-btn.like-btn:hover {
-            border-color: #e63946;
-            color: #e63946;
-        }
-
-        .recipe-action-btn.like-btn.liked {
-            background: #e63946;
-            color: white;
-            border-color: #e63946;
-        }
-
-        .recipe-action-btn.save-btn:hover {
-            border-color: #1a7b8e;
-            color: #1a7b8e;
-        }
-
-        .recipe-action-btn.save-btn.saved {
-            background: #1a7b8e;
-            color: white;
-            border-color: #1a7b8e;
-        }
-
-        .recipe-action-btn.save-btn.saved span {
+.action-btn-compact.saved {
+    background: #1a7b8e;
     color: white;
+    border-color: #1a7b8e;
 }
 
-        .recipe-action-btn.print-btn:hover {
-            border-color: #8b9f4a;
-            color: #8b9f4a;
-        }
+.action-btn-compact.saved:hover {
+    background: #15626f;
+}
 
-        .recipe-section-display {
-            margin-bottom: 25px;
-        }
+/* Tags row */
+.recipe-tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
 
-        .recipe-section-display h3 {
-            color: #8b9f4a;
-            font-size: 18px;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #f0f0f0;
-        }
+.recipe-tag-pill {
+    background: linear-gradient(145deg, #6ec5c0, #5ab4af);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
 
-        .ingredients-list {
-            list-style: none;
-            padding: 0;
-        }
+/* Always-visible recipe sections */
+.recipe-section {
+    margin-bottom: 20px;
+}
 
-        .ingredients-list li {
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            background: #f9f9f9;
-            border-radius: 6px;
-            border-left: 3px solid #6ec5c0;
-            transition: background 0.2s ease;
-            font-size: 18px;
-        }
+.recipe-section h3 {
+    color: #8b9f4a;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8ecd4;
+}
 
-        .ingredients-list li:hover {
-            background: #f0fafa;
-        }
+.ingredients-list {
+    list-style: none;
+    padding: 0;
+}
 
-        .instructions-list {
-            counter-reset: step-counter;
-            list-style: none;
-            padding: 0;
-        }
+.ingredients-list li {
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border-left: 3px solid #6ec5c0;
+    font-size: 16px;
+    line-height: 1.5;
+}
 
-        .instructions-list li {
-            counter-increment: step-counter;
-            padding: 15px 15px 15px 55px;
-            margin-bottom: 12px;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            position: relative;
-            line-height: 1.6;
-        }
+.ingredients-list li:hover {
+    background: #f0fafa;
+}
 
-        .instructions-list li::before {
-            content: counter(step-counter);
-            position: absolute;
-            left: 15px;
-            top: 15px;
-            background: #8b9f4a;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
+.ingredients-list li::before {
+    content: '•';
+    color: #6ec5c0;
+    font-weight: bold;
+    margin-right: 8px;
+}
 
-        .notes-list {
-            list-style: none;
-            padding: 0;
-        }
+.instructions-list {
+    counter-reset: step-counter;
+    list-style: none;
+    padding: 0;
+}
 
-        .notes-list li {
-            padding: 10px 15px;
-            margin-bottom: 8px;
-            background: #fff9e6;
-            border-left: 4px solid #ffd700;
-            border-radius: 4px;
-            line-height: 1.6;
-        }
+.instructions-list li {
+    counter-increment: step-counter;
+    padding: 12px 12px 12px 50px;
+    margin-bottom: 8px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    position: relative;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.instructions-list li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    background: #8b9f4a;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.notes-section {
+    background: #fff9e6;
+    border-left: 4px solid #ffd700;
+    padding: 15px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 20px;
+}
+
+.notes-section h3 {
+    color: #c8a800;
+    font-size: 18px;
+    margin-bottom: 8px;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.notes-content {
+    white-space: pre-line;
+    line-height: 1.6;
+    color: #555;
+}
+
+.summary-section {
+    font-style: italic;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
 
         .recipe-placeholder {
             display: block;
@@ -777,13 +680,6 @@ height: calc(100vh - 250px);
     justify-content: center;
 }
 
-.nona-intro-img {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
 .nona-static-img {
     width: 100%;
     height: 100%;
@@ -869,9 +765,9 @@ height: calc(100vh - 250px);
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .recipe-image-display {
-                width: 180px;
-                height: 180px;
+            .recipe-hero-image {
+                width: 150px;
+                height: 150px;
             }
 
             .logo-text h1 {
@@ -1013,55 +909,26 @@ height: calc(100vh - 250px);
                 font-size: 20px;
             }
 
-            .recipe-intro-section {
+            .recipe-hero {
                 flex-direction: column;
                 align-items: center;
             }
 
-            .recipe-image-display {
+            .recipe-hero-image {
                 width: 100%;
                 height: 200px;
-                border-radius: 8px;
             }
 
             .recipe-summary {
-                font-size: 15px;
+                font-size: 14px;
             }
 
-            .recipe-info-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            .recipe-info-item .value {
-                font-size: 16px;
-            }
-
-            .recipe-actions-bar {
-                gap: 8px;
-            }
-
-            .recipe-action-btn {
-                font-size: 30px;
-                padding: 10px 12px;
-                gap: 8px;
-            }
-
-            .recipe-action-btn span {
+            .recipe-meta-row {
                 font-size: 12px;
             }
 
-            .recipe-rating h4 {
-                font-size: 12px;
-            }
-
-            .collapsible-header {
-                font-size: 18px;
-                padding: 12px 15px;
-            }
-
-            .collapsible-header .arrow {
-                font-size: 22px;
+            .recipe-actions-compact {
+                gap: 10px;
             }
 
             .ingredients-list li {
@@ -1131,20 +998,13 @@ height: calc(100vh - 250px);
                 height: 400px;
             }
 
-            .recipe-info-grid {
-                grid-template-columns: 1fr 1fr;
+            .recipe-hero {
+                gap: 12px;
             }
 
-            .recipe-actions-bar {
-                flex-wrap: wrap;
-            }
-
-            .recipe-action-btn {
-                flex: 1 1 45%;
-            }
-
-            .recipe-rating {
-                flex: 1 1 100%;
+            .action-btn-compact {
+                padding: 4px 10px;
+                font-size: 12px;
             }
         }    
     </style>
@@ -1251,78 +1111,57 @@ height: calc(100vh - 250px);
                         <button class="close-recipe-btn" id="closeRecipeBtn" title="Close recipe">×</button>
                     </div>
 
-    <div class="recipe-intro-section">
-                        <img id="nonaStaticImg" class="nona-intro-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
-                        <div class="recipe-summary-column">
+                    <!-- Hero: image + summary + meta + actions -->
+                    <div class="recipe-hero">
+                        <img id="recipeImage" class="recipe-hero-image" />
+                        <div class="recipe-hero-right">
                             <p class="recipe-summary" id="recipeSummary"></p>
-                        </div>
-                        <img id="recipeImage" class="recipe-image-display" style="display: none;" />
-                    </div>
-                    
-                    <!-- Recipe Info Card -->
-                    <div class="recipe-info-card" id="recipeInfoCard" style="display: none;">
-                        <h4>📊 Nutrition & Details</h4>
-                        <div class="recipe-info-grid" id="recipeInfoGrid"></div>
-                        <div class="recipe-dietary-tags" id="recipeDietaryTags"></div>
-                    </div>
-
-                   <div class="recipe-actions-bar">
-    <div class="recipe-rating" id="recipeRating">
-        <h4>Rate This Recipe</h4>
-        <div class="yum-rating" id="yumRating">
-            <span class="yum-emoji" data-rating="1">😋</span>
-            <span class="yum-emoji" data-rating="2">😋</span>
-            <span class="yum-emoji" data-rating="3">😋</span>
-            <span class="yum-emoji" data-rating="4">😋</span>
-            <span class="yum-emoji" data-rating="5">😋</span>
-        </div>
-        <p class="rating-text">Click to rate!</p>
-    </div>
-<button class="recipe-action-btn save-btn" id="saveRecipeBtn">
-    <span id="saveText">Save This Recipe</span>
-     <span id="saveIcon" style="font-size: 36px;">🤍</span> 
-</button>
-<button class="recipe-action-btn print-btn" id="printRecipeBtn">
-    <span>Download</span>
-    ⬇️
-</button>
-</div>
-
-                    <!-- Collapsible Ingredients Section -->
-                    <button class="collapsible-header" id="ingredientsHeader">
-                        📝 Ingredients
-                        <span class="arrow">+</span>
-                    </button>
-                    <div class="collapsible-content" id="ingredientsContent">
-                        <div class="recipe-section-display">
-                            <ul class="ingredients-list" id="ingredientsList"></ul>
+                            <div class="recipe-meta-row" id="recipeMetaRow"></div>
+                            <div class="recipe-actions-compact">
+                                <div class="yum-rating-inline" id="yumRating">
+                                    <span class="yum-emoji" data-rating="1">😋</span>
+                                    <span class="yum-emoji" data-rating="2">😋</span>
+                                    <span class="yum-emoji" data-rating="3">😋</span>
+                                    <span class="yum-emoji" data-rating="4">😋</span>
+                                    <span class="yum-emoji" data-rating="5">😋</span>
+                                    <span class="rating-text-inline" id="ratingText">Rate!</span>
+                                </div>
+                                <button class="action-btn-compact save-btn" id="saveRecipeBtn">
+                                    <span id="saveIcon">🤍</span>
+                                    <span id="saveText">Save</span>
+                                </button>
+                                <button class="action-btn-compact" id="printRecipeBtn">
+                                    <span>⬇️</span>
+                                    <span>Download</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Collapsible Instructions Section -->
-                    <button class="collapsible-header" id="instructionsHeader">
-                        👩‍🍳 Directions
-                        <span class="arrow">+</span>
-                    </button>
-                    <div class="collapsible-content" id="instructionsContent">
-                        <div class="recipe-section-display">
-                            <ol class="instructions-list" id="instructionsList"></ol>
-                        </div>
+                    <!-- Tags -->
+                    <div class="recipe-tags-row" id="recipeTags"></div>
+
+                    <!-- Ingredients — always visible -->
+                    <div class="recipe-section">
+                        <h3>📝 What You'll Need</h3>
+                        <ul class="ingredients-list" id="ingredientsList"></ul>
                     </div>
 
-                    <div class="recipe-section-display" id="notesSection" style="display: none;">
+                    <!-- Instructions — always visible -->
+                    <div class="recipe-section">
+                        <h3>👩‍🍳 What To Do</h3>
+                        <ol class="instructions-list" id="instructionsList"></ol>
+                    </div>
+
+                    <!-- Play With Your Food -->
+                    <div class="notes-section" id="notesSection" style="display: none;">
                         <h3>🍴 Play With Your Food</h3>
-                        <div class="notes-content" id="notesList" style="white-space: pre-line;"></div>
+                        <div class="notes-content" id="notesList"></div>
                     </div>
 
-                    <div class="recipe-section-display" id="summarySection" style="display: none;">
-                        <h3>✨ Summary</h3>
+                    <!-- Summary -->
+                    <div class="summary-section" id="summarySection" style="display: none;">
                         <p id="summaryContent"></p>
-                    </div>
-
-                    <div class="recipe-section-display" id="tagsSection" style="display: none;">
-                        <h3>🏷️ Tags</h3>
-                        <div class="recipe-tags-display" id="recipeTags"></div>
                     </div>
                 </div>
             </div>
@@ -1840,7 +1679,7 @@ catch (error) {
 
             // FIX: Reset save button state for each new recipe
             document.getElementById('saveRecipeBtn').classList.remove('saved');
- document.getElementById('saveText').textContent = 'Save This Recipe';
+ document.getElementById('saveText').textContent = 'Save';
             document.getElementById('saveIcon').textContent = '🤍';
      
             // Check if this recipe was previously saved in this session
@@ -1853,7 +1692,7 @@ catch (error) {
             // FIX: Reset YUM rating state for each new recipe
             const emojis = document.querySelectorAll('#yumRating .yum-emoji');
             emojis.forEach(emoji => emoji.classList.remove('active'));
-            document.querySelector('.rating-text').textContent = 'Click to rate!';
+            document.getElementById('ratingText').textContent = 'Rate!';
             
             // Hide placeholder, show recipe
             document.getElementById('recipePlaceholder').classList.add('hidden');
@@ -1876,89 +1715,44 @@ document.getElementById('recipeSummary').textContent = (recipe.summary || '')
             // Load recipe image from database
  loadRecipeImage(recipe.title);
             
-            // Display recipe info (nutrition) if available
-            console.log('Checking recipeInfo...');
-            console.log('recipeInfo exists:', !!recipe.recipeInfo);
-            console.log('recipeInfo value:', recipe.recipeInfo);
+            // Display recipe info as compact meta row
+            const metaRow = document.getElementById('recipeMetaRow');
+            metaRow.innerHTML = '';
             
             if (recipe.recipeInfo && Object.keys(recipe.recipeInfo).length > 0) {
-                console.log('Displaying recipe info card');
-                const infoCard = document.getElementById('recipeInfoCard');
-                const infoGrid = document.getElementById('recipeInfoGrid');
-                const dietaryTags = document.getElementById('recipeDietaryTags');
+                const items = [];
+                if (recipe.recipeInfo.prep_time_minutes) items.push(`⏱ ${recipe.recipeInfo.prep_time_minutes} min prep`);
+                if (recipe.recipeInfo.cook_time_minutes) items.push(`🔥 ${recipe.recipeInfo.cook_time_minutes} min cook`);
+                if (recipe.recipeInfo.total_time_minutes) items.push(`⏰ ${recipe.recipeInfo.total_time_minutes} min total`);
+                if (recipe.recipeInfo.servings) items.push(`🍽 ${recipe.recipeInfo.servings} servings`);
+                if (recipe.recipeInfo.calories_per_serving) items.push(`${recipe.recipeInfo.calories_per_serving} cal`);
                 
-                infoCard.style.display = 'block';
-                infoGrid.innerHTML = '';
-                
-                // Add nutrition items
-                if (recipe.recipeInfo.servings) {
-                    console.log('Adding servings:', recipe.recipeInfo.servings);
-                    infoGrid.innerHTML += `
-                        <div class="recipe-info-item">
-                            <div class="label">Servings</div>
-                            <div class="value">${recipe.recipeInfo.servings}</div>
-                        </div>
-                    `;
-                }
-                if (recipe.recipeInfo.prep_time_minutes) {
-                    console.log('Adding prep time:', recipe.recipeInfo.prep_time_minutes);
-                    infoGrid.innerHTML += `
-                        <div class="recipe-info-item">
-                            <div class="label">Prep Time</div>
-                            <div class="value">${recipe.recipeInfo.prep_time_minutes} min</div>
-                        </div>
-                    `;
-                }
-                if (recipe.recipeInfo.cook_time_minutes) {
-                    infoGrid.innerHTML += `
-                        <div class="recipe-info-item">
-                            <div class="label">Cook Time</div>
-                            <div class="value">${recipe.recipeInfo.cook_time_minutes} min</div>
-                        </div>
-                    `;
-                }
-                if (recipe.recipeInfo.total_time_minutes) {
-                    infoGrid.innerHTML += `
-                        <div class="recipe-info-item">
-                            <div class="label">Total Time</div>
-                            <div class="value">${recipe.recipeInfo.total_time_minutes} min</div>
-                        </div>
-                    `;
-                }
-                if (recipe.recipeInfo.calories_per_serving) {
-                    infoGrid.innerHTML += `
-                        <div class="recipe-info-item">
-                           <div class="label">CAL / SERVING</div>
-                            <div class="value">${recipe.recipeInfo.calories_per_serving}</div>
-                        </div>
-                    `;
-                }
-                
-// Add tags to Nutrition & Details card
-                dietaryTags.innerHTML = '';
-                if (recipe.tags && recipe.tags.length > 0) {
-                    recipe.tags.forEach(tag => {
-                        const tagSpan = document.createElement('span');
-                        tagSpan.className = 'recipe-tag-pill';
-                        tagSpan.textContent = tag;
-                        dietaryTags.appendChild(tagSpan);
-                    });
-                } else if (recipe.recipeInfo.dietary_tags && recipe.recipeInfo.dietary_tags.length > 0) {
-                    // Fallback to dietary_tags from recipeInfo
-                    recipe.recipeInfo.dietary_tags.forEach(tag => {
-                        const tagSpan = document.createElement('span');
-                        tagSpan.className = 'recipe-tag-pill';
-                        tagSpan.textContent = tag;
-                        dietaryTags.appendChild(tagSpan);
-                    });
-                }
-            } else {
-                console.log('No recipeInfo - hiding card');
-                document.getElementById('recipeInfoCard').style.display = 'none';
+                items.forEach(item => {
+                    const span = document.createElement('span');
+                    span.className = 'recipe-meta-item';
+                    span.textContent = item;
+                    metaRow.appendChild(span);
+                });
             }
             
-            // Hide standalone tags section (tags now in Nutrition card)
-            document.getElementById('tagsSection').style.display = 'none';
+            // Tags — compact pill row
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
+            if (recipe.tags && recipe.tags.length > 0) {
+                recipe.tags.forEach(tag => {
+                    const pill = document.createElement('span');
+                    pill.className = 'recipe-tag-pill';
+                    pill.textContent = tag;
+                    tagsContainer.appendChild(pill);
+                });
+            } else if (recipe.recipeInfo && recipe.recipeInfo.dietary_tags && recipe.recipeInfo.dietary_tags.length > 0) {
+                recipe.recipeInfo.dietary_tags.forEach(tag => {
+                    const pill = document.createElement('span');
+                    pill.className = 'recipe-tag-pill';
+                    pill.textContent = tag;
+                    tagsContainer.appendChild(pill);
+                });
+            }
      
             // Ingredients
             const ingredientsList = document.getElementById('ingredientsList');
@@ -2057,19 +1851,18 @@ async function loadRecipeImage(recipeTitle) {
                             emoji.classList.add('active');
                         }
                     });
-                    document.querySelector('.rating-text').textContent = 
+                    document.getElementById('ratingText').textContent = 
                         `You rated this ${data.user_rating} YUM${data.user_rating > 1 ? 's' : ''}!`;
                 }
 
                 // FIX: Check if recipe is already saved and update button
                 if (data.is_saved) {
                     document.getElementById('saveRecipeBtn').classList.add('saved');
-document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveText').textContent = 'Saved ✓';
                     document.getElementById('saveIcon').textContent = '❤️';
                 }
             } else {
                 console.log('No image data available');
-                
                 document.getElementById('recipeImage').style.display = 'none';
             }
         } else {
@@ -2081,27 +1874,14 @@ document.getElementById('saveText').textContent = 'Saved ✓';
         document.getElementById('recipeImage').style.display = 'none';
     }
 }
-  // Collapsible section handlers
-document.getElementById('ingredientsHeader').addEventListener('click', function() {
-    this.classList.toggle('active');
-    document.getElementById('ingredientsContent').classList.toggle('active');
-    const arrow = this.querySelector('.arrow');
-    arrow.textContent = this.classList.contains('active') ? '−' : '+';
-});
-
-document.getElementById('instructionsHeader').addEventListener('click', function() {
-    this.classList.toggle('active');
-    document.getElementById('instructionsContent').classList.toggle('active');
-    const arrow = this.querySelector('.arrow');
-    arrow.textContent = this.classList.contains('active') ? '−' : '+';
-});
         // Close recipe button
         document.getElementById('closeRecipeBtn').addEventListener('click', function() {
             document.getElementById('recipeDisplay').classList.remove('active');
             document.getElementById('recipePlaceholder').classList.remove('hidden');
         });
 
-// Save button — toggles between save and unsave
+ 
+        // Save button — toggles between save and unsave
         document.getElementById('saveRecipeBtn').addEventListener('click', async function() {
             if (!window.currentRecipe) return;
             
@@ -2120,7 +1900,7 @@ document.getElementById('instructionsHeader').addEventListener('click', function
                     const data = await response.json();
                     if (data.success) {
                         this.classList.remove('saved');
-                        document.getElementById('saveText').textContent = 'Save This Recipe';
+                        document.getElementById('saveText').textContent = 'Save';
                         document.getElementById('saveIcon').textContent = '🤍';
                         sessionStorage.removeItem('savedRecipe_' + recipe.title);
                         const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
@@ -2136,7 +1916,7 @@ document.getElementById('instructionsHeader').addEventListener('click', function
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ user_id: userId, recipe_title: recipe.title, recipe_data: recipe })
                     });
-   const data = await response.json();
+                    const data = await response.json();
                     this.classList.add('saved');
                     document.getElementById('saveText').textContent = 'Saved ✓';
                     document.getElementById('saveIcon').textContent = '❤️';
@@ -2180,7 +1960,7 @@ document.getElementById('instructionsHeader').addEventListener('click', function
                     <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
                     <h2>What To Do</h2>
                     <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
-${recipe.notes && recipe.notes.length > 0 ? `
+                    ${recipe.notes && recipe.notes.length > 0 ? `
                         <div class="notes">
                             <h2>Play With Your Food</h2>
                             <div style="white-space: pre-line;">${recipe.notes}</div>
@@ -2411,18 +2191,18 @@ setTimeout(() => {
         
  window.addEventListener('pageshow', (event) => {
 
-     // Re-sync save button state on bfcache restore
+            // Re-sync save button state on bfcache restore
             if (event.persisted && window.currentRecipe) {
                 const recipeTitle = window.currentRecipe.title;
                 const stillSaved = sessionStorage.getItem('savedRecipe_' + recipeTitle);
                 const btn = document.getElementById('saveRecipeBtn');
                 if (!stillSaved && btn.classList.contains('saved')) {
                     btn.classList.remove('saved');
-                    document.getElementById('saveText').textContent = 'Save This Recipe';
+                    document.getElementById('saveText').textContent = 'Save';
                     document.getElementById('saveIcon').textContent = '🤍';
                 }
             }
-     
+
             // Reset tabs to first tab on every page show
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById('todayTab').classList.add('active');
@@ -2440,7 +2220,7 @@ setTimeout(() => {
                     loadRecipeImage(rd.title);
                     // Mark as already saved (it came from saved recipes)
                     document.getElementById('saveRecipeBtn').classList.add('saved');
-      document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveText').textContent = 'Saved ✓';
                     document.getElementById('saveIcon').textContent = '❤️';
                     // Restore YUM rating if it exists
                     const rating = recipeData.recipeData.user_rating || 0;
@@ -2451,7 +2231,7 @@ setTimeout(() => {
                                 emoji.classList.add('active');
                             }
                         });
-                        document.querySelector('.rating-text').textContent = 
+                        document.getElementById('ratingText').textContent = 
                             `You rated this ${rating} YUM${rating > 1 ? 's' : ''}!`;
                     }
                 } else {
@@ -2512,7 +2292,7 @@ function initializeRating() {
         emoji.addEventListener('click', () => {
             currentRating = index + 1;
             highlightEmojis(currentRating);
-            document.querySelector('.rating-text').textContent = 
+            document.getElementById('ratingText').textContent = 
                 `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
             saveRecipeRating(currentRating);
         });
