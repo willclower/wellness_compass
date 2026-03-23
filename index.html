@@ -323,7 +323,8 @@
             border-radius: 20px;
             display: flex;
             flex-direction: column;
-            height: 600px;
+height: calc(100vh - 250px);
+            min-height: 400px;
             box-shadow: 0 6px 16px rgba(110, 197, 192, 0.2);
             position: sticky;
             top: 20px;
@@ -383,7 +384,15 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(110, 197, 192, 0.4);
         }
+.chat-input-area button.stop-btn {
+            background: linear-gradient(145deg, #e05555, #c94444);
+            box-shadow: 0 4px 10px rgba(224, 85, 85, 0.3);
+        }
 
+        .chat-input-area button.stop-btn:hover {
+            background: linear-gradient(145deg, #c94444, #b33a3a);
+            box-shadow: 0 6px 14px rgba(224, 85, 85, 0.4);
+        }
         .message {
             padding: 12px 16px;
             border-radius: 18px;
@@ -758,6 +767,61 @@
             display: none;
         }
 
+/* Nona Imagery */
+.nona-placeholder-figure {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nona-intro-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+.nona-static-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.nona-hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Chat message with Nona avatar */
+.message-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 85%;
+}
+
+.message-row.user-row {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.message-row .nona-chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.message-row .message {
+    max-width: none;
+}
+
 /* Typing indicator dots */
 .typing-dots {
     display: inline-flex;
@@ -1115,7 +1179,7 @@
         <div class="assistants-grid">
             <div class="assistant-card active">
                 <div class="assistant-avatar">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 70'%3E%3Ccircle cx='35' cy='35' r='35' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="Nona">
+                    <img src="assets/nona/Nona_ProfilePic_Face.png" alt="Nona">
                 </div>
                 <div class="assistant-info">
                     <h3>Nona</h3>
@@ -1163,15 +1227,22 @@
             </div>
             <div class="recipe-content">
                 <!-- Placeholder (shown by default) -->
-                <div class="recipe-placeholder" id="recipePlaceholder">
+<div class="recipe-placeholder" id="recipePlaceholder">
                     <div class="recipe-card">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f0f0f0'/%3E%3Ctext x='60' y='65' text-anchor='middle' font-size='40' fill='%23ccc'%3E👩‍🍳%3C/text%3E%3C/svg%3E" alt="Featured Recipe" class="recipe-image">
                         <div class="recipe-details">
                             <h3 id="placeholderTitle">Nona is picking today's recipe...</h3>
                             <p id="placeholderDesc">One moment while she finds something special for you!</p>
                         </div>
+                        <div class="nona-placeholder-figure">
+                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none"
+                                src="assets/nona/Nona_WavesHello_Hero.mp4">
+                            </video>
+                            <img id="nonaPlaceholderStatic" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
+                        </div>
                     </div>
                 </div>
+
+    
 
                 <!-- Recipe Display (hidden by default, shown when Nona shares a recipe) -->
                 <div class="recipe-display" id="recipeDisplay">
@@ -1180,13 +1251,14 @@
                         <button class="close-recipe-btn" id="closeRecipeBtn" title="Close recipe">×</button>
                     </div>
 
-                    <div class="recipe-intro-section">
+    <div class="recipe-intro-section">
+                        <img id="nonaStaticImg" class="nona-intro-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
                         <div class="recipe-summary-column">
                             <p class="recipe-summary" id="recipeSummary"></p>
                         </div>
                         <img id="recipeImage" class="recipe-image-display" style="display: none;" />
                     </div>
-
+                    
                     <!-- Recipe Info Card -->
                     <div class="recipe-info-card" id="recipeInfoCard" style="display: none;">
                         <h4>📊 Nutrition & Details</h4>
@@ -1208,7 +1280,7 @@
     </div>
 <button class="recipe-action-btn save-btn" id="saveRecipeBtn">
     <span id="saveText">Save This Recipe</span>
-     🔖 
+     <span id="saveIcon" style="font-size: 24px;">🤍</span> 
 </button>
 <button class="recipe-action-btn print-btn" id="printRecipeBtn">
     <span>Print</span>
@@ -1271,6 +1343,50 @@
 
     <script src="mediterranean-wellness-client.js"></script>
     <script>
+        // --- Nona Imagery Helpers ---
+        const NONA_ASSETS = {
+            profilePic: 'assets/nona/Nona_ProfilePic_Face.png',
+            standingStatic: 'assets/nona/Nona_Standing_Static.png',
+            welcomeHero: 'assets/nona/Nona_WavesHello_Hero.mp4',
+            welcomeChat: 'assets/nona/Nona_WavesHello_chat.mp4'
+        };
+
+        function createAssistantMsg(container) {
+            const row = document.createElement('div');
+            row.className = 'message-row';
+
+            const avatar = document.createElement('img');
+            avatar.className = 'nona-chat-avatar';
+            avatar.src = NONA_ASSETS.profilePic;
+            avatar.alt = 'Nona';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message assistant';
+
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+            container.appendChild(row);
+            return bubble;
+        }
+
+function playNonaHero(videoSrc) {
+            const video = document.getElementById('nonaHeroVideo');
+            const staticImg = document.getElementById('nonaPlaceholderStatic');
+            if (!video) return;
+
+            video.src = videoSrc || NONA_ASSETS.welcomeHero;
+            video.style.display = 'block';
+            if (staticImg) staticImg.style.display = 'none';
+            video.load();
+            video.play().catch(() => {
+                video.style.display = 'none';
+                if (staticImg) staticImg.style.display = 'block';
+            });
+            video.addEventListener('ended', () => {
+                video.pause();
+            }, { once: true });
+        }
+
         // Basic interactivity
         document.querySelectorAll('.assistant-card').forEach(card => {
             card.addEventListener('click', function() {
@@ -1355,6 +1471,7 @@ function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
             switchMsg.textContent = 'Switching assistants...';
             messagesContainer.appendChild(switchMsg);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+   
             
             try {
                 const response = await window.MWClient.switchAssistant(assistantId);
@@ -1384,13 +1501,29 @@ let featuredRecipeLoaded = false;
             if (e.key === 'Enter') sendMessage();
         });
 
-        async function sendMessage() {
+let _abortController = null;
+let _pendingProactiveLogId = null;
+
+async function sendMessage() {
+            const sendBtn = document.getElementById('sendButton');
+            
+            // If currently waiting, abort the request
+            if (_abortController) {
+                _abortController.abort();
+                _abortController = null;
+                sendBtn.textContent = 'Send';
+                sendBtn.classList.remove('stop-btn');
+                const typing = document.getElementById('typing-indicator');
+                if (typing) typing.remove();
+                return;
+            }
+
             console.log('=== SEND MESSAGE FUNCTION CALLED ===');
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             console.log('Message:', message);
             if (!message) return;
-
+    
             const messagesContainer = document.getElementById('chatMessages');
             
             // Add user message
@@ -1403,25 +1536,53 @@ let featuredRecipeLoaded = false;
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             // Show typing indicator
+            const typingRow = document.createElement('div');
+            typingRow.className = 'message-row';
+            typingRow.id = 'typing-indicator';
+
+            const typingAvatar = document.createElement('img');
+            typingAvatar.className = 'nona-chat-avatar';
+            typingAvatar.src = NONA_ASSETS.profilePic;
+            typingAvatar.alt = 'Nona';
+
             const typingIndicator = document.createElement('div');
             typingIndicator.className = 'message assistant';
-            typingIndicator.id = 'typing-indicator';
     typingIndicator.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
-            messagesContainer.appendChild(typingIndicator);
+
+            typingRow.appendChild(typingAvatar);
+            typingRow.appendChild(typingIndicator);
+            messagesContainer.appendChild(typingRow);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+// Toggle to Stop button
+            _abortController = new AbortController();
+            sendBtn.textContent = 'Stop';
+            sendBtn.classList.add('stop-btn');
 
             try {
       // Send to backend
-                const response = await window.MWClient.sendMessage(message, _pendingProactiveLogId);
+                const response = await window.MWClient.sendMessage(message, _pendingProactiveLogId, _abortController.signal);
+                
 console.log('RAW RESPONSE:', JSON.stringify(response));
                 // Reset proactive flag — this message has now captured the response
                 _pendingProactiveLogId = null;
 
-                // Remove typing indicator
-                typingIndicator.remove();
-
+// Remove typing indicator
+                typingRow.remove();
+                
+                // Reset Send button
+                _abortController = null;
+                sendBtn.textContent = 'Send';
+                sendBtn.classList.remove('stop-btn');
+                
                 // Check if response contains a recipe
-                if (response.success && response.message) {
+                if (response.safety_violation) {
+                    // Safety violation — show message only, skip all suggestions/recipes
+                    const safetyMsg = createAssistantMsg(messagesContainer);
+                    typewriterEffect(safetyMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else if (response.success && response.message) {
+                        
                     console.log('=== RECIPE DEBUG ===');
                     console.log('Is Recipe:', response.isRecipe);
                     console.log('Raw Message Length:', response.message.length);
@@ -1434,9 +1595,7 @@ const recipe = window.MWClient.parseRecipe(response.message);
     
     // Show Nona's warm intro in chat
     if (response.chatMessage) {
-        const assistantMsg = document.createElement('div');
-        assistantMsg.className = 'message assistant';
-messagesContainer.appendChild(assistantMsg);
+        const assistantMsg = createAssistantMsg(messagesContainer);
         typewriterEffect(assistantMsg, response.chatMessage.replace(/\.\s+/g, '.<br><br>'));
     }
     
@@ -1452,14 +1611,14 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
     response.chatFollowUp.forEach(opt => {
         const button = document.createElement('button');
         button.textContent = opt.label;
-        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #2a7d72; background: white; color: #2a7d72; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
         button.addEventListener('mouseenter', () => {
-            button.style.background = '#4a9c8a';
+            button.style.background = '#2a7d72';
             button.style.color = 'white';
         });
         button.addEventListener('mouseleave', () => {
             button.style.background = 'white';
-            button.style.color = '#4a9c8a';
+            button.style.color = '#2a7d72';
         });
         button.addEventListener('click', () => {
             btnContainer.remove();
@@ -1488,9 +1647,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         
         // Also strip any closing text after the last suggestion
         if (introText) {
-            const assistantMsg = document.createElement('div');
-            assistantMsg.className = 'message assistant';
-  messagesContainer.appendChild(assistantMsg);
+            const assistantMsg = createAssistantMsg(messagesContainer);
             typewriterEffect(assistantMsg, introText.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>'));
         }
         
@@ -1532,16 +1689,12 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         if (parts.length >= 3) {
             // Multiple numbered items detected — render each in its own bubble
             parts.forEach(part => {
-                const bubble = document.createElement('div');
-                bubble.className = 'message assistant';
-                messagesContainer.appendChild(bubble);
+                const bubble = createAssistantMsg(messagesContainer);
                 typewriterEffect(bubble, part.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
             });
         } else {
             // Standard single bubble
-            const assistantMsg = document.createElement('div');
-            assistantMsg.className = 'message assistant';
-            messagesContainer.appendChild(assistantMsg);
+            const assistantMsg = createAssistantMsg(messagesContainer);
             typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
         }
     }
@@ -1578,11 +1731,10 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
                     
                     window.MWClient.sendMessage('REQUEST_ORIGINAL:' + btn.value).then(response => {
                         if (response.success && response.message) {
-                            const assistantMsg = document.createElement('div');
-                            assistantMsg.className = 'message assistant';
+                            const assistantMsg = createAssistantMsg(messagesContainer);
 assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
-                            messagesContainer.appendChild(assistantMsg);
-                            messagesContainer.scrollTop                        }
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }
                     });
                 } else {
                     const input = document.getElementById('messageInput');
@@ -1608,14 +1760,14 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
     response.chatFollowUp.forEach(opt => {
         const button = document.createElement('button');
         button.textContent = opt.label;
-        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #2a7d72; background: white; color: #2a7d72; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
         button.addEventListener('mouseenter', () => {
-            button.style.background = '#4a9c8a';
+            button.style.background = '#2a7d72';
             button.style.color = 'white';
         });
         button.addEventListener('mouseleave', () => {
             button.style.background = 'white';
-            button.style.color = '#4a9c8a';
+            button.style.color = '#2a7d72';
         });
         button.addEventListener('click', () => {
             btnContainer.remove();
@@ -1628,12 +1780,13 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
     messagesContainer.appendChild(btnContainer);
 }
 }
+} else if (response.aborted) {
+                    const stopMsg = createAssistantMsg(messagesContainer);
+                    stopMsg.textContent = "I stopped the search for you. But no problem tesoro, can I help you find something else?";
                 } else {
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'message assistant';
-                    errorMsg.style.whiteSpace = 'pre-line';  // Preserve line breaks
+                    const errorMsg = createAssistantMsg(messagesContainer);
+                    errorMsg.style.whiteSpace = 'pre-line';
                     errorMsg.textContent = response.error || 'Sorry, something went wrong. Please try again.';
-                    messagesContainer.appendChild(errorMsg);
                 }
                 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -1645,17 +1798,21 @@ if (response.intake_completed && !featuredRecipeLoaded) {
 
             } 
 catch (error) {
-    typingIndicator.remove();
+    typingRow.remove();
+    _abortController = null;
+    sendBtn.textContent = 'Send';
+    sendBtn.classList.remove('stop-btn');
+    
+    // Don't show error for intentional abort
+    if (error.name === 'AbortError') return;
     
     console.error('@@@ CAUGHT ERROR @@@', error);
     console.error('Error stack:', error.stack);
     
-    const errorMsg = document.createElement('div');
-    errorMsg.className = 'message assistant';
+    const errorMsg = createAssistantMsg(messagesContainer);
     errorMsg.textContent = 'Connection error. Please check your internet and try again.';
-    messagesContainer.appendChild(errorMsg);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}                
+}            
              
         }
 
@@ -1672,13 +1829,15 @@ catch (error) {
 
             // FIX: Reset save button state for each new recipe
             document.getElementById('saveRecipeBtn').classList.remove('saved');
-            document.getElementById('saveText').textContent = 'Save This Recipe';
-
+ document.getElementById('saveText').textContent = 'Save This Recipe';
+            document.getElementById('saveIcon').textContent = '🤍';
+     
             // Check if this recipe was previously saved in this session
             if (sessionStorage.getItem('savedRecipe_' + recipe.title)) {
                 document.getElementById('saveRecipeBtn').classList.add('saved');
-                document.getElementById('saveText').textContent = 'Saved ✓';
-            }
+ document.getElementById('saveText').textContent = 'Saved ✓';
+                document.getElementById('saveIcon').textContent = '❤️';
+            }        
 
             // FIX: Reset YUM rating state for each new recipe
             const emojis = document.querySelectorAll('#yumRating .yum-emoji');
@@ -1690,11 +1849,16 @@ catch (error) {
             const recipeDisplay = document.getElementById('recipeDisplay');
             recipeDisplay.classList.add('active');
             
+
+            
             // Populate content
             document.getElementById('recipeTitle').textContent = recipe.title;
             console.log('Title set:', recipe.title);
             
-            document.getElementById('recipeSummary').textContent = recipe.summary;
+document.getElementById('recipeSummary').textContent = (recipe.summary || '')
+    .replace(/\*\*/g, '')
+                .replace(/^#{1,6}\s+[^\n]+\n*/gm, '')
+                .trim();
             console.log('Summary set:', recipe.summary);
             console.log('Summary length:', recipe.summary ? recipe.summary.length : 0);
             
@@ -1807,7 +1971,14 @@ catch (error) {
             if (recipe.notes) {
                 document.getElementById('notesSection').style.display = 'block';
                 const notesList = document.getElementById('notesList');
-                notesList.textContent = recipe.notes;
+                // Strip markdown: bold markers, list dashes, clean up
+                const cleanNotes = recipe.notes
+                    .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold** → bold
+                    .split('\n')
+                    .map(line => line.replace(/^-\s*/, '• ').trim())
+                    .filter(line => line.length > 0)
+                    .join('\n');
+                notesList.textContent = cleanNotes;
             } else {
                 document.getElementById('notesSection').style.display = 'none';
             }
@@ -1823,7 +1994,7 @@ catch (error) {
 // Store current recipe
 window.currentRecipe = recipe;
      initializeRating();
-        }
+}
 
   // Track whether we loaded from saved recipes (used by pageshow)
         let _loadedFromSaved = false;
@@ -1942,9 +2113,9 @@ body: JSON.stringify({
                 // FIX: Both new save and already-saved show the same saved state
                 if (data.success) {
                     this.classList.add('saved');
-                    document.getElementById('saveText').textContent = 'Saved ✓';
-                    console.log('✅ Recipe saved to collection');
-                    
+  document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
+                    console.log('✅ Recipe saved to collection');                    
                     // Track save state in sessionStorage for bfcache restore
                     sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
                     
@@ -1956,10 +2127,10 @@ body: JSON.stringify({
                 } else {
                     // Already saved is still a success state visually
                     this.classList.add('saved');
-                    document.getElementById('saveText').textContent = 'Saved ✓';
+ document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
                     sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
-                    console.log('ℹ️ Recipe already saved');
-                }
+                    console.log('ℹ️ Recipe already saved');                }
             } catch (error) {
                 console.error('Error saving recipe:', error);
                 alert('Failed to save recipe');
@@ -2010,8 +2181,7 @@ body: JSON.stringify({
         // Single consolidated handler for page load and bfcache restore
 
         // Featured Recipe - silently loads either a recipe_ready delivery or daily featured recipe
-// Proactive message state — persists until user sends their next message
-        let _pendingProactiveLogId = null;
+// Proactive message state — uses _pendingProactiveLogId declared at top of script
 
         async function loadProactiveMessages() {
             const userId = window.MWClient.getUserId();
@@ -2030,10 +2200,8 @@ const data = JSON.parse(text);
                 _pendingProactiveLogId = data.log_id;
 
                 const messagesContainer = document.getElementById('chatMessages');
-                const proactiveMsg = document.createElement('div');
-                proactiveMsg.className = 'message assistant';
+                const proactiveMsg = createAssistantMsg(messagesContainer);
 proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
-                messagesContainer.appendChild(proactiveMsg);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
                 await fetch('https://n8n-admin.willclower.com/webhook/mark-proactive-delivered', {
@@ -2097,17 +2265,27 @@ proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').repla
                     ];
                 }
                 
-const loadingMsg = document.createElement('div');
+const loadingRow = document.createElement('div');
+                loadingRow.className = 'message-row';
+                loadingRow.id = 'featured-loading';
+                const loadingAvatar = document.createElement('img');
+                loadingAvatar.className = 'nona-chat-avatar';
+                loadingAvatar.src = NONA_ASSETS.profilePic;
+                loadingAvatar.alt = 'Nona';
+                const loadingMsg = document.createElement('div');
                 loadingMsg.className = 'message assistant';
-                loadingMsg.id = 'featured-loading';
-                messagesContainer.appendChild(loadingMsg);
+                loadingRow.appendChild(loadingAvatar);
+                loadingRow.appendChild(loadingMsg);
+                messagesContainer.appendChild(loadingRow);
                 const greetingHtml = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/([.!?])\s+/g, '$1<br><br>');
                 const dotsHtml = '<br><div class="typing-dots" style="margin-top:6px"><span></span><span></span><span></span></div>';
                 typewriterEffect(loadingMsg, greetingHtml, 20, () => {
                     loadingMsg.innerHTML += dotsHtml;
                 });
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                
+
+                    // Start Nona video during loading
+                playNonaHero(NONA_ASSETS.welcomeHero);
 
                 // Silently ask Nona for the full recipe (no user bubble in chat)
                 const nonaResponse = await window.MWClient.sendMessage(
@@ -2127,9 +2305,7 @@ setTimeout(() => {
   // Skip chatMessage for featured recipes — the greeting already covers it
      // But DO show relationship comment if present
     if (nonaResponse.relationshipComment) {
-        const commentMsg = document.createElement('div');
-        commentMsg.className = 'message assistant';
-        messagesContainer.appendChild(commentMsg);
+        const commentMsg = createAssistantMsg(messagesContainer);
         typewriterEffect(commentMsg, nonaResponse.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
     }
 
@@ -2141,9 +2317,9 @@ setTimeout(() => {
         nonaResponse.chatFollowUp.forEach(opt => {
             const button = document.createElement('button');
             button.textContent = opt.label;
-            button.style.cssText = 'padding:10px 16px;border-radius:20px;border:1px solid #4a9c8a;background:white;color:#4a9c8a;cursor:pointer;font-size:14px;transition:all 0.2s;text-align:left;line-height:1.4;';
-            button.addEventListener('mouseenter', () => { button.style.background='#4a9c8a'; button.style.color='white'; });
-            button.addEventListener('mouseleave', () => { button.style.background='white'; button.style.color='#4a9c8a'; });
+            button.style.cssText = 'padding:10px 16px;border-radius:20px;border:1px solid #2a7d72;background:white;color:#2a7d72;cursor:pointer;font-size:14px;transition:all 0.2s;text-align:left;line-height:1.4;';
+            button.addEventListener('mouseenter', () => { button.style.background='#2a7d72'; button.style.color='white'; });
+            button.addEventListener('mouseleave', () => { button.style.background='white'; button.style.color='#2a7d72'; });
             button.addEventListener('click', () => {
                 btnContainer.remove();
                 const input = document.getElementById('messageInput');
@@ -2159,10 +2335,8 @@ setTimeout(() => {
     
 } else if (nonaResponse.success && nonaResponse.message) {
     const intakeMsgContainer = document.getElementById('chatMessages');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'message assistant';
+    const msgDiv = createAssistantMsg(intakeMsgContainer);
     msgDiv.innerHTML = nonaResponse.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
-    intakeMsgContainer.appendChild(msgDiv);
     intakeMsgContainer.scrollTop = intakeMsgContainer.scrollHeight;
                 
                     // Mark this featured recipe as delivered so it doesn't repeat
@@ -2180,10 +2354,8 @@ setTimeout(() => {
                     // Show Nona's intro in chat
                     const messagesContainer = document.getElementById('chatMessages');
                     if (nonaResponse.chatMessage) {
-                        const introMsg = document.createElement('div');
-                        introMsg.className = 'message assistant';
+                        const introMsg = createAssistantMsg(messagesContainer);
     introMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
-                        messagesContainer.appendChild(introMsg);
                     }
                     if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
                         const btnContainer = document.createElement('div');
@@ -2196,14 +2368,14 @@ setTimeout(() => {
                         nonaResponse.chatFollowUp.forEach(opt => {
                             const button = document.createElement('button');
                             button.textContent = opt.label;
-                            button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a9c8a; background: white; color: #4a9c8a; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+                            button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #2a7d72; background: white; color: #2a7d72; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
                             button.addEventListener('mouseenter', () => {
-                                button.style.background = '#4a9c8a';
+                                button.style.background = '#2a7d72';
                                 button.style.color = 'white';
                             });
                             button.addEventListener('mouseleave', () => {
                                 button.style.background = 'white';
-                                button.style.color = '#4a9c8a';
+                                button.style.color = '#2a7d72';
                             });
                             button.addEventListener('click', () => {
                                 btnContainer.remove();
@@ -2259,8 +2431,7 @@ setTimeout(() => {
                     document.getElementById('recipePlaceholder').classList.add('hidden');
                     const recipeDisplay = document.getElementById('recipeDisplay');
                     recipeDisplay.classList.add('active');
-                    document.getElementById('recipeTitle').textContent = recipeData.title;
-           document.getElementById('recipeSummary').textContent = recipe.summary.replace(/\*\*/g, '');
+document.getElementById('recipeSummary').textContent = '';
                     
                     window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
                         .then(response => {
@@ -2277,10 +2448,15 @@ setTimeout(() => {
             if (messagesContainer.children.length === 0) {
                 const currentAssistant = window.MWClient.getCurrentAssistant();
                 const greeting = window.MWClient.getDefaultGreeting(currentAssistant);
-                const greetingMsg = document.createElement('div');
-                greetingMsg.className = 'message assistant';
-                greetingMsg.textContent = greeting;
-                messagesContainer.appendChild(greetingMsg);
+                if (currentAssistant === 'nona') {
+                    const greetingMsg = createAssistantMsg(messagesContainer);
+                    greetingMsg.textContent = greeting;
+                } else {
+                    const greetingMsg = document.createElement('div');
+                    greetingMsg.className = 'message assistant';
+                    greetingMsg.textContent = greeting;
+                    messagesContainer.appendChild(greetingMsg);
+                }
             }
       // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
 if (!_loadedFromSaved && !loadRecipe) {
