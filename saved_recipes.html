@@ -500,11 +500,13 @@
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.success && data.image_data) {
+if (data.success && (data.thumbnail_data || data.image_data)) {
+                        const imgSrc = data.thumbnail_data || data.image_data;
                         const placeholder = card.querySelector('.recipe-card-image');
+    
                         if (placeholder && placeholder.tagName !== 'IMG') {
                             const img = document.createElement('img');
-                            img.src = `data:image/png;base64,${data.image_data}`;
+    img.src = `data:image/png;base64,${imgSrc}`;
                             img.className = 'recipe-card-image';
                             img.alt = recipeTitle;
                             placeholder.replaceWith(img);
@@ -528,8 +530,8 @@
             const rating = recipe.user_rating || 0;
             
             card.innerHTML = `
-                ${recipe.image_data ? `
-                    <img src="data:image/png;base64,${recipe.image_data}" class="recipe-card-image" alt="${recipe.recipe_title}">
+ ${(recipe.thumbnail_data || recipe.image_data) ? `
+                    <img src="data:image/png;base64,${recipe.thumbnail_data || recipe.image_data}" class="recipe-card-image" alt="${recipe.recipe_title}">
                 ` : `
                     <div class="recipe-card-image" style="display: flex; align-items: center; justify-content: center; font-size: 60px;">🍽️</div>
                 `}
