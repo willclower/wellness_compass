@@ -1959,6 +1959,7 @@ async function loadRecipeImage(recipeTitle) {
             
   if (data.success && (data.thumbnail_data || data.image_data)) {
                 const imgSrc = data.thumbnail_data || data.image_data;
+  const img = document.getElementById('recipeImage');
       
                 // Add error and load handlers
                 img.onerror = () => {
