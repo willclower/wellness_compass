@@ -113,7 +113,7 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
             recipe.ingredients = ingredientsSection[1].split('\n')
                 .map(line => line.trim())
                 .filter(line => line.startsWith('-'))
-               .map(line => line.replace(/^-\s*/, '').replace(/\*\*/g, '').trim());
+ .map(line => line.replace(/^-\s*/, '').trim());
         }
         
 // Instructions - collect numbered steps with their sub-content
