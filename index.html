@@ -662,7 +662,48 @@ color: #2a7d72;
     margin-bottom: 20px;
 }
 
+/* Search History Panel */
+.history-card {
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border-left: 3px solid #1a7b8e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.history-card:hover {
+    background: #e6f7f7;
+    transform: translateX(4px);
+}
+
+.history-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.history-card-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.history-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.history-empty p:first-child {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
         .recipe-placeholder {
+            
             display: block;
         }
 
@@ -1081,9 +1122,9 @@ color: #2a7d72;
         <!-- Left Panel -->
         <div class="left-panel">
             <div class="recipe-tabs">
-                <button class="tab-button active" id="todayTab">Featured Recipe</button>
+<button class="tab-button active" id="todayTab" onclick="showFeaturedTab()">Featured Recipe</button>
  <button class="tab-button" id="savedTab" onclick="saveStateAndNavigate('saved_recipes.html')">Saved Recipes</button>
-                <button class="tab-button">Recipe Search History</button>
+                <button class="tab-button" id="historyTab" onclick="showSearchHistory()">Recipe Search History</button>
             </div>
             <div class="recipe-content">
                 <!-- Placeholder (shown by default) -->
@@ -1162,6 +1203,12 @@ color: #2a7d72;
                     <div class="summary-section" id="summarySection" style="display: none;">
                         <p id="summaryContent"></p>
                     </div>
+ </div>
+
+                <!-- Search History Panel (hidden by default) -->
+                <div id="searchHistoryPanel" style="display: none; padding: 20px;">
+                    <h3 style="color: #1a7b8e; margin-bottom: 16px; font-size: 20px;">Recipe Search History</h3>
+                    <div id="historyList"></div>
                 </div>
             </div>
         </div>
@@ -1265,7 +1312,77 @@ function saveStateAndNavigate(url) {
     if (window.currentRecipe && document.getElementById('recipeDisplay').classList.contains('active')) {
         sessionStorage.setItem('mw_recipe_state', JSON.stringify({ recipe: window.currentRecipe }));
     }
-    window.location.href = url;
+window.location.href = url;
+}
+
+function saveToRecipeHistory(recipe) {
+    if (!recipe || !recipe.title) return;
+    const history = JSON.parse(localStorage.getItem('mw_recipe_history') || '[]');
+    // Skip if most recent entry is same recipe
+    if (history.length > 0 && history[0].title === recipe.title) return;
+    history.unshift({
+        title: recipe.title,
+        timestamp: new Date().toISOString(),
+        recipeData: recipe
+    });
+    // Cap at 50
+    if (history.length > 50) history.length = 50;
+    localStorage.setItem('mw_recipe_history', JSON.stringify(history));
+}
+
+function showSearchHistory() {
+    // Hide recipe panels, show history
+    document.getElementById('recipePlaceholder').classList.add('hidden');
+    document.getElementById('recipeDisplay').classList.remove('active');
+    const panel = document.getElementById('searchHistoryPanel');
+    panel.style.display = 'block';
+
+    const container = document.getElementById('historyList');
+    const history = JSON.parse(localStorage.getItem('mw_recipe_history') || '[]');
+
+    if (history.length === 0) {
+        container.innerHTML = '<div class="history-empty"><p>No recipes viewed yet.</p><p>Ask Nona for a recipe and it will appear here!</p></div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    history.forEach((entry, idx) => {
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        const date = new Date(entry.timestamp);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        card.innerHTML = '<div class="history-card-title">' + entry.title + '</div>' +
+            '<div class="history-card-date">' + dateStr + ' at ' + timeStr + '</div>';
+        card.addEventListener('click', () => {
+            loadHistoryRecipe(idx);
+        });
+        container.appendChild(card);
+    });
+}
+
+function loadHistoryRecipe(idx) {
+    const history = JSON.parse(localStorage.getItem('mw_recipe_history') || '[]');
+    if (!history[idx]) return;
+    // Switch to Featured Recipe tab and display
+    document.getElementById('searchHistoryPanel').style.display = 'none';
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.getElementById('todayTab').classList.add('active');
+    displayRecipe(history[idx].recipeData);
+    loadRecipeImage(history[idx].recipeData.title);
+}
+
+function showFeaturedTab() {
+    document.getElementById('searchHistoryPanel').style.display = 'none';
+    // Restore whichever was showing (recipe or placeholder)
+    if (window.currentRecipe && document.getElementById('recipeDisplay').classList.contains('active')) {
+        // Already visible, do nothing
+    } else if (window.currentRecipe) {
+        document.getElementById('recipePlaceholder').classList.add('hidden');
+        document.getElementById('recipeDisplay').classList.add('active');
+    } else {
+        document.getElementById('recipePlaceholder').classList.remove('hidden');
+    }
 }
 
 const TYPEWRITER_SPEED = 48;
@@ -1818,8 +1935,8 @@ document.getElementById('recipeSummary').textContent = (recipe.summary || '')
 // Store current recipe
 window.currentRecipe = recipe;
      initializeRating();
+     saveToRecipeHistory(recipe);
 }
-
   // Track whether we loaded from saved recipes (used by pageshow)
         let _loadedFromSaved = false;
 async function loadRecipeImage(recipeTitle) {
@@ -2232,9 +2349,10 @@ setTimeout(() => {
                 }
             }
 
-            // Reset tabs to first tab on every page show
+// Reset tabs to first tab on every page show
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById('todayTab').classList.add('active');
+            document.getElementById('searchHistoryPanel').style.display = 'none';
 
             // Check if we're loading a recipe from saved recipes page
             const loadRecipe = localStorage.getItem('loadRecipe');
