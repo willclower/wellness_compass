@@ -1957,9 +1957,9 @@ async function loadRecipeImage(recipeTitle) {
             console.log('Response data received');
             console.log('Has image data:', !!data.image_data);
             
-            if (data.success && data.image_data) {
-                const img = document.getElementById('recipeImage');
-                
+  if (data.success && (data.thumbnail_data || data.image_data)) {
+                const imgSrc = data.thumbnail_data || data.image_data;
+      
                 // Add error and load handlers
                 img.onerror = () => {
                     console.error('❌ Image failed to render');
@@ -1969,10 +1969,10 @@ async function loadRecipeImage(recipeTitle) {
 };
                 
                 // Convert base64 to data URI
-                const dataUri = `data:image/png;base64,${data.image_data}`;
-  img.src = dataUri;
+const dataUri = `data:image/png;base64,${imgSrc}`;
+                img.src = dataUri;
                 img.style.display = 'block';
-                console.log('✓ Image set, base64 length:', data.image_data.length);
+console.log('✓ Image set, base64 length:', imgSrc.length, data.thumbnail_data ? '(thumbnail)' : '(full)');
                 
                 // Store document_id for saving later
                 if (data.document_id && window.currentRecipe) {
