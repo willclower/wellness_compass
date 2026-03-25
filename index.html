@@ -1913,16 +1913,17 @@ document.getElementById('recipeSummary').textContent = (recipe.summary || '')
             ingredientsList.innerHTML = '';
 recipe.ingredients.forEach(ingredient => {
                 const li = document.createElement('li');
-                const headingMatch = ingredient.match(/^\*\*(.+?)\*\*$/);
-                if (headingMatch) {
-                    li.innerHTML = '<strong>' + headingMatch[1] + '</strong>';
+                const boldMatch = ingredient.match(/^\*\*(.+?)\*\*$/);
+                const isHeading = boldMatch || (/^[A-Za-z]/.test(ingredient) && ingredient.endsWith(':'));
+                if (isHeading) {
+                    li.innerHTML = '<strong>' + (boldMatch ? boldMatch[1] : ingredient) + '</strong>';
                     li.classList.add('ingredient-heading');
                 } else {
                     li.textContent = ingredient.replace(/\*\*/g, '');
                     li.classList.add('ingredient-item');
                 }
                 ingredientsList.appendChild(li);
-            });            
+            });       
             // Instructions
             const instructionsList = document.getElementById('instructionsList');
             instructionsList.innerHTML = '';
