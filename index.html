@@ -1909,7 +1909,8 @@ document.getElementById('recipeSummary').textContent = (recipe.summary || '')
                 });
             }
      
-            // Ingredients
+// Ingredients
+            ingredientsList.innerHTML = '';
 recipe.ingredients.forEach(ingredient => {
                 const li = document.createElement('li');
                 const headingMatch = ingredient.match(/^\*\*(.+?)\*\*$/);
