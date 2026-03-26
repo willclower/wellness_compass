@@ -108,16 +108,16 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
         if (summaryMatch) recipe.summary = summaryMatch[1].trim();
         
         // Ingredients
-        const ingredientsSection = text.match(/##\s+What You'll Need\s*\n+([\s\S]+?)(?=\n##)/);
+const ingredientsSection = text.match(/## What You'll Need\s*\n+([\s\S]+?)(?=\n## What To Do)/);
         if (ingredientsSection) {
-            recipe.ingredients = ingredientsSection[1].split('\n')
+recipe.ingredients = ingredientsSection[1].split('\n')
                 .map(line => line.trim())
-                .filter(line => line.startsWith('-'))
- .map(line => line.replace(/^-\s*/, '').trim());
+                .filter(line => line.startsWith('-') || (/^[A-Za-z]/.test(line) && line.endsWith(':')))
+                .map(line => line.replace(/^-\s*/, '').replace(/^#{1,4}\s*/, '').trim());
         }
         
 // Instructions - collect numbered steps with their sub-content
-        const instructionsSection = text.match(/##\s+What To Do\s*\n+([\s\S]+?)(?=\n##)/);
+const instructionsSection = text.match(/## What To Do\s*\n+([\s\S]+?)(?=\n## (?:Play With Your Food|Summary|Recipe Info))/);
         if (instructionsSection) {
             const lines = instructionsSection[1].split('\n');
             const steps = [];
@@ -141,7 +141,7 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
         }
         
         // Play With Your Food
-        const notesSection = text.match(/##\s+Play With Your Food\s*\n+([\s\S]+?)(?=\n##|$)/);
+const notesSection = text.match(/## Play With Your Food\s*\n+([\s\S]+?)(?=\n## (?:Summary|Recipe Info)|$)/);
         if (notesSection) {
             recipe.notes = notesSection[1].replace(/\*\*/g, '').trim();
         }
