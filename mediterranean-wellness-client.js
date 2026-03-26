@@ -112,7 +112,7 @@ const ingredientsSection = text.match(/## What You'll Need\s*\n+([\s\S]+?)(?=\n#
         if (ingredientsSection) {
 recipe.ingredients = ingredientsSection[1].split('\n')
                 .map(line => line.trim())
-                .filter(line => line.startsWith('-') || (/^[A-Za-z]/.test(line) && line.endsWith(':')))
+                .filter(line => line.startsWith('-') || line.startsWith('#') || (/^[A-Za-z]/.test(line) && line.endsWith(':')))
                 .map(line => line.replace(/^-\s*/, '').replace(/^#{1,4}\s*/, '').trim());
         }
         
