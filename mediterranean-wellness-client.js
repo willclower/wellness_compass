@@ -113,7 +113,14 @@ const ingredientsSection = text.match(/## What You'll Need\s*\n+([\s\S]+?)(?=\n#
 recipe.ingredients = ingredientsSection[1].split('\n')
                 .map(line => line.trim())
                 .filter(line => line.startsWith('-') || line.startsWith('#') || (/^[A-Za-z]/.test(line) && line.endsWith(':')))
-                .map(line => line.replace(/^-\s*/, '').replace(/^#{1,4}\s*/, '').trim());
+                .map(line => {
+                    const stripped = line.replace(/^-\s*/, '').trim();
+                    if (line.startsWith('#') || (/^[A-Za-z]/.test(stripped) && stripped.endsWith(':'))) {
+                        const clean = stripped.replace(/^#{1,4}\s*/, '').replace(/:$/, '').trim();
+                        return '**' + clean + '**';
+                    }
+                    return stripped;
+                });
         }
         
 // Instructions - collect numbered steps with their sub-content
