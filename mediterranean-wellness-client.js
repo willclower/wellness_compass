@@ -300,7 +300,7 @@ const notesSection = text.match(/## Play With Your Food\s*\n+([\s\S]+?)(?=\n## (
     }
 
     getAssistantName(assistantId) {
-        const names = { 'nona': 'Nona', 'dundee': 'Dundee', 'chiara': 'Chiara', 'lina': 'Lina' };
+        const names = { 'nona': 'Nona', 'dundee': 'Dundee', 'liam': 'Liam', 'maggie': 'Maggie' };
         return names[assistantId] || assistantId;
     }
 
@@ -308,8 +308,8 @@ const notesSection = text.match(/## Play With Your Food\s*\n+([\s\S]+?)(?=\n## (
         const greetings = {
             'nona': 'Ciao! Ready to cook something delicious today?',
             'dundee': 'Hey there! Ready to crush your workout today?',
-            'chiara': 'Welcome. Let us find some peace together.',
-            'lina': 'Hi! Let us create a nutrition plan that works for you.'
+            'liam': 'Welcome. Let us find some peace together.',
+            'maggie': 'Hi! Let us create a nutrition plan that works for you.'
         };
         return greetings[assistantId] || 'Hello! How can I help you today?';
     }
