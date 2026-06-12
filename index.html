@@ -1839,10 +1839,17 @@ assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').r
                             messagesContainer.scrollTop = messagesContainer.scrollHeight;
                         }
                     });
-                } else {
+} else {
+                    // Send btn.value VERBATIM so prefixed intents (ALLERGEN_OVERRIDE:<title>)
+                    // reach the backend unmangled. Route through sendMessage() for full
+                    // recipe render. Then relabel the raw-token bubble to btn.label.
                     const input = document.getElementById('messageInput');
-                    input.value = 'please provide the recipe for ' + btn.value;
+                    input.value = btn.value;
                     sendMessage();
+                    const mc = document.getElementById('chatMessages');
+                    const bubbles = mc.querySelectorAll('.message.user');
+                    const last = bubbles[bubbles.length - 1];
+                    if (last && last.textContent === btn.value) last.textContent = btn.label;
                 }
             });
             btnContainer.appendChild(button);
