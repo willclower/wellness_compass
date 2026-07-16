@@ -83,8 +83,11 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
     }
 
     isRecipeResponse(text) {
-        const markers = ['## What You\'ll Need', '## What To Do', '# What You\'ll Need', '# What To Do'];
-        return markers.some(m => text.includes(m));
+ const markers = [
+            /#{1,4}\s*(?:What\s+)?You['\u2019]ll\s+Need/i,
+            /#{1,4}\s*(?:What\s+)?To\s+Do/i
+        ];
+        return markers.some(m => m.test(text));
     }
 
     parseRecipe(text) {
@@ -108,23 +111,23 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
         if (summaryMatch) recipe.summary = summaryMatch[1].trim();
         
         // Ingredients
-const ingredientsSection = text.match(/## What You'll Need\s*\n+([\s\S]+?)(?=\n## What To Do)/);
+const ingredientsSection = text.match(/#{1,4}\s*(?:What\s+)?You['\u2019]ll\s+Need:?\s*\n+([\s\S]+?)(?=\n#{1,4}\s*(?:What\s+)?To\s+Do)/i);
         if (ingredientsSection) {
 recipe.ingredients = ingredientsSection[1].split('\n')
                 .map(line => line.trim())
                 .filter(line => line.startsWith('-') || line.startsWith('#') || (/^[A-Za-z]/.test(line) && line.endsWith(':')))
-                .map(line => {
-                    const stripped = line.replace(/^-\s*/, '').trim();
-                    if (line.startsWith('#') || (/^[A-Za-z]/.test(stripped) && stripped.endsWith(':'))) {
-                        const clean = stripped.replace(/^#{1,4}\s*/, '').replace(/:$/, '').trim();
-                        return '**' + clean + '**';
+ .map(line => {
+                    const stripped = line.replace(/^[-*]\s*/, '').replace(/^#{1,4}\s*/, '').trim();
+                    const isSubHeading = /^[A-Za-z][^\n]*:$/.test(stripped);
+                    if (isSubHeading) {
+                        return '**' + stripped.replace(/:$/, '').trim() + '**';
                     }
                     return stripped;
                 });
         }
         
 // Instructions - collect numbered steps with their sub-content
-const instructionsSection = text.match(/## What To Do\s*\n+([\s\S]+?)(?=\n## (?:Play With Your Food|Summary|Recipe Info))/);
+const instructionsSection = text.match(/#{1,4}\s*(?:What\s+)?To\s+Do:?\s*\n+([\s\S]+?)(?=\n#{1,4}\s*(?:Play\s+With\s+Your\s+Food|Summary|Recipe\s+Info))/i);
         if (instructionsSection) {
             const lines = instructionsSection[1].split('\n');
             const steps = [];
@@ -148,13 +151,13 @@ const instructionsSection = text.match(/## What To Do\s*\n+([\s\S]+?)(?=\n## (?:
         }
         
         // Play With Your Food
-const notesSection = text.match(/## Play With Your Food\s*\n+([\s\S]+?)(?=\n## (?:Summary|Recipe Info)|$)/);
+const notesSection = text.match(/#{1,4}\s*Play\s+With\s+Your\s+Food:?\s*\n+([\s\S]+?)(?=\n#{1,4}\s*(?:Summary|Recipe\s+Info)|$)/i);
         if (notesSection) {
             recipe.notes = notesSection[1].replace(/\*\*/g, '').trim();
         }
         
         // Summary (closing)
-        const summarySection = text.match(/##\s+Summary\s*\n+([\s\S]+?)(?=\n##|\n\*\*Tags|---)/);
+const summarySection = text.match(/#{1,4}\s*Summary:?\s*\n+([\s\S]+?)(?=\n#{1,4}|\n\*\*Tags|---)/i);
         if (summarySection) {
             recipe.summary2 = summarySection[1].trim();
         }
