@@ -2045,9 +2045,9 @@ recipe.ingredients.forEach(ingredient => {
                 // Strip markdown: bold markers, list dashes, clean up
                 const cleanNotes = recipe.notes
                     .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold** → bold
-                    .split('\n')
-                    .map(line => line.replace(/^-\s*/, '• ').trim())
-                    .filter(line => line.length > 0)
+.split(/\n(?=-\s)/)
+                    .map(line => '• ' + line.replace(/^-\s*/, '').replace(/\s*\n\s*/g, ' ').trim())
+                    .filter(line => line.length > 2)
                     .join('\n');
                 notesList.textContent = cleanNotes;
             } else {
