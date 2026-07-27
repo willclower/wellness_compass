@@ -1,1 +1,2651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Wellness Compass - Mediterranean Wellness</title>
+    <style>
+        /* your styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+    font-family: 'Century Gothic', 'CenturyGothic', AppleGothic, sans-serif;
+    background: #f5f5f5;
+}
+
+        /* Top Bar */
+        .top-bar {
+            background: #1a7b8e;
+            padding: 8px 30px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            color: white;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-greeting {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ddd;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-icons button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Header Section */
+        .header-section {
+            background: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .compass-icon {
+            width: 50px;
+            height: 50px;
+background: linear-gradient(145deg, #2a7d72, #1a7b8e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(110, 197, 192, 0.3);
+        }
+
+        .logo-text {
+            text-align: center;
+        }
+
+        .logo-text h1 {
+            font-size: 32px;
+            color: #1a7b8e;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        /* Assistants Section */
+        .assistants-section {
+            padding: 30px;
+            background: white;
+        }
+
+        .assistants-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .assistant-card {
+border: 3px solid #2a7d72;
+            border-radius: 15px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .assistant-card:hover {
+            background: #f0fafa;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .assistant-card.active {
+            background: linear-gradient(145deg, #e6f7f7, #ffffff);
+            border-color: #1a7b8e;
+            box-shadow: 0 6px 16px rgba(26, 123, 142, 0.2);
+        }
+
+        .assistant-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .assistant-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .assistant-info h3 {
+            font-size: 15px;
+ color: #1a7b8e;
+            margin-bottom: 2px;
+        }
+
+        .assistant-info p {
+            font-size: 12px;
+            color: #666;
+        }
+
+
+   .compass-header {
+  width: 100%;
+  background: linear-gradient(135deg, #1a7b8e 0%, #155f6e 100%);
+  padding: 16px 0;
+  overflow: hidden;
+  position: relative;
+}
+.compass-header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  position: relative;
+}
+.compass-header-text {
+  flex: 1 1 auto;
+  color: #ffffff;
+  min-width: 0;
+}
+.compass-title {
+  margin: 0 0 8px 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  line-height: 1.1;
+}
+.compass-tagline {
+  margin: 0;
+  font-size: clamp(13px, 1.4vw, 16px);
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.78);
+}
+.compass-header-rose {
+  flex: 0 0 auto;
+  width: clamp(80px, 12vw, 130px);
+  height: clamp(80px, 12vw, 130px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.compass-header-rose svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+@media (max-width: 600px) {
+  .compass-header { padding: 16px 0; }
+  .compass-header-inner { padding: 0 16px; gap: 16px; }
+  .compass-header-rose { width: 90px; height: 90px; }
+  .compass-tagline { display: none; }
+}
+        
+        /* Content Area */
+ .content-area {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    padding: 20px 30px;
+    background: #f5f5f5;
+    align-items: start;
+}
+
+        /* Left Panel - Recipe Tabs */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .recipe-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: linear-gradient(145deg, #d0d0d0, #b8b8b8);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(145deg, #8b9f4a, #7a8e3f);
+            color: white;
+            box-shadow: 0 6px 14px rgba(139, 159, 74, 0.3);
+        }
+
+    .recipe-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 20px 20px 0;  /* No left padding */
+    min-height: 400px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+/* Recipe Rating — handled by .yum-rating-inline in recipe display CSS */
+        .recipe-card {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .recipe-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .recipe-details h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .recipe-details p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .recipe-details a {
+            color: #1a7b8e;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .recipe-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Right Panel - Chat */
+        .chat-panel {
+            background: white;
+border: 3px solid #2a7d72;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+height: calc(100vh - 250px);
+            min-height: 400px;
+            box-shadow: 0 6px 16px rgba(110, 197, 192, 0.2);
+            position: sticky;
+            top: 20px;
+        }
+
+        .chat-header {
+            padding: 15px;
+            text-align: center;
+color: #1a7b8e;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-input-area input:focus {
+border-color: #2a7d72;
+        }
+
+        .chat-input-area button {
+            padding: 12px 24px;
+ background: linear-gradient(145deg, #2a7d72, #1a7b8e);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(110, 197, 192, 0.3);
+        }
+
+        .chat-input-area button:hover {
+background: linear-gradient(145deg, #1a7b8e, #156d62);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(110, 197, 192, 0.4);
+        }
+.chat-input-area button.stop-btn {
+            background: linear-gradient(145deg, #e05555, #c94444);
+            box-shadow: 0 4px 10px rgba(224, 85, 85, 0.3);
+        }
+
+        .chat-input-area button.stop-btn:hover {
+            background: linear-gradient(145deg, #c94444, #b33a3a);
+            box-shadow: 0 6px 14px rgba(224, 85, 85, 0.4);
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background: #e6f7f7;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: #f0f0f0;
+            align-self: flex-start;
+        }
+
+      
+/* Recipe Display — Compact Layout */
+.recipe-display {
+    display: none;
+    padding-left: 20px;
+    animation: slideIn 0.4s ease-out;
+}
+
+.recipe-display.active {
+    display: block;
+}
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .recipe-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #8b9f4a;
+        }
+
+        .recipe-title {
+            font-size: 24px;
+            color: #8b9f4a;
+            margin: 0;
+            flex: 1;
+        }
+
+        .close-recipe-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .close-recipe-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+/* Hero block: image left, summary + meta + actions right */
+.recipe-hero {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.recipe-hero-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+    display: none;
+}
+
+.recipe-hero-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.recipe-summary {
+    font-style: italic;
+    color: #666;
+    line-height: 1.6;
+margin: 0 0 8px 0;
+    font-size: 16px;
+}
+
+.recipe-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 14px;
+    color: #555;
+}
+
+.recipe-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.recipe-meta-item .meta-label {
+    color: #999;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.recipe-meta-item .meta-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Compact actions row: rating + save + download inline */
+.recipe-actions-compact {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.yum-rating-inline {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.yum-rating-inline .yum-emoji {
+    font-size: 22px;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: all 0.2s ease;
+}
+
+.yum-rating-inline .yum-emoji:hover {
+    transform: scale(1.3);
+    opacity: 0.8;
+}
+
+.yum-rating-inline .yum-emoji.active {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.rating-text-inline {
+    font-size: 12px;
+    color: #999;
+    margin-left: 4px;
+}
+
+.action-btn-compact {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a7b8e;
+    transition: all 0.2s ease;
+}
+
+.action-btn-compact:hover {
+    background: #e6f7f7;
+    border-color: #1a7b8e;
+    transform: translateY(-1px);
+}
+
+.action-btn-compact.saved {
+    background: #1a7b8e;
+    color: white;
+    border-color: #1a7b8e;
+}
+
+.action-btn-compact.saved:hover {
+    background: #15626f;
+}
+
+/* Tags row */
+.recipe-tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.recipe-tag-pill {
+background: linear-gradient(145deg, #2a7d72, #1a7b8e);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Always-visible recipe sections */
+.recipe-section {
+    margin-bottom: 20px;
+}
+
+.recipe-section h3 {
+    color: #8b9f4a;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8ecd4;
+}
+
+.ingredients-list {
+    list-style: none;
+    padding: 0;
+}
+
+.ingredients-list li {
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    background: #f9f9f9;
+    border-radius: 6px;
+border-left: 3px solid #2a7d72;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.ingredients-list li:hover {
+    background: #f0fafa;
+}
+
+.ingredients-list li.ingredient-heading {
+    background: none;
+    border-left: none;
+    font-size: 15px;
+    color: #1a7b8e;
+    padding: 10px 0 4px 0;
+    margin-top: 8px;
+}
+
+.ingredients-list li.ingredient-heading::before {
+    content: '';
+    margin-right: 0;
+}
+
+.ingredients-list li.ingredient-item {
+    margin-left: 20px;
+}
+
+.ingredients-list li::before {
+    
+    content: '•';
+color: #2a7d72;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.instructions-list {
+    counter-reset: step-counter;
+    list-style: none;
+    padding: 0;
+}
+
+.instructions-list li {
+    counter-increment: step-counter;
+    padding: 12px 12px 12px 50px;
+    margin-bottom: 8px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    position: relative;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.instructions-list li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    background: #8b9f4a;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.notes-section {
+    background: #fff9e6;
+    border-left: 4px solid #ffd700;
+    padding: 15px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 20px;
+}
+
+.notes-section h3 {
+    color: #c8a800;
+    font-size: 18px;
+    margin-bottom: 8px;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.notes-content {
+    white-space: pre-line;
+    line-height: 1.6;
+    color: #555;
+}
+
+.summary-section {
+    font-style: italic;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Search History Panel */
+.history-card {
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border-left: 3px solid #1a7b8e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.history-card:hover {
+    background: #e6f7f7;
+    transform: translateX(4px);
+}
+
+.history-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.history-card-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.history-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.history-empty p:first-child {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+        .recipe-placeholder {
+            
+            display: block;
+        }
+
+        .recipe-placeholder.hidden {
+            display: none;
+        }
+
+/* Nona Imagery */
+.nona-placeholder-figure {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nona-static-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.nona-hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Chat message with Nona avatar */
+.message-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 85%;
+}
+
+.message-row.user-row {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.message-row .nona-chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.message-row .message {
+    max-width: none;
+}
+
+/* Typing indicator dots */
+.typing-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 0;
+}
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4a7c59;
+    opacity: 0.4;
+    animation: typingBounce 1.2s infinite ease-in-out;
+}
+.typing-dots span:nth-child(1) { animation-delay: 0s; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+}
+        
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+
+        /* Tablet: 768px - 1024px */
+        @media (max-width: 1024px) {
+            .assistants-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-area {
+                grid-template-columns: 1fr;
+                padding: 15px 20px;
+            }
+
+            .chat-panel {
+                position: relative;
+                top: 0;
+                height: 500px;
+            }
+
+            .recipe-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .recipe-hero-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            .logo-text h1 {
+                font-size: 26px;
+            }
+        }
+
+        /* Mobile: under 768px */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 8px 15px;
+            }
+
+            .user-greeting {
+                font-size: 12px;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-icons {
+                gap: 10px;
+            }
+
+            .nav-icons button {
+                font-size: 16px;
+            }
+
+            .header-section {
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .compass-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
+            }
+
+            .logo-text h1 {
+                font-size: 22px;
+            }
+
+            .assistants-section {
+                padding: 15px;
+            }
+
+            .assistants-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .assistant-card {
+                padding: 10px;
+                gap: 8px;
+                border-width: 2px;
+                border-radius: 12px;
+            }
+
+            .assistant-avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .assistant-info h3 {
+                font-size: 13px;
+            }
+
+            .assistant-info p {
+                font-size: 11px;
+            }
+
+            .content-area {
+                grid-template-columns: 1fr;
+                padding: 10px 15px;
+                gap: 15px;
+            }
+
+            .recipe-tabs {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .tab-button {
+                padding: 12px 10px;
+                font-size: 13px;
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .recipe-content {
+                padding: 15px;
+                min-height: 300px;
+            }
+
+            .chat-panel {
+                position: relative;
+                top: 0;
+                height: 450px;
+                border-radius: 15px;
+            }
+
+            .chat-messages {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .message {
+                max-width: 90%;
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+
+            .chat-input-area {
+                padding: 10px;
+                gap: 8px;
+            }
+
+            .chat-input-area input {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .chat-input-area button {
+                padding: 10px 18px;
+                font-size: 13px;
+            }
+
+            /* Recipe display */
+            .recipe-header-bar {
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+
+            .recipe-title {
+                font-size: 20px;
+            }
+
+            .recipe-hero {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .recipe-hero-image {
+                width: 100%;
+                height: 200px;
+            }
+
+            .recipe-summary {
+                font-size: 14px;
+            }
+
+            .recipe-meta-row {
+                font-size: 12px;
+            }
+
+            .recipe-actions-compact {
+                gap: 10px;
+            }
+
+            .ingredients-list li {
+                font-size: 15px;
+                padding: 8px 10px;
+            }
+
+            .instructions-list li {
+                padding: 12px 12px 12px 48px;
+                font-size: 14px;
+            }
+
+            .instructions-list li::before {
+                width: 26px;
+                height: 26px;
+                font-size: 14px;
+                left: 12px;
+                top: 12px;
+            }
+
+            .recipe-card {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .recipe-image {
+                width: 100%;
+                height: 150px;
+            }
+        }
+
+        /* Small mobile: under 480px */
+        @media (max-width: 480px) {
+            .assistants-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .assistant-card {
+                padding: 8px;
+                gap: 6px;
+            }
+
+            .assistant-avatar {
+                width: 30px;
+                height: 30px;
+            }
+
+            .assistant-info h3 {
+                font-size: 12px;
+            }
+
+            .assistant-info p {
+                font-size: 10px;
+            }
+
+            .logo-text h1 {
+                font-size: 18px;
+            }
+
+            .tab-button {
+                font-size: 12px;
+                padding: 10px 8px;
+            }
+
+            .chat-panel {
+                height: 400px;
+            }
+
+            .recipe-hero {
+                gap: 12px;
+            }
+
+            .action-btn-compact {
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+        }    
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="user-section">
+            <span class="user-greeting">HELLO LAURA</span>
+            <div class="user-avatar">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23ddd'/%3E%3C/svg%3E" alt="User">
+            </div>
+            <div class="nav-icons">
+                <button title="Home">🏠</button>
+                <button title="Messages">💬</button>
+                <button title="Settings">⚙️</button>
+                <button title="Menu">☰</button>
+            </div>
+        </div>
+    </div>
+
+<!-- Header Section -->
+    <div class="compass-header">
+      <div class="compass-header-inner">
+        <div class="compass-header-text">
+          <h1 class="compass-title">Your Wellness Compass</h1>
+          <p class="compass-tagline">Guiding you toward better living, every day</p>
+        </div>
+        <div class="compass-header-rose">
+          <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+            <circle cx="200" cy="200" r="150" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+            <circle cx="200" cy="200" r="120" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+            <circle cx="200" cy="200" r="90"  fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+            <circle cx="200" cy="200" r="60"  fill="none" stroke="rgba(255,255,255,0.30)" stroke-width="1"/>
+            <g fill="rgba(255,255,255,0.45)">
+              <polygon points="200,200 230,90 200,170"/>
+              <polygon points="200,200 200,170 170,90"/>
+              <polygon points="200,200 310,170 230,200"/>
+              <polygon points="200,200 230,200 310,230"/>
+              <polygon points="200,200 200,230 230,310"/>
+              <polygon points="200,200 170,310 200,230"/>
+              <polygon points="200,200 90,230 170,200"/>
+              <polygon points="200,200 170,200 90,170"/>
+            </g>
+            <g fill="rgba(255,255,255,0.95)">
+              <polygon points="200,200 215,200 200,40"/>
+              <polygon points="200,200 200,40 185,200"/>
+              <polygon points="200,200 200,215 360,200"/>
+              <polygon points="200,200 360,200 200,185"/>
+              <polygon points="200,200 185,200 200,360"/>
+              <polygon points="200,200 200,360 215,200"/>
+              <polygon points="200,200 200,185 40,200"/>
+              <polygon points="200,200 40,200 200,215"/>
+            </g>
+            <circle cx="200" cy="200" r="6" fill="rgba(255,255,255,0.95)"/>
+            <circle cx="200" cy="200" r="3" fill="#1a7b8e"/>
+            <g fill="rgba(255,255,255,0.85)" font-family="Georgia, serif" font-size="22" font-weight="300" text-anchor="middle">
+              <text x="200" y="18">N</text>
+              <text x="200" y="396">S</text>
+              <text x="18"  y="208">W</text>
+              <text x="386" y="208">E</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assistants Section -->
+    <div class="assistants-section">
+        <div class="assistants-grid">
+            <div class="assistant-card active">
+                <div class="assistant-avatar">
+                    <img src="assets/nona/Nona_ProfilePic_Face.png" alt="Nona">
+                </div>
+                <div class="assistant-info">
+                    <h3>Nona</h3>
+                    <p>Cooking Assistant</p>
+                </div>
+            </div>
+            <div class="assistant-card">
+                <div class="assistant-avatar">
+ <img src="assets/nona/dundee_avatar.png" alt="Dundee">
+                </div>
+                <div class="assistant-info">
+                    <h3>Dundee</h3>
+                    <p>Fitness Coach</p>
+                </div>
+            </div>
+            <div class="assistant-card">
+                <div class="assistant-avatar">
+<img src="assets/nona/liam_avatar.png" alt="Liam">
+                </div>
+                <div class="assistant-info">
+                    <h3>Liam</h3>
+                    <p>Mindfulness Guide</p>
+                </div>
+            </div>
+            <div class="assistant-card">
+                <div class="assistant-avatar">
+<img src="assets/nona/maggie_avatar.png" alt="Maggie">
+                </div>
+                <div class="assistant-info">
+                    <h3>Maggie</h3>
+                    <p>Nutrition Expert</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="recipe-tabs">
+<button class="tab-button active" id="todayTab" onclick="showFeaturedTab()">Featured Recipe</button>
+ <button class="tab-button" id="savedTab" onclick="saveStateAndNavigate('saved_recipes.html')">Saved Recipes</button>
+                <button class="tab-button" id="historyTab" onclick="showSearchHistory()">Recipe Search History</button>
+            </div>
+            <div class="recipe-content">
+                <!-- Placeholder (shown by default) -->
+<div class="recipe-placeholder" id="recipePlaceholder">
+                    <div class="recipe-card">
+                        <div class="recipe-details">
+                            <h3 id="placeholderTitle">Nona is picking today's recipe...</h3>
+                            <p id="placeholderDesc">One moment while she finds something special for you!</p>
+                        </div>
+                        <div class="nona-placeholder-figure">
+                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none"
+                                src="assets/nona/Nona_WavesHello_Hero.mp4">
+                            </video>
+                            <img id="nonaPlaceholderStatic" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
+                        </div>
+                    </div>
+                </div>
+
+    
+
+                <!-- Recipe Display (hidden by default, shown when Nona shares a recipe) -->
+                <div class="recipe-display" id="recipeDisplay">
+                    <div class="recipe-header-bar">
+                        <h2 class="recipe-title" id="recipeTitle"></h2>
+                        <button class="close-recipe-btn" id="closeRecipeBtn" title="Close recipe">×</button>
+                    </div>
+
+                    <!-- Hero: image + summary + meta + actions -->
+                    <div class="recipe-hero">
+                        <img id="recipeImage" class="recipe-hero-image" />
+                        <div class="recipe-hero-right">
+                            <p class="recipe-summary" id="recipeSummary"></p>
+                            <div class="recipe-meta-row" id="recipeMetaRow"></div>
+                            <div class="recipe-actions-compact">
+                                <div class="yum-rating-inline" id="yumRating">
+                                    <span class="yum-emoji" data-rating="1">😋</span>
+                                    <span class="yum-emoji" data-rating="2">😋</span>
+                                    <span class="yum-emoji" data-rating="3">😋</span>
+                                    <span class="yum-emoji" data-rating="4">😋</span>
+                                    <span class="yum-emoji" data-rating="5">😋</span>
+                                    <span class="rating-text-inline" id="ratingText">Rate!</span>
+                                </div>
+                                <button class="action-btn-compact save-btn" id="saveRecipeBtn">
+                                    <span id="saveIcon">🤍</span>
+                                    <span id="saveText">Save</span>
+                                </button>
+                                <button class="action-btn-compact" id="printRecipeBtn">
+                                    <span>⬇️</span>
+                                    <span>Download</span>
+  </button>
+                            </div>
+                            <!-- Tags -->
+                            <div class="recipe-tags-row" id="recipeTags"></div>
+                        </div>
+                    </div>
+
+                    <!-- Ingredients — always visible -->
+                    <div class="recipe-section">
+                        <h3> Ingredients</h3>
+                        <ul class="ingredients-list" id="ingredientsList"></ul>
+                    </div>
+
+                    <!-- Instructions — always visible -->
+                    <div class="recipe-section">
+                        <h3> Instructions </h3>
+                        <ol class="instructions-list" id="instructionsList"></ol>
+                    </div>
+
+                    <!-- Play With Your Food -->
+                    <div class="notes-section" id="notesSection" style="display: none;">
+                        <h3>🍴 Play With Your Food</h3>
+                        <div class="notes-content" id="notesList"></div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="summary-section" id="summarySection" style="display: none;">
+                        <p id="summaryContent"></p>
+                    </div>
+ </div>
+
+                <!-- Search History Panel (hidden by default) -->
+                <div id="searchHistoryPanel" style="display: none; padding: 20px;">
+                    <h3 style="color: #1a7b8e; margin-bottom: 16px; font-size: 20px;">Recipe Search History</h3>
+                    <div id="historyList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Chat -->
+        <div class="chat-panel">
+            <div class="chat-header">Chat Area</div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will load here -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="messageInput" placeholder="Type your message..." />
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="mediterranean-wellness-client.js"></script>
+    <script>
+        // --- Nona Imagery Helpers ---
+        const NONA_ASSETS = {
+            profilePic: 'assets/nona/Nona_ProfilePic_Face.png',
+            standingStatic: 'assets/nona/Nona_Standing_Static.png',
+            welcomeHero: 'assets/nona/Nona_WavesHello_Hero.mp4',
+            welcomeChat: 'assets/nona/Nona_WavesHello_chat.mp4'
+        };
+
+        function createAssistantMsg(container) {
+            const row = document.createElement('div');
+            row.className = 'message-row';
+
+            const avatar = document.createElement('img');
+            avatar.className = 'nona-chat-avatar';
+            avatar.src = NONA_ASSETS.profilePic;
+            avatar.alt = 'Nona';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message assistant';
+
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+            container.appendChild(row);
+            return bubble;
+        }
+
+// Clean up video on page hide (bfcache) — registered once
+        window.addEventListener('pagehide', () => {
+            const video = document.getElementById('nonaHeroVideo');
+            if (video) {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+            }
+        });
+
+function playNonaHero(videoSrc) {
+            const video = document.getElementById('nonaHeroVideo');
+            const staticImg = document.getElementById('nonaPlaceholderStatic');
+
+    if (!video) return;
+
+            video.src = videoSrc || NONA_ASSETS.welcomeHero;
+            video.style.display = 'block';
+            if (staticImg) staticImg.style.display = 'none';
+            video.load();
+            video.play().catch(() => {
+                video.style.display = 'none';
+                if (staticImg) staticImg.style.display = 'block';
+            });
+video.addEventListener('ended', () => {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+            }, { once: true });
+        }
+
+        // Basic interactivity
+        document.querySelectorAll('.assistant-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.assistant-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Get assistant ID from the card's text
+                const assistantName = this.querySelector('h3').textContent.toLowerCase();
+                switchToAssistant(assistantName);
+            });
+        });
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+});
+
+function saveStateAndNavigate(url) {
+    // Save chat state
+    const chatEl = document.getElementById('chatMessages');
+    if (chatEl) sessionStorage.setItem('mw_chat_state', chatEl.innerHTML);
+    // Save recipe state
+    if (window.currentRecipe && document.getElementById('recipeDisplay').classList.contains('active')) {
+        sessionStorage.setItem('mw_recipe_state', JSON.stringify({ recipe: window.currentRecipe }));
+    }
+window.location.href = url;
+}
+
+function saveToRecipeHistory(recipe) {
+    if (!recipe || !recipe.title) return;
+    const history = JSON.parse(localStorage.getItem('mw_recipe_history') || '[]');
+    // Skip if most recent entry is same recipe
+    if (history.length > 0 && history[0].title === recipe.title) return;
+    history.unshift({
+        title: recipe.title,
+        timestamp: new Date().toISOString(),
+        recipeData: recipe
+    });
+    // Cap at 50
+    if (history.length > 50) history.length = 50;
+    localStorage.setItem('mw_recipe_history', JSON.stringify(history));
+}
+
+function showSearchHistory() {
+    // Hide recipe panels, show history
+    document.getElementById('recipePlaceholder').classList.add('hidden');
+    document.getElementById('recipeDisplay').classList.remove('active');
+    const panel = document.getElementById('searchHistoryPanel');
+    panel.style.display = 'block';
+
+    const container = document.getElementById('historyList');
+    const history = JSON.parse(localStorage.getItem('mw_recipe_history') || '[]');
+
+    if (history.length === 0) {
+        container.innerHTML = '<div class="history-empty"><p>No recipes viewed yet.</p><p>Ask Nona for a recipe and it will appear here!</p></div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    history.forEach((entry, idx) => {
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        const date = new Date(entry.timestamp);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        card.innerHTML = '<div class="history-card-title">' + entry.title + '</div>' +
+            '<div class="history-card-date">' + dateStr + ' at ' + timeStr + '</div>';
+        card.addEventListener('click', () => {
+            loadHistoryRecipe(idx);
+        });
+        container.appendChild(card);
+    });
+}
+
+function loadHistoryRecipe(idx) {
+    const history = JSON.parse(localStorage.getItem('mw_recipe_history') || '[]');
+    if (!history[idx]) return;
+    // Switch to Featured Recipe tab and display
+    document.getElementById('searchHistoryPanel').style.display = 'none';
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.getElementById('todayTab').classList.add('active');
+    displayRecipe(history[idx].recipeData);
+    loadRecipeImage(history[idx].recipeData.title);
+}
+
+function showFeaturedTab() {
+    document.getElementById('searchHistoryPanel').style.display = 'none';
+    // Restore whichever was showing (recipe or placeholder)
+    if (window.currentRecipe && document.getElementById('recipeDisplay').classList.contains('active')) {
+        // Already visible, do nothing
+    } else if (window.currentRecipe) {
+        document.getElementById('recipePlaceholder').classList.add('hidden');
+        document.getElementById('recipeDisplay').classList.add('active');
+    } else {
+        document.getElementById('recipePlaceholder').classList.remove('hidden');
+    }
+}
+
+const TYPEWRITER_SPEED = 48;
+        
+function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
+    const segments = [];
+    let remaining = html;
+    while (remaining.length > 0) {
+        const tagStart = remaining.indexOf('<');
+        if (tagStart === -1) {
+            segments.push({ type: 'text', content: remaining });
+            break;
+        }
+        if (tagStart > 0) {
+            segments.push({ type: 'text', content: remaining.substring(0, tagStart) });
+        }
+        const tagEnd = remaining.indexOf('>', tagStart);
+        if (tagEnd === -1) {
+            segments.push({ type: 'text', content: remaining });
+            break;
+        }
+        segments.push({ type: 'tag', content: remaining.substring(tagStart, tagEnd + 1) });
+        remaining = remaining.substring(tagEnd + 1);
+    }
+
+    element.innerHTML = '';
+    let segIdx = 0;
+    let charIdx = 0;
+
+    function type() {
+        if (segIdx >= segments.length) {
+            if (onComplete) onComplete();
+            return;
+        }
+        const seg = segments[segIdx];
+        if (seg.type === 'tag') {
+            element.innerHTML += seg.content;
+            segIdx++;
+            type();
+        } else {
+            if (charIdx < seg.content.length) {
+                element.innerHTML += seg.content.charAt(charIdx);
+                charIdx++;
+                setTimeout(type, TYPEWRITER_SPEED);
+            } else {
+                segIdx++;
+                charIdx = 0;
+                type();
+            }
+        }
+    }
+    type();
+    const container = document.getElementById('chatMessages');
+    if (container) container.scrollTop = container.scrollHeight;
+}
+        
+
+        
+        // Switch assistant
+        async function switchToAssistant(assistantId) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Show switching message
+            const switchMsg = document.createElement('div');
+            switchMsg.className = 'message assistant';
+            switchMsg.textContent = 'Switching assistants...';
+            messagesContainer.appendChild(switchMsg);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+   
+            
+            try {
+                const response = await window.MWClient.switchAssistant(assistantId);
+                
+                // Remove switching message
+                switchMsg.remove();
+                
+                // Add greeting from new assistant
+                if (response.success && response.assistant) {
+                    const greetingMsg = document.createElement('div');
+                    greetingMsg.className = 'message assistant';
+                    greetingMsg.textContent = response.assistant.greeting;
+                    messagesContainer.appendChild(greetingMsg);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            } catch (error) {
+                switchMsg.textContent = 'Error switching assistants. Please try again.';
+            }
+        }
+
+
+let featuredRecipeLoaded = false;
+        
+        // Chat functionality with real backend
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+let _abortController = null;
+let _pendingProactiveLogId = null;
+
+async function sendMessage() {
+            const sendBtn = document.getElementById('sendButton');
+            
+            // If currently waiting, abort the request
+            if (_abortController) {
+                _abortController.abort();
+                _abortController = null;
+                sendBtn.textContent = 'Send';
+                sendBtn.classList.remove('stop-btn');
+                const typing = document.getElementById('typing-indicator');
+                if (typing) typing.remove();
+                return;
+            }
+
+            console.log('=== SEND MESSAGE FUNCTION CALLED ===');
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            console.log('Message:', message);
+            if (!message) return;
+    
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = message;
+            messagesContainer.appendChild(userMsg);
+
+            input.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Show typing indicator
+            const typingRow = document.createElement('div');
+            typingRow.className = 'message-row';
+            typingRow.id = 'typing-indicator';
+
+            const typingAvatar = document.createElement('img');
+            typingAvatar.className = 'nona-chat-avatar';
+            typingAvatar.src = NONA_ASSETS.profilePic;
+            typingAvatar.alt = 'Nona';
+
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message assistant';
+    typingIndicator.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+            typingRow.appendChild(typingAvatar);
+            typingRow.appendChild(typingIndicator);
+            messagesContainer.appendChild(typingRow);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+// Toggle to Stop button
+            _abortController = new AbortController();
+            sendBtn.textContent = 'Stop';
+            sendBtn.classList.add('stop-btn');
+
+            try {
+      // Send to backend
+                const response = await window.MWClient.sendMessage(message, _pendingProactiveLogId, _abortController.signal);
+                
+console.log('RAW RESPONSE:', JSON.stringify(response));
+                // Reset proactive flag — this message has now captured the response
+                _pendingProactiveLogId = null;
+
+// Remove typing indicator
+                typingRow.remove();
+                
+                // Reset Send button
+                _abortController = null;
+                sendBtn.textContent = 'Send';
+                sendBtn.classList.remove('stop-btn');
+                
+                // Check if response contains a recipe
+                if (response.safety_violation) {
+                    // Safety violation — show message only, skip all suggestions/recipes
+                    const safetyMsg = createAssistantMsg(messagesContainer);
+                    typewriterEffect(safetyMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else if (response.success && response.message) {
+                        
+                    console.log('=== RECIPE DEBUG ===');
+                    console.log('Is Recipe:', response.isRecipe);
+                    console.log('Raw Message Length:', response.message.length);
+                    console.log('First 500 chars:', response.message.substring(0, 500));
+                    console.log('Last 500 chars:', response.message.substring(response.message.length - 500));
+                    
+if (response.isRecipe) {
+const recipe = window.MWClient.parseRecipe(response.message);
+    displayRecipe(recipe);
+    
+    // Show Nona's warm intro in chat
+    if (response.chatMessage) {
+        const assistantMsg = createAssistantMsg(messagesContainer);
+        typewriterEffect(assistantMsg, response.chatMessage.replace(/\.\s+/g, '.<br><br>'));
+    }
+
+// Show relationship building comment if present (skip if same as chatMessage)
+    if (response.relationshipComment && response.relationshipComment !== response.chatMessage) {
+        const commentMsg = createAssistantMsg(messagesContainer);
+        typewriterEffect(commentMsg, response.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
+    }
+    
+// Show follow-up CTA options as clickable buttons
+if (response.chatFollowUp && response.chatFollowUp.length > 0) {
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'message assistant';
+    btnContainer.style.display = 'flex';
+    btnContainer.style.flexWrap = 'wrap';
+    btnContainer.style.gap = '8px';
+    btnContainer.style.padding = '8px 12px';
+
+    response.chatFollowUp.forEach(opt => {
+        const button = document.createElement('button');
+        button.textContent = opt.label;
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #2a7d72; background: white; color: #2a7d72; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.addEventListener('mouseenter', () => {
+            button.style.background = '#2a7d72';
+            button.style.color = 'white';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.background = 'white';
+            button.style.color = '#2a7d72';
+        });
+        button.addEventListener('click', () => {
+            btnContainer.remove();
+            const input = document.getElementById('messageInput');
+            input.value = opt.send;
+            sendMessage();
+        });
+        btnContainer.appendChild(button);
+    });
+    messagesContainer.appendChild(btnContainer);
+}
+} else {
+    // Not a recipe: check for numbered suggestions ONLY when seeking recommendations
+    const isRecommendation = response.user_intent === 'seeking_recommendation';
+    const suggestionPattern = /\d+\.\s*\*\*([^*]+)\*\*/g;
+    const suggestions = [];
+    let match;
+    while ((match = suggestionPattern.exec(response.message)) !== null) {
+        suggestions.push(match[1].trim());
+    }
+    
+  if (isRecommendation && suggestions.length >= 2) {
+        // Strip the numbered list from the message, show only the intro
+        const introEnd = response.message.search(/\d+\.\s*\*\*/);
+        let introText = introEnd > 0 ? response.message.substring(0, introEnd).trim() : '';
+        
+        // Also strip any closing text after the last suggestion
+        if (introText) {
+            const assistantMsg = createAssistantMsg(messagesContainer);
+            typewriterEffect(assistantMsg, introText.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>'));
+        }
+        
+        // Render suggestions as clickable buttons
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.flexDirection = 'column';
+        btnContainer.style.gap = '8px';
+        btnContainer.style.padding = '8px 12px';
+        
+        suggestions.forEach(name => {
+            const button = document.createElement('button');
+            button.textContent = name;
+            button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #4a7c59; background: white; color: #4a7c59; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left;';
+            button.addEventListener('mouseenter', () => {
+                button.style.background = '#4a7c59';
+                button.style.color = 'white';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.background = 'white';
+                button.style.color = '#4a7c59';
+            });
+            button.addEventListener('click', () => {
+                btnContainer.remove();
+                const input = document.getElementById('messageInput');
+                input.value = 'please provide the recipe for ' + name;
+                sendMessage();
+            });
+            btnContainer.appendChild(button);
+        });
+        
+        messagesContainer.appendChild(btnContainer);
+} else {
+        // Normal chat response — split numbered tips into separate bubbles
+        const numberedPattern = /(?:^|\n)(?=\d+\.\s*\*\*)/;
+        const parts = response.message.split(numberedPattern).map(p => p.trim()).filter(Boolean);
+        
+        if (parts.length >= 3) {
+            // Multiple numbered items detected — render each in its own bubble
+            parts.forEach(part => {
+                const bubble = createAssistantMsg(messagesContainer);
+                typewriterEffect(bubble, part.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+            });
+        } else {
+            // Standard single bubble
+            const assistantMsg = createAssistantMsg(messagesContainer);
+            typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+        }
+    }
+    
+    if (response.gapButtons && response.gapButtons.length > 0) {
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.flexWrap = 'wrap';
+        btnContainer.style.gap = '8px';
+        btnContainer.style.padding = '8px 12px';
+        
+        response.gapButtons.forEach(btn => {
+            const button = document.createElement('button');
+            button.textContent = btn.label;
+            button.style.cssText = 'padding: 8px 16px; border-radius: 20px; border: 1px solid #4a7c59; background: white; color: #4a7c59; cursor: pointer; font-size: 14px; transition: all 0.2s;';
+            button.addEventListener('mouseenter', () => {
+                button.style.background = '#4a7c59';
+                button.style.color = 'white';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.background = 'white';
+                button.style.color = '#4a7c59';
+            });
+            button.addEventListener('click', () => {
+                btnContainer.remove();
+                if (btn.action === 'request_original') {
+                    const messagesContainer = document.getElementById('chatMessages');
+                    const userMsg = document.createElement('div');
+                    userMsg.className = 'message user';
+      userMsg.textContent = 'Please look up the ' + btn.value + ' recipe for me, and let me know when it\'s ready!';
+                    messagesContainer.appendChild(userMsg);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                    window.MWClient.sendMessage('REQUEST_ORIGINAL:' + btn.value).then(response => {
+                        if (response.success && response.message) {
+                            const assistantMsg = createAssistantMsg(messagesContainer);
+assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }
+                    });
+} else {
+                    // Send btn.value VERBATIM so prefixed intents (ALLERGEN_OVERRIDE:<title>)
+                    // reach the backend unmangled. Route through sendMessage() for full
+                    // recipe render. Then relabel the raw-token bubble to btn.label.
+                    const input = document.getElementById('messageInput');
+                    input.value = btn.value;
+                    sendMessage();
+                    const mc = document.getElementById('chatMessages');
+                    const bubbles = mc.querySelectorAll('.message.user');
+                    const last = bubbles[bubbles.length - 1];
+                    if (last && last.textContent === btn.value) last.textContent = btn.label;
+                }
+            });
+            btnContainer.appendChild(button);
+        });
+        
+        messagesContainer.appendChild(btnContainer);
+    }
+    
+// Show follow-up CTA options as clickable buttons
+if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.length < 2) {
+    const btnContainer = document.createElement('div');
+    btnContainer.className = 'message assistant';
+    btnContainer.style.display = 'flex';
+    btnContainer.style.flexWrap = 'wrap';
+    btnContainer.style.gap = '8px';
+    btnContainer.style.padding = '8px 12px';
+
+    response.chatFollowUp.forEach(opt => {
+        const button = document.createElement('button');
+        button.textContent = opt.label;
+        button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #2a7d72; background: white; color: #2a7d72; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+        button.addEventListener('mouseenter', () => {
+            button.style.background = '#2a7d72';
+            button.style.color = 'white';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.background = 'white';
+            button.style.color = '#2a7d72';
+        });
+        button.addEventListener('click', () => {
+            btnContainer.remove();
+            const input = document.getElementById('messageInput');
+            input.value = opt.send;
+            sendMessage();
+        });
+        btnContainer.appendChild(button);
+    });
+    messagesContainer.appendChild(btnContainer);
+}
+}
+} else if (response.aborted) {
+                    const stopMsg = createAssistantMsg(messagesContainer);
+                    stopMsg.textContent = "I stopped the search for you. But no problem tesoro, can I help you find something else?";
+                } else {
+                    const errorMsg = createAssistantMsg(messagesContainer);
+                    errorMsg.style.whiteSpace = 'pre-line';
+                    errorMsg.textContent = response.error || 'Sorry, something went wrong. Please try again.';
+                }
+                
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+if (response.intake_completed && !featuredRecipeLoaded && !document.getElementById('recipeDisplay').classList.contains('active')) {
+    featuredRecipeLoaded = true;
+    loadFeaturedRecipe();
+}
+
+            } 
+catch (error) {
+    typingRow.remove();
+    _abortController = null;
+    sendBtn.textContent = 'Send';
+    sendBtn.classList.remove('stop-btn');
+    
+    // Don't show error for intentional abort
+    if (error.name === 'AbortError') return;
+    
+    console.error('@@@ CAUGHT ERROR @@@', error);
+    console.error('Error stack:', error.stack);
+    
+    const errorMsg = createAssistantMsg(messagesContainer);
+    errorMsg.textContent = 'Connection error. Please check your internet and try again.';
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}            
+             
+        }
+
+        // Recipe Display Function
+ function displayRecipe(recipe) {
+    console.log('@@@ DISPLAY RECIPE CALLED @@@');
+    console.log('Recipe:', recipe);
+    
+    console.log('@@@ PARSED RECIPE @@@');
+    console.log('Recipe title:', recipe.title);
+    
+    console.log('=== DISPLAY RECIPE DEBUG ===');
+            console.log('Recipe object:', recipe);
+
+            // FIX: Reset save button state for each new recipe
+            document.getElementById('saveRecipeBtn').classList.remove('saved');
+ document.getElementById('saveText').textContent = 'Save';
+            document.getElementById('saveIcon').textContent = '🤍';
+     
+            // Check if this recipe was previously saved in this session
+            if (sessionStorage.getItem('savedRecipe_' + recipe.title)) {
+                document.getElementById('saveRecipeBtn').classList.add('saved');
+ document.getElementById('saveText').textContent = 'Saved ✓';
+                document.getElementById('saveIcon').textContent = '❤️';
+            }        
+
+            // FIX: Reset YUM rating state for each new recipe
+            const emojis = document.querySelectorAll('#yumRating .yum-emoji');
+            emojis.forEach(emoji => emoji.classList.remove('active'));
+            document.getElementById('ratingText').textContent = 'Rate!';
+            
+            // Hide placeholder, show recipe
+            document.getElementById('recipePlaceholder').classList.add('hidden');
+            const recipeDisplay = document.getElementById('recipeDisplay');
+            recipeDisplay.classList.add('active');
+            
+
+            
+            // Populate content
+            document.getElementById('recipeTitle').textContent = recipe.title;
+            console.log('Title set:', recipe.title);
+            
+document.getElementById('recipeSummary').textContent = (recipe.summary || '')
+    .replace(/\*\*/g, '')
+                .replace(/^#{1,6}\s+[^\n]+\n*/gm, '')
+                .trim();
+            console.log('Summary set:', recipe.summary);
+            console.log('Summary length:', recipe.summary ? recipe.summary.length : 0);
+            
+            // Load recipe image from database
+ loadRecipeImage(recipe.title);
+            
+            // Display recipe info as compact meta row
+            const metaRow = document.getElementById('recipeMetaRow');
+            metaRow.innerHTML = '';
+            
+            if (recipe.recipeInfo && Object.keys(recipe.recipeInfo).length > 0) {
+                const items = [];
+                if (recipe.recipeInfo.prep_time_minutes) items.push(`⏱ ${recipe.recipeInfo.prep_time_minutes} min prep`);
+                if (recipe.recipeInfo.cook_time_minutes) items.push(`🔥 ${recipe.recipeInfo.cook_time_minutes} min cook`);
+                if (recipe.recipeInfo.total_time_minutes) items.push(`⏰ ${recipe.recipeInfo.total_time_minutes} min total`);
+                if (recipe.recipeInfo.servings) items.push(`🍽 ${recipe.recipeInfo.servings} servings`);
+                if (recipe.recipeInfo.calories_per_serving) items.push(`${recipe.recipeInfo.calories_per_serving} cal`);
+                
+                items.forEach(item => {
+                    const span = document.createElement('span');
+                    span.className = 'recipe-meta-item';
+                    span.textContent = item;
+                    metaRow.appendChild(span);
+                });
+            }
+            
+            // Tags — compact pill row
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
+            if (recipe.tags && recipe.tags.length > 0) {
+                recipe.tags.forEach(tag => {
+                    const pill = document.createElement('span');
+                    pill.className = 'recipe-tag-pill';
+                    pill.textContent = tag;
+                    tagsContainer.appendChild(pill);
+                });
+            } else if (recipe.recipeInfo && recipe.recipeInfo.dietary_tags && recipe.recipeInfo.dietary_tags.length > 0) {
+                recipe.recipeInfo.dietary_tags.forEach(tag => {
+                    const pill = document.createElement('span');
+                    pill.className = 'recipe-tag-pill';
+                    pill.textContent = tag;
+                    tagsContainer.appendChild(pill);
+                });
+            }
+     
+// Ingredients
+            ingredientsList.innerHTML = '';
+recipe.ingredients.forEach(ingredient => {
+                const li = document.createElement('li');
+                const boldMatch = ingredient.match(/^\*\*(.+?)\*\*$/);
+                const isHeading = boldMatch || (/^[A-Za-z]/.test(ingredient) && ingredient.endsWith(':'));
+                if (isHeading) {
+                    li.innerHTML = '<strong>' + (boldMatch ? boldMatch[1] : ingredient) + '</strong>';
+                    li.classList.add('ingredient-heading');
+                } else {
+                    li.textContent = ingredient.replace(/\*\*/g, '');
+                    li.classList.add('ingredient-item');
+                }
+                ingredientsList.appendChild(li);
+            });       
+            // Instructions
+            const instructionsList = document.getElementById('instructionsList');
+            instructionsList.innerHTML = '';
+            recipe.instructions.forEach(instruction => {
+                const li = document.createElement('li');
+                li.textContent = instruction;
+                instructionsList.appendChild(li);
+            });
+            
+           // Play With Your Food - handles paragraph with line breaks
+            if (recipe.notes) {
+                document.getElementById('notesSection').style.display = 'block';
+                const notesList = document.getElementById('notesList');
+                // Strip markdown: bold markers, list dashes, clean up
+                const cleanNotes = recipe.notes
+                    .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold** → bold
+.split(/\n(?=-\s)/)
+                    .map(line => '• ' + line.replace(/^-\s*/, '').replace(/\s*\n\s*/g, ' ').trim())
+                    .filter(line => line.length > 2)
+                    .join('\n');
+                notesList.textContent = cleanNotes;
+            } else {
+                document.getElementById('notesSection').style.display = 'none';
+            }
+
+            // Closing Summary
+            if (recipe.summary2) {
+                document.getElementById('summarySection').style.display = 'block';
+       document.getElementById('summaryContent').textContent = recipe.summary2.replace(/\*\*/g, '');
+            } else {
+                document.getElementById('summarySection').style.display = 'none';
+            }
+            
+// Store current recipe
+window.currentRecipe = recipe;
+     initializeRating();
+     saveToRecipeHistory(recipe);
+}
+  // Track whether we loaded from saved recipes (used by pageshow)
+        let _loadedFromSaved = false;
+async function loadRecipeImage(recipeTitle) {
+    console.log('=== LOADING IMAGE ===');
+    console.log('Recipe title:', recipeTitle);
+    
+    try {
+      const response = await fetch('https://n8n-admin.willclower.com/webhook/get-recipe-metadata', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: recipeTitle, user_id: window.MWClient.getUserId() })
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Response data received');
+            console.log('Has image data:', !!data.image_data);
+            
+  if (data.success && (data.thumbnail_data || data.image_data)) {
+                const imgSrc = data.thumbnail_data || data.image_data;
+  const img = document.getElementById('recipeImage');
+      
+                // Add error and load handlers
+                img.onerror = () => {
+                    console.error('❌ Image failed to render');
+                };
+   img.onload = () => {
+    console.log('✅ Image successfully rendered');
+};
+                
+                // Convert base64 to data URI
+const dataUri = `data:image/png;base64,${imgSrc}`;
+                img.src = dataUri;
+                img.style.display = 'block';
+console.log('✓ Image set, base64 length:', imgSrc.length, data.thumbnail_data ? '(thumbnail)' : '(full)');
+                
+                // Store document_id for saving later
+                if (data.document_id && window.currentRecipe) {
+                    window.currentRecipe.document_id = data.document_id;
+                }
+                
+                // Show existing rating if available
+                if (data.user_rating && data.user_rating > 0) {
+                    const emojis = document.querySelectorAll('#yumRating .yum-emoji');
+                    emojis.forEach((emoji, index) => {
+                        if (index < data.user_rating) {
+                            emoji.classList.add('active');
+                        }
+                    });
+                    document.getElementById('ratingText').textContent = 
+                        `You rated this ${data.user_rating} YUM${data.user_rating > 1 ? 's' : ''}!`;
+                }
+
+                // FIX: Check if recipe is already saved and update button
+                if (data.is_saved) {
+                    document.getElementById('saveRecipeBtn').classList.add('saved');
+                    document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
+                }
+            } else {
+                console.log('No image data available');
+                document.getElementById('recipeImage').style.display = 'none';
+            }
+        } else {
+            console.log('Response not OK, status:', response.status);
+            document.getElementById('recipeImage').style.display = 'none';
+        }
+    } catch (error) {
+        console.error('❌ Image loading error:', error);
+        document.getElementById('recipeImage').style.display = 'none';
+    }
+}
+        // Close recipe button
+        document.getElementById('closeRecipeBtn').addEventListener('click', function() {
+            document.getElementById('recipeDisplay').classList.remove('active');
+            document.getElementById('recipePlaceholder').classList.remove('hidden');
+        });
+
+ 
+        // Save button — toggles between save and unsave
+        document.getElementById('saveRecipeBtn').addEventListener('click', async function() {
+            if (!window.currentRecipe) return;
+            
+            const userId = window.MWClient.getUserId();
+            const recipe = window.currentRecipe;
+            const isSaved = this.classList.contains('saved');
+            
+            try {
+                if (isSaved) {
+                    // UNSAVE
+                    const response = await fetch('https://n8n-admin.willclower.com/webhook/remove-saved-recipe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId, recipe_title: recipe.title })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.classList.remove('saved');
+                        document.getElementById('saveText').textContent = 'Save';
+                        document.getElementById('saveIcon').textContent = '🤍';
+                        sessionStorage.removeItem('savedRecipe_' + recipe.title);
+                        const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+                        const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                        delete saved[recipeId];
+                        localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                        console.log('🗑️ Recipe removed from saved');
+                    }
+                } else {
+                    // SAVE
+                    const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId, recipe_title: recipe.title, recipe_data: recipe })
+                    });
+                    const data = await response.json();
+                    this.classList.add('saved');
+                    document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
+                    sessionStorage.setItem('savedRecipe_' + recipe.title, 'true');
+                    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '{}');
+                    const recipeId = recipe.title.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                    saved[recipeId] = recipe;
+                    localStorage.setItem('savedRecipes', JSON.stringify(saved));
+                    console.log('✅ Recipe saved to collection');
+                }
+            } catch (error) {
+                console.error('Error toggling save:', error);
+            }
+        });
+
+        // Print button
+        document.getElementById('printRecipeBtn').addEventListener('click', function() {
+            if (!window.currentRecipe) return;
+            
+            const recipe = window.currentRecipe;
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${recipe.title}</title>
+                    <style>
+                        body { font-family: Georgia, serif; padding: 2rem; max-width: 800px; margin: 0 auto; }
+                        h1 { color: #8b9f4a; border-bottom: 3px solid #8b9f4a; padding-bottom: 0.5rem; }
+                        h2 { color: #8b9f4a; margin-top: 2rem; }
+                        .summary { font-style: italic; color: #666; margin: 1rem 0; }
+                        ul, ol { line-height: 1.8; }
+                        li { margin-bottom: 0.5rem; }
+                        .notes { background: #fff9e6; border-left: 4px solid #ffd700; padding: 1rem; margin-top: 2rem; }
+                        @media print { button { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    <h1>${recipe.title}</h1>
+                    <p class="summary">${recipe.summary}</p>
+                    <h2>What You'll Need</h2>
+                    <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+                    <h2>What To Do</h2>
+                    <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
+                    ${recipe.notes && recipe.notes.length > 0 ? `
+                        <div class="notes">
+                            <h2>Play With Your Food</h2>
+                            <div style="white-space: pre-line;">${recipe.notes}</div>
+                        </div>
+                    ` : ''}
+                    <button onclick="window.print()">Print Recipe</button>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        });
+
+        // Single consolidated handler for page load and bfcache restore
+
+        // Featured Recipe - silently loads either a recipe_ready delivery or daily featured recipe
+// Proactive message state — uses _pendingProactiveLogId declared at top of script
+
+        async function loadProactiveMessages() {
+            const userId = window.MWClient.getUserId();
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/get-proactive-messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+   if (!response.ok) return;
+const text = await response.text();
+if (!text || !text.trim()) return;
+const data = JSON.parse(text);
+                if (!data.success || !data.message) return;
+
+                _pendingProactiveLogId = data.log_id;
+
+                const messagesContainer = document.getElementById('chatMessages');
+                const proactiveMsg = createAssistantMsg(messagesContainer);
+proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                await fetch('https://n8n-admin.willclower.com/webhook/mark-proactive-delivered', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ log_id: data.log_id, user_id: userId })
+                });
+
+                console.log('✅ Proactive message delivered, log_id:', data.log_id);
+          } catch (e) {
+    if (!(e instanceof SyntaxError)) {
+        console.warn('Proactive message load failed:', e);
+    }
+}
+        }
+
+        async function loadFeaturedRecipe() {
+            const userId = window.MWClient.getUserId();
+            if (!userId) return;
+
+            try {
+                const response = await fetch('https://n8n-admin.willclower.com/webhook/get-featured-recipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                if (!data.success || !data.recipe_name) {
+                    const placeholderTitle = document.getElementById('placeholderTitle');
+                    const placeholderDesc = document.getElementById('placeholderDesc');
+                    if (placeholderTitle) placeholderTitle.textContent = "Ask Nona for a recipe!";
+                    if (placeholderDesc) placeholderDesc.textContent = "Type a dish name in the chat and she'll find it for you.";
+                    return;
+                }
+
+                console.log('✅ Featured recipe:', data.recipe_name, data.source);
+
+                // Nona announces the featured recipe with context
+                const messagesContainer = document.getElementById('chatMessages');
+                const recipeName = data.recipe_name;
+                
+                let nonaGreetings;
+                if (data.source === 'recipe_ready') {
+                    nonaGreetings = [
+                        `Remember when you asked about ${recipeName}?\nWell, it's ready!\nLet me set the table... 🍽️`,
+                        `Tesoro, I have wonderful news!\nYour ${recipeName} is fresh out of the kitchen! 👩‍🍳`,
+                        `You asked, and Nona delivered!\nYour ${recipeName} is ready.\nOne moment... ✨`,
+                        `Ah, I've been so excited to share this!\nYour ${recipeName} turned out beautifully 🍅`,
+                        `The kitchen team worked on your ${recipeName}.\nI think you're going to love it! 🌿`
+                    ];
+                } else {
+                    nonaGreetings = [
+                        `I picked something special for you today — ${recipeName}!\nLet me get it ready... 🍽️`,
+                        `Ooh, wait until you see today's recipe!\nOne moment while I plate up the ${recipeName}... ✨`,
+                        `I couldn't resist sharing this one today — ${recipeName}!\nComing right up, tesoro! 👩‍🍳`,
+                        `Today calls for something delicious.\nLet me show you this ${recipeName}! 🍅`,
+                        `I have a feeling you'll love today's pick!\nGetting the ${recipeName} ready for you... 🌿`
+                    ];
+                }
+                
+const loadingRow = document.createElement('div');
+                loadingRow.className = 'message-row';
+                loadingRow.id = 'featured-loading';
+                const loadingAvatar = document.createElement('img');
+                loadingAvatar.className = 'nona-chat-avatar';
+                loadingAvatar.src = NONA_ASSETS.profilePic;
+                loadingAvatar.alt = 'Nona';
+                const loadingMsg = document.createElement('div');
+                loadingMsg.className = 'message assistant';
+                loadingRow.appendChild(loadingAvatar);
+                loadingRow.appendChild(loadingMsg);
+                messagesContainer.appendChild(loadingRow);
+                const greetingHtml = nonaGreetings[Math.floor(Math.random() * nonaGreetings.length)].replace(/([.!?])\s+/g, '$1<br><br>');
+                const dotsHtml = '<br><div class="typing-dots" style="margin-top:6px"><span></span><span></span><span></span></div>';
+                typewriterEffect(loadingMsg, greetingHtml, 20, () => {
+                    loadingMsg.innerHTML += dotsHtml;
+                });
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    // Start Nona video during loading
+                playNonaHero(NONA_ASSETS.welcomeHero);
+
+                // Silently ask Nona for the full recipe (no user bubble in chat)
+                const nonaResponse = await window.MWClient.sendMessage(
+                    `please provide the recipe for ${data.recipe_name}`
+                );
+                // Remove loading message
+                const loader = document.getElementById('featured-loading');
+                if (loader) loader.remove();
+                
+if (nonaResponse.success && nonaResponse.isRecipe) {
+    const recipe = window.MWClient.parseRecipe(nonaResponse.message);
+displayRecipe(recipe);
+
+    // Mark featured recipe as delivered so it doesn't repeat
+    if (data.queue_id) {
+        fetch('https://n8n-admin.willclower.com/webhook/mark-featured-delivered', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ queue_id: data.queue_id, user_id: userId })
+        }).catch(err => console.log('Mark delivered failed (non-blocking):', err.message));
+    }
+
+setTimeout(() => {
+        loadProactiveMessages();
+    }, 2000);    
+    // Show Nona's chat message
+  // Skip chatMessage for featured recipes — the greeting already covers it
+     // But DO show relationship comment if present
+    if (nonaResponse.relationshipComment) {
+        const commentMsg = createAssistantMsg(messagesContainer);
+        typewriterEffect(commentMsg, nonaResponse.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
+    }
+
+    // Show CTA buttons
+    if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'message assistant';
+        btnContainer.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;';
+        nonaResponse.chatFollowUp.forEach(opt => {
+            const button = document.createElement('button');
+            button.textContent = opt.label;
+            button.style.cssText = 'padding:10px 16px;border-radius:20px;border:1px solid #2a7d72;background:white;color:#2a7d72;cursor:pointer;font-size:14px;transition:all 0.2s;text-align:left;line-height:1.4;';
+            button.addEventListener('mouseenter', () => { button.style.background='#2a7d72'; button.style.color='white'; });
+            button.addEventListener('mouseleave', () => { button.style.background='white'; button.style.color='#2a7d72'; });
+            button.addEventListener('click', () => {
+                btnContainer.remove();
+                const input = document.getElementById('messageInput');
+                input.value = opt.send;
+                sendMessage();
+            });
+            btnContainer.appendChild(button);
+        });
+        messagesContainer.appendChild(btnContainer);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    
+} else if (nonaResponse.success && nonaResponse.message) {
+    const intakeMsgContainer = document.getElementById('chatMessages');
+    const msgDiv = createAssistantMsg(intakeMsgContainer);
+    msgDiv.innerHTML = nonaResponse.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
+    intakeMsgContainer.scrollTop = intakeMsgContainer.scrollHeight;
+                
+                    // Mark this featured recipe as delivered so it doesn't repeat
+                    if (data.queue_id) {
+                        fetch('https://n8n-admin.willclower.com/webhook/mark-featured-delivered', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                queue_id: data.queue_id, 
+                                user_id: userId 
+                            })
+                        }).catch(err => console.log('Mark delivered failed (non-blocking):', err.message));
+                    }
+
+                    // Show Nona's intro in chat
+                    const messagesContainer = document.getElementById('chatMessages');
+                    if (nonaResponse.chatMessage) {
+                        const introMsg = createAssistantMsg(messagesContainer);
+    introMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
+                    }
+                    if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
+                        const btnContainer = document.createElement('div');
+                        btnContainer.className = 'message assistant';
+                        btnContainer.style.display = 'flex';
+                        btnContainer.style.flexWrap = 'wrap';
+                        btnContainer.style.gap = '8px';
+                        btnContainer.style.padding = '8px 12px';
+                        
+                        nonaResponse.chatFollowUp.forEach(opt => {
+                            const button = document.createElement('button');
+                            button.textContent = opt.label;
+                            button.style.cssText = 'padding: 10px 16px; border-radius: 20px; border: 1px solid #2a7d72; background: white; color: #2a7d72; cursor: pointer; font-size: 14px; transition: all 0.2s; text-align: left; line-height: 1.4;';
+                            button.addEventListener('mouseenter', () => {
+                                button.style.background = '#2a7d72';
+                                button.style.color = 'white';
+                            });
+                            button.addEventListener('mouseleave', () => {
+                                button.style.background = 'white';
+                                button.style.color = '#2a7d72';
+                            });
+                            button.addEventListener('click', () => {
+                                btnContainer.remove();
+                                const input = document.getElementById('messageInput');
+                                input.value = opt.send;
+                                sendMessage();
+                            });
+                            btnContainer.appendChild(button);
+                        });
+                        messagesContainer.appendChild(btnContainer);
+                    }
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            } catch (error) {
+                console.log('Featured recipe load failed (non-blocking):', error.message);
+            }
+        }
+        
+ window.addEventListener('pageshow', (event) => {
+
+            // Re-sync save button state on bfcache restore
+            if (event.persisted && window.currentRecipe) {
+                const recipeTitle = window.currentRecipe.title;
+                const stillSaved = sessionStorage.getItem('savedRecipe_' + recipeTitle);
+                const btn = document.getElementById('saveRecipeBtn');
+                if (!stillSaved && btn.classList.contains('saved')) {
+                    btn.classList.remove('saved');
+                    document.getElementById('saveText').textContent = 'Save';
+                    document.getElementById('saveIcon').textContent = '🤍';
+                }
+            }
+
+// Reset tabs to first tab on every page show
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById('todayTab').classList.add('active');
+            document.getElementById('searchHistoryPanel').style.display = 'none';
+
+            // Check if we're loading a recipe from saved recipes page
+            const loadRecipe = localStorage.getItem('loadRecipe');
+ if (loadRecipe) {
+                _loadedFromSaved = true;
+     localStorage.removeItem('loadRecipe');
+                const recipeData = JSON.parse(loadRecipe);
+                
+                if (recipeData.directDisplay && recipeData.recipeData && recipeData.recipeData.recipe_data) {
+                    const rd = recipeData.recipeData.recipe_data;
+                    displayRecipe(rd);
+                    loadRecipeImage(rd.title);
+                    // Mark as already saved (it came from saved recipes)
+                    document.getElementById('saveRecipeBtn').classList.add('saved');
+                    document.getElementById('saveText').textContent = 'Saved ✓';
+                    document.getElementById('saveIcon').textContent = '❤️';
+                    // Restore YUM rating if it exists
+                    const rating = recipeData.recipeData.user_rating || 0;
+                    if (rating > 0) {
+                        const emojis = document.querySelectorAll('#yumRating .yum-emoji');
+                        emojis.forEach((emoji, index) => {
+                            if (index < rating) {
+                                emoji.classList.add('active');
+                            }
+                        });
+                        document.getElementById('ratingText').textContent = 
+                            `You rated this ${rating} YUM${rating > 1 ? 's' : ''}!`;
+                    }
+                } else {
+                    // No cached data — silently query Nona
+                    document.getElementById('recipePlaceholder').classList.add('hidden');
+                    const recipeDisplay = document.getElementById('recipeDisplay');
+                    recipeDisplay.classList.add('active');
+document.getElementById('recipeSummary').textContent = '';
+                    
+                    window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
+                        .then(response => {
+                            if (response.success && response.isRecipe) {
+                                const recipe = window.MWClient.parseRecipe(response.message);
+                                displayRecipe(recipe);
+                            }
+                        });
+}
+            } else {
+                // Back-to-compass path: restore previous recipe from sessionStorage
+                const savedRecipeState = sessionStorage.getItem('mw_recipe_state');
+                if (savedRecipeState) {
+                    _loadedFromSaved = true;
+                    const recipeState = JSON.parse(savedRecipeState);
+                    sessionStorage.removeItem('mw_recipe_state');
+                    if (recipeState.recipe) {
+                        window.currentRecipe = recipeState.recipe;
+                        displayRecipe(recipeState.recipe);
+                        loadRecipeImage(recipeState.recipe.title);
+                    }
+                }
+            }
+
+            // Restore chat from sessionStorage, or show greeting if empty
+            const messagesContainer = document.getElementById('chatMessages');
+            const savedChat = sessionStorage.getItem('mw_chat_state');
+            if (messagesContainer.children.length === 0 && savedChat) {
+                messagesContainer.innerHTML = savedChat;
+                sessionStorage.removeItem('mw_chat_state');
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else if (messagesContainer.children.length === 0) {
+                const currentAssistant = window.MWClient.getCurrentAssistant();
+                const greeting = window.MWClient.getDefaultGreeting(currentAssistant);
+                if (currentAssistant === 'nona') {
+                    const greetingMsg = createAssistantMsg(messagesContainer);
+                    greetingMsg.textContent = greeting;
+                } else {
+                    const greetingMsg = document.createElement('div');
+                    greetingMsg.className = 'message assistant';
+                    greetingMsg.textContent = greeting;
+                    messagesContainer.appendChild(greetingMsg);
+                }
+            }
+     
+// Load featured recipe (recipe_ready or daily) unless loading from saved recipes
+if (!_loadedFromSaved && !loadRecipe) {
+console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
+
+if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
+    featuredRecipeLoaded = true;
+    loadFeaturedRecipe();
+}
+            }
+        });
+// Recipe Rating System
+function initializeRating() {
+    const ratingContainer = document.getElementById('yumRating');
+    if (!ratingContainer) return;
+    
+    const emojis = ratingContainer.querySelectorAll('.yum-emoji');
+    let currentRating = 0;
+    
+    emojis.forEach((emoji, index) => {
+        emoji.addEventListener('mouseenter', () => {
+            highlightEmojis(index + 1);
+        });
+        
+        emoji.addEventListener('click', () => {
+            currentRating = index + 1;
+            highlightEmojis(currentRating);
+            document.getElementById('ratingText').textContent = 
+                `You rated this ${currentRating} YUM${currentRating > 1 ? 's' : ''}!`;
+            saveRecipeRating(currentRating);
+        });
+    });
+    
+    ratingContainer.addEventListener('mouseleave', () => {
+        highlightEmojis(currentRating);
+    });
+    
+    function highlightEmojis(count) {
+        emojis.forEach((emoji, index) => {
+            if (index < count) {
+                emoji.classList.add('active');
+            } else {
+                emoji.classList.remove('active');
+            }
+        });
+    }
+}
+
+async function saveRecipeRating(rating) {
+    const recipeTitle = window.currentRecipe?.title || 'Unknown Recipe';
+    const userId = window.MWClient.getUserId();
+    
+    // Save to localStorage (backup)
+    const ratings = JSON.parse(localStorage.getItem('recipeRatings') || '{}');
+    ratings[recipeTitle] = {
+        rating: rating,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('recipeRatings', JSON.stringify(ratings));
+    
+    // Send to backend
+    try {
+        const response = await fetch('https://n8n-admin.willclower.com/webhook/save-recipe-rating', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userId,
+                recipe_title: recipeTitle,
+                rating: rating
+            })
+        });
+        
+        if (response.ok) {
+            console.log(`✅ Rating saved to database: ${rating} YUMs for "${recipeTitle}"`);
+        } else {
+            console.error('❌ Failed to save rating to database');
+        }
+    } catch (error) {
+        console.error('❌ Error saving rating:', error);
+        console.log('💾 Rating saved to localStorage as backup');
+    }
+}
+    
+    </script>
+</body>
+</html>
 
