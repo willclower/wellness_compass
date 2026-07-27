@@ -1367,14 +1367,23 @@ color: #2a7d72;
 
 
         // Basic interactivity
+        // Card switching: each guide has its own Compass page. Navigate to the
+        // target guide's folder rather than swapping in place.
+        const ASSISTANT_PAGES = {
+            nona: '../nona/',
+            maggie: '../maggie/'
+            // dundee, liam: not yet live — no target
+        };
         document.querySelectorAll('.assistant-card').forEach(card => {
             card.addEventListener('click', function() {
-                document.querySelectorAll('.assistant-card').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Get assistant ID from the card's text
                 const assistantName = this.querySelector('h3').textContent.toLowerCase();
-                switchToAssistant(assistantName);
+                if (assistantName === 'nona') return; // already here
+                const page = ASSISTANT_PAGES[assistantName];
+                if (page) {
+                    localStorage.setItem('mw_assistant', assistantName);
+                    window.location.href = page;
+                }
+                // no page (dundee/liam) → do nothing until built
             });
         });
 
