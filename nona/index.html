@@ -1197,7 +1197,7 @@ color: #2a7d72;
         <div class="assistants-grid">
             <div class="assistant-card active">
                 <div class="assistant-avatar">
-                    <img src="assets/nona/Nona_ProfilePic_Face.png" alt="Nona">
+                    <img src="../assets/nona_avatar1.png" alt="Nona">
                 </div>
                 <div class="assistant-info">
                     <h3>Nona</h3>
@@ -1206,7 +1206,7 @@ color: #2a7d72;
             </div>
             <div class="assistant-card">
                 <div class="assistant-avatar">
- <img src="assets/nona/dundee_avatar.png" alt="Dundee">
+ <img src="../assets/dundee_avatar1.png" alt="Dundee">
                 </div>
                 <div class="assistant-info">
                     <h3>Dundee</h3>
@@ -1215,7 +1215,7 @@ color: #2a7d72;
             </div>
             <div class="assistant-card">
                 <div class="assistant-avatar">
-<img src="assets/nona/liam_avatar.png" alt="Liam">
+<img src="../assets/liam_avatar1.png" alt="Liam">
                 </div>
                 <div class="assistant-info">
                     <h3>Liam</h3>
@@ -1224,7 +1224,7 @@ color: #2a7d72;
             </div>
             <div class="assistant-card">
                 <div class="assistant-avatar">
-<img src="assets/nona/maggie_avatar.png" alt="Maggie">
+<img src="../assets/maggie_avatar1.png" alt="Maggie">
                 </div>
                 <div class="assistant-info">
                     <h3>Maggie</h3>
@@ -1252,10 +1252,7 @@ color: #2a7d72;
                             <p id="placeholderDesc">One moment while she finds something special for you!</p>
                         </div>
                         <div class="nona-placeholder-figure">
-                            <video id="nonaHeroVideo" class="nona-hero-video" muted playsinline preload="none"
-                                src="assets/nona/Nona_WavesHello_Hero.mp4">
-                            </video>
-                            <img id="nonaPlaceholderStatic" class="nona-static-img" src="assets/nona/Nona_Standing_Static.png" alt="Nona">
+                            <img id="nonaPlaceholderStatic" class="nona-static-img" src="../assets/nona_avatar1.png" alt="Nona">
                         </div>
                     </div>
                 </div>
@@ -1347,10 +1344,7 @@ color: #2a7d72;
     <script>
         // --- Nona Imagery Helpers ---
         const NONA_ASSETS = {
-            profilePic: 'assets/nona/Nona_ProfilePic_Face.png',
-            standingStatic: 'assets/nona/Nona_Standing_Static.png',
-            welcomeHero: 'assets/nona/Nona_WavesHello_Hero.mp4',
-            welcomeChat: 'assets/nona/Nona_WavesHello_chat.mp4'
+            profilePic: '../assets/nona_avatar1.png'
         };
 
         function createAssistantMsg(container) {
@@ -1371,36 +1365,6 @@ color: #2a7d72;
             return bubble;
         }
 
-// Clean up video on page hide (bfcache) — registered once
-        window.addEventListener('pagehide', () => {
-            const video = document.getElementById('nonaHeroVideo');
-            if (video) {
-                video.pause();
-                video.removeAttribute('src');
-                video.load();
-            }
-        });
-
-function playNonaHero(videoSrc) {
-            const video = document.getElementById('nonaHeroVideo');
-            const staticImg = document.getElementById('nonaPlaceholderStatic');
-
-    if (!video) return;
-
-            video.src = videoSrc || NONA_ASSETS.welcomeHero;
-            video.style.display = 'block';
-            if (staticImg) staticImg.style.display = 'none';
-            video.load();
-            video.play().catch(() => {
-                video.style.display = 'none';
-                if (staticImg) staticImg.style.display = 'block';
-            });
-video.addEventListener('ended', () => {
-                video.pause();
-                video.removeAttribute('src');
-                video.load();
-            }, { once: true });
-        }
 
         // Basic interactivity
         document.querySelectorAll('.assistant-card').forEach(card => {
@@ -1839,17 +1803,10 @@ assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').r
                             messagesContainer.scrollTop = messagesContainer.scrollHeight;
                         }
                     });
-} else {
-                    // Send btn.value VERBATIM so prefixed intents (ALLERGEN_OVERRIDE:<title>)
-                    // reach the backend unmangled. Route through sendMessage() for full
-                    // recipe render. Then relabel the raw-token bubble to btn.label.
+                } else {
                     const input = document.getElementById('messageInput');
-                    input.value = btn.value;
+                    input.value = 'please provide the recipe for ' + btn.value;
                     sendMessage();
-                    const mc = document.getElementById('chatMessages');
-                    const bubbles = mc.querySelectorAll('.message.user');
-                    const last = bubbles[bubbles.length - 1];
-                    if (last && last.textContent === btn.value) last.textContent = btn.label;
                 }
             });
             btnContainer.appendChild(button);
@@ -2045,9 +2002,9 @@ recipe.ingredients.forEach(ingredient => {
                 // Strip markdown: bold markers, list dashes, clean up
                 const cleanNotes = recipe.notes
                     .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold** → bold
-.split(/\n(?=-\s)/)
-                    .map(line => '• ' + line.replace(/^-\s*/, '').replace(/\s*\n\s*/g, ' ').trim())
-                    .filter(line => line.length > 2)
+                    .split('\n')
+                    .map(line => line.replace(/^-\s*/, '• ').trim())
+                    .filter(line => line.length > 0)
                     .join('\n');
                 notesList.textContent = cleanNotes;
             } else {
@@ -2345,9 +2302,6 @@ const loadingRow = document.createElement('div');
                     loadingMsg.innerHTML += dotsHtml;
                 });
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-                    // Start Nona video during loading
-                playNonaHero(NONA_ASSETS.welcomeHero);
 
                 // Silently ask Nona for the full recipe (no user bubble in chat)
                 const nonaResponse = await window.MWClient.sendMessage(
@@ -2648,4 +2602,3 @@ async function saveRecipeRating(rating) {
     </script>
 </body>
 </html>
-
