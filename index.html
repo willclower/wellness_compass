@@ -1424,6 +1424,16 @@ video.addEventListener('ended', () => {
             });
         });
 
+        // Highlight the card for the guide actually in use (stored in localStorage),
+        // so the selected card and the chat greeting always agree.
+        (function syncActiveCard() {
+            const current = (window.MWClient && window.MWClient.currentAssistant) || 'nona';
+            document.querySelectorAll('.assistant-card').forEach(card => {
+                const name = card.querySelector('h3').textContent.trim().toLowerCase();
+                card.classList.toggle('active', name === current);
+            });
+        })();
+
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', function() {
                 document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
@@ -2483,7 +2493,14 @@ setTimeout(() => {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
             } catch (error) {
-                console.log('Featured recipe load failed (non-blocking):', error.message);
+                console.error('Featured recipe load failed:', error);
+                const loader = document.getElementById('featured-loading');
+                if (loader) loader.remove();
+                const mc = document.getElementById('chatMessages');
+                if (mc) {
+                    const failMsg = createAssistantMsg(mc, 'nona');
+                    failMsg.textContent = "Mi dispiace, something went wrong plating today's recipe. Ask me for any recipe and I'll find it for you!";
+                }
             }
         }
         
