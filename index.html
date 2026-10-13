@@ -326,6 +326,36 @@ border: 3px solid #2a7d72;
             margin-top: 10px;
         }
 
+        /* Guide panels (Maggie / Dundee / Liam) */
+        .guide-panel { display: flex; flex-direction: column; gap: 15px; }
+        .guide-content { padding: 20px; }
+        .guide-section { display: none; }
+        .guide-section.active { display: block; }
+        .guide-empty {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 24px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .guide-empty img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #1a3a4a;
+            flex-shrink: 0;
+        }
+        .guide-empty h3 { font-size: 18px; color: #333; margin-bottom: 8px; }
+        .guide-empty p { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 6px; }
+        .guide-empty .guide-hint { color: #1a7b8e; font-weight: 600; }
+        @media (max-width: 768px) {
+            .guide-empty { flex-direction: column; text-align: center; }
+            .guide-empty img { width: 110px; height: 110px; }
+        }
+
         /* Right Panel - Chat */
         .chat-panel {
             background: white;
@@ -1238,6 +1268,8 @@ color: #2a7d72;
     <div class="content-area">
         <!-- Left Panel -->
         <div class="left-panel">
+          <!-- Nona's panel (recipes) -->
+          <div class="guide-panel" id="panel-nona">
             <div class="recipe-tabs">
 <button class="tab-button active" id="todayTab" onclick="showFeaturedTab()">Featured Recipe</button>
  <button class="tab-button" id="savedTab" onclick="saveStateAndNavigate('saved_recipes.html')">Saved Recipes</button>
@@ -1325,6 +1357,11 @@ color: #2a7d72;
                     <div id="historyList"></div>
                 </div>
             </div>
+          </div>
+          <!-- Coaching guides' panels (same layout; built from GUIDE_PANELS) -->
+          <div class="guide-panel" id="panel-maggie" style="display:none"></div>
+          <div class="guide-panel" id="panel-dundee" style="display:none"></div>
+          <div class="guide-panel" id="panel-liam" style="display:none"></div>
         </div>
 
         <!-- Right Panel - Chat -->
@@ -1424,19 +1461,111 @@ video.addEventListener('ended', () => {
             });
         });
 
-        // Highlight the card for the guide actually in use (stored in localStorage),
-        // so the selected card and the chat greeting always agree.
-        (function syncActiveCard() {
-            const current = (window.MWClient && window.MWClient.currentAssistant) || 'nona';
+        // ---- Guide panels -------------------------------------------------
+        // Every coaching guide gets the same layout: Plan / Programs / Progress.
+        // Content is config only; each tab's empty state shows until its
+        // backend lands (plan tables, program catalog, scorers).
+        const GUIDE_PANELS = {
+            maggie: {
+                tabs: [
+                    { key: 'plan', label: 'My Plan',
+                      title: 'Your nutrition plan',
+                      body: 'Maggie builds a plan around you: your health assessment, the foods you like, and how much change feels right.',
+                      hint: 'Say hi to Maggie in the chat to get started.' },
+                    { key: 'programs', label: 'Programs',
+                      title: 'Programs for you',
+                      body: 'Maggie suggests MedWell programs that fit your goals. You always choose which ones to join.',
+                      hint: 'Your suggestions will appear here.' },
+                    { key: 'progress', label: 'Progress',
+                      title: 'Your progress',
+                      body: 'Once your plan starts, your wins and trends show up here, week by week.',
+                      hint: 'Nothing to show yet.' }
+                ]
+            },
+            dundee: {
+                tabs: [
+                    { key: 'plan', label: 'My Activity Plan',
+                      title: 'Your activity plan',
+                      body: 'Dundee builds movement into your day at a pace that fits you, starting from where you are now.',
+                      hint: 'Say hi to Dundee in the chat to get started.' },
+                    { key: 'programs', label: 'Programs',
+                      title: 'Programs for you',
+                      body: 'Dundee suggests MedWell activity programs and challenges that fit your goals. You choose which to join.',
+                      hint: 'Your suggestions will appear here.' },
+                    { key: 'progress', label: 'Progress',
+                      title: 'Your progress',
+                      body: 'Your activity wins and trends show up here, week by week.',
+                      hint: 'Nothing to show yet.' }
+                ]
+            },
+            liam: {
+                tabs: [
+                    { key: 'plan', label: 'My Practice',
+                      title: 'Your mindfulness practice',
+                      body: 'Liam helps you build a simple daily practice: a few minutes that make the rest of the day easier.',
+                      hint: 'Say hi to Liam in the chat to get started.' },
+                    { key: 'programs', label: 'Programs',
+                      title: 'Programs for you',
+                      body: 'Liam suggests MedWell mindfulness programs and Mindful Minutes that fit your goals. You choose which to join.',
+                      hint: 'Your suggestions will appear here.' },
+                    { key: 'progress', label: 'Progress',
+                      title: 'Your progress',
+                      body: 'Your practice streaks and trends show up here, week by week.',
+                      hint: 'Nothing to show yet.' }
+                ]
+            }
+        };
+
+        function renderGuidePanel(guideId) {
+            const cfg = GUIDE_PANELS[guideId];
+            const host = document.getElementById('panel-' + guideId);
+            if (!cfg || !host || host.dataset.rendered) return;
+            const av = GUIDE_AVATARS[guideId];
+            const tabsHtml = cfg.tabs.map((t, i) =>
+                `<button class="tab-button${i === 0 ? ' active' : ''}" data-tab="${t.key}">${t.label}</button>`
+            ).join('');
+            const sectionsHtml = cfg.tabs.map((t, i) => `
+                <div class="guide-section${i === 0 ? ' active' : ''}" data-section="${t.key}">
+                    <div class="guide-empty">
+                        <img src="${av.src}" alt="${av.alt}">
+                        <div>
+                            <h3>${t.title}</h3>
+                            <p>${t.body}</p>
+                            <p class="guide-hint">${t.hint}</p>
+                        </div>
+                    </div>
+                </div>`).join('');
+            host.innerHTML = `<div class="recipe-tabs">${tabsHtml}</div>
+                              <div class="recipe-content guide-content">${sectionsHtml}</div>`;
+            host.querySelectorAll('.tab-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    host.querySelectorAll('.tab-button').forEach(b => b.classList.toggle('active', b === btn));
+                    host.querySelectorAll('.guide-section').forEach(sec =>
+                        sec.classList.toggle('active', sec.dataset.section === btn.dataset.tab));
+                });
+            });
+            host.dataset.rendered = '1';
+        }
+
+        // Show the panel for the guide in use, and highlight that guide's card,
+        // so the card, the left panel and the chat greeting always agree.
+        function showGuidePanel(guideId) {
+            const id = document.getElementById('panel-' + guideId) ? guideId : 'nona';
+            renderGuidePanel(id);
+            document.querySelectorAll('.guide-panel').forEach(p => {
+                p.style.display = (p.id === 'panel-' + id) ? '' : 'none';
+            });
             document.querySelectorAll('.assistant-card').forEach(card => {
                 const name = card.querySelector('h3').textContent.trim().toLowerCase();
-                card.classList.toggle('active', name === current);
+                card.classList.toggle('active', name === id);
             });
-        })();
+        }
 
-        document.querySelectorAll('.tab-button').forEach(button => {
+        showGuidePanel((window.MWClient && window.MWClient.currentAssistant) || 'nona');
+
+        document.querySelectorAll('#panel-nona .tab-button').forEach(button => {
             button.addEventListener('click', function() {
-                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#panel-nona .tab-button').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
             });
 });
@@ -1503,7 +1632,7 @@ function loadHistoryRecipe(idx) {
     if (!history[idx]) return;
     // Switch to Featured Recipe tab and display
     document.getElementById('searchHistoryPanel').style.display = 'none';
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#panel-nona .tab-button').forEach(b => b.classList.remove('active'));
     document.getElementById('todayTab').classList.add('active');
     displayRecipe(history[idx].recipeData);
     loadRecipeImage(history[idx].recipeData.title);
@@ -1597,6 +1726,8 @@ function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
                 // Remove switching message
                 switchMsg.remove();
                 
+                showGuidePanel(assistantId);
+
                 // Add greeting from new assistant
                 if (response.success && response.assistant) {
                     const greetingMsg = createAssistantMsg(messagesContainer);
@@ -2537,7 +2668,7 @@ setTimeout(() => {
             }
 
 // Reset tabs to first tab on every page show
-            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#panel-nona .tab-button').forEach(b => b.classList.remove('active'));
             document.getElementById('todayTab').classList.add('active');
             document.getElementById('searchHistoryPanel').style.display = 'none';
 
