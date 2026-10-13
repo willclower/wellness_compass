@@ -1601,8 +1601,19 @@ function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
                 if (response.success && response.assistant) {
                     const greetingMsg = createAssistantMsg(messagesContainer);
                     greetingMsg.textContent = response.assistant.greeting;
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
+                // Featured recipe is Nona's: load it the first time she's selected
+                if (assistantId === 'nona' && !featuredRecipeLoaded
+                        && localStorage.getItem('mw_intake_completed') === 'true'
+                        && !document.getElementById('recipeDisplay').classList.contains('active')) {
+                    featuredRecipeLoaded = true;
+                    const pt = document.getElementById('placeholderTitle');
+                    const pd = document.getElementById('placeholderDesc');
+                    if (pt) pt.textContent = "Nona is picking today's recipe...";
+                    if (pd) pd.textContent = 'One moment while she finds something special for you!';
+                    loadFeaturedRecipe();
+                }
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             } catch (error) {
                 switchMsg.textContent = 'Error switching assistants. Please try again.';
             }
@@ -1920,7 +1931,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
                 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-if (response.intake_completed && !featuredRecipeLoaded && !document.getElementById('recipeDisplay').classList.contains('active')) {
+if (response.intake_completed && window.MWClient.currentAssistant === 'nona' && !featuredRecipeLoaded && !document.getElementById('recipeDisplay').classList.contains('active')) {
     featuredRecipeLoaded = true;
     loadFeaturedRecipe();
 }
@@ -2299,6 +2310,13 @@ proactiveMsg.innerHTML = data.message.replace(/([.!?])\s+/g, '$1<br><br>').repla
 }
         }
 
+        function setFeaturedPlaceholderForOtherGuide() {
+            const pt = document.getElementById('placeholderTitle');
+            const pd = document.getElementById('placeholderDesc');
+            if (pt) pt.textContent = "Today's featured recipe is from Nona";
+            if (pd) pd.textContent = 'Tap her card any time to see it.';
+        }
+
         async function loadFeaturedRecipe() {
             const userId = window.MWClient.getUserId();
             if (!userId) return;
@@ -2599,8 +2617,12 @@ if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
 
 if (localStorage.getItem('mw_intake_completed') === 'true' && !featuredRecipeLoaded) {
-    featuredRecipeLoaded = true;
-    loadFeaturedRecipe();
+    if (window.MWClient.currentAssistant === 'nona') {
+        featuredRecipeLoaded = true;
+        loadFeaturedRecipe();
+    } else {
+        setFeaturedPlaceholderForOtherGuide();
+    }
 }
             }
         });
