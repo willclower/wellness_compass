@@ -1197,7 +1197,7 @@ color: #2a7d72;
         <div class="assistants-grid">
             <div class="assistant-card active">
                 <div class="assistant-avatar">
-                    <img src="assets/nona/Nona_ProfilePic_Face.png" alt="Nona">
+                    <img src="assets/nona_avatar1.png" alt="Nona">
                 </div>
                 <div class="assistant-info">
                     <h3>Nona</h3>
@@ -1206,7 +1206,7 @@ color: #2a7d72;
             </div>
             <div class="assistant-card">
                 <div class="assistant-avatar">
- <img src="assets/nona/dundee_avatar.png" alt="Dundee">
+ <img src="assets/dundee_avatar1.png" alt="Dundee">
                 </div>
                 <div class="assistant-info">
                     <h3>Dundee</h3>
@@ -1215,7 +1215,7 @@ color: #2a7d72;
             </div>
             <div class="assistant-card">
                 <div class="assistant-avatar">
-<img src="assets/nona/liam_avatar.png" alt="Liam">
+<img src="assets/liam_avatar1.png" alt="Liam">
                 </div>
                 <div class="assistant-info">
                     <h3>Liam</h3>
@@ -1224,7 +1224,7 @@ color: #2a7d72;
             </div>
             <div class="assistant-card">
                 <div class="assistant-avatar">
-<img src="assets/nona/maggie_avatar.png" alt="Maggie">
+<img src="assets/maggie_avatar1.png" alt="Maggie">
                 </div>
                 <div class="assistant-info">
                     <h3>Maggie</h3>
@@ -1346,8 +1346,20 @@ color: #2a7d72;
     <script src="mediterranean-wellness-client.js"></script>
     <script>
         // --- Nona Imagery Helpers ---
+        // Chat avatar follows whichever guide the person is talking to
+        const GUIDE_AVATARS = {
+            nona:   { src: 'assets/nona_avatar1.png',   alt: 'Nona' },
+            dundee: { src: 'assets/dundee_avatar1.png', alt: 'Dundee' },
+            liam:   { src: 'assets/liam_avatar1.png',   alt: 'Liam' },
+            maggie: { src: 'assets/maggie_avatar1.png', alt: 'Maggie' }
+        };
+        function guideAvatar() {
+            const id = (window.MWClient && window.MWClient.currentAssistant) || 'nona';
+            return GUIDE_AVATARS[id] || GUIDE_AVATARS.nona;
+        }
+
         const NONA_ASSETS = {
-            profilePic: 'assets/nona/Nona_ProfilePic_Face.png',
+            profilePic: 'assets/nona_avatar1.png',
             standingStatic: 'assets/nona/Nona_Standing_Static.png',
             welcomeHero: 'assets/nona/Nona_WavesHello_Hero.mp4',
             welcomeChat: 'assets/nona/Nona_WavesHello_chat.mp4'
@@ -1359,8 +1371,8 @@ color: #2a7d72;
 
             const avatar = document.createElement('img');
             avatar.className = 'nona-chat-avatar';
-            avatar.src = NONA_ASSETS.profilePic;
-            avatar.alt = 'Nona';
+            avatar.src = guideAvatar().src;
+            avatar.alt = guideAvatar().alt;
 
             const bubble = document.createElement('div');
             bubble.className = 'message assistant';
@@ -1639,8 +1651,8 @@ async function sendMessage() {
 
             const typingAvatar = document.createElement('img');
             typingAvatar.className = 'nona-chat-avatar';
-            typingAvatar.src = NONA_ASSETS.profilePic;
-            typingAvatar.alt = 'Nona';
+            typingAvatar.src = guideAvatar().src;
+            typingAvatar.alt = guideAvatar().alt;
 
             const typingIndicator = document.createElement('div');
             typingIndicator.className = 'message assistant';
