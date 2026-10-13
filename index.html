@@ -1362,14 +1362,15 @@ color: #2a7d72;
             welcomeChat: 'assets/nona/Nona_WavesHello_chat.mp4'
         };
 
-        function createAssistantMsg(container) {
+        function createAssistantMsg(container, guideId) {
+            const g = (guideId && GUIDE_AVATARS[guideId]) || guideAvatar();
             const row = document.createElement('div');
             row.className = 'message-row';
 
             const avatar = document.createElement('img');
             avatar.className = 'nona-chat-avatar';
-            avatar.src = guideAvatar().src;
-            avatar.alt = guideAvatar().alt;
+            avatar.src = g.src;
+            avatar.alt = g.alt;
 
             const bubble = document.createElement('div');
             bubble.className = 'message assistant';
@@ -2358,12 +2359,24 @@ const loadingRow = document.createElement('div');
                 playNonaHero(NONA_ASSETS.welcomeHero);
 
                 // Silently ask Nona for the full recipe (no user bubble in chat)
-                const nonaResponse = await window.MWClient.sendMessage(
+                // Featured recipe always comes from Nona, whichever guide is active.
+                // sendMessage reads currentAssistant before its first await, so swap,
+                // start the call, and restore straight away (no race with card clicks).
+                const prevAssistant = window.MWClient.currentAssistant;
+                window.MWClient.currentAssistant = 'nona';
+                const nonaPromise = window.MWClient.sendMessage(
                     `please provide the recipe for ${data.recipe_name}`
                 );
+                window.MWClient.currentAssistant = prevAssistant;
+                const nonaResponse = await nonaPromise;
                 // Remove loading message
                 const loader = document.getElementById('featured-loading');
                 if (loader) loader.remove();
+                if (!nonaResponse || !nonaResponse.success) {
+                    console.warn('Featured recipe fetch failed:', nonaResponse && nonaResponse.error);
+                    const failMsg = createAssistantMsg(messagesContainer, 'nona');
+                    failMsg.textContent = "Mi dispiace, the kitchen is running slow today. Ask me for any recipe and I'll find it for you!";
+                }
                 
 if (nonaResponse.success && nonaResponse.isRecipe) {
     const recipe = window.MWClient.parseRecipe(nonaResponse.message);
@@ -2385,7 +2398,7 @@ setTimeout(() => {
   // Skip chatMessage for featured recipes — the greeting already covers it
      // But DO show relationship comment if present
     if (nonaResponse.relationshipComment) {
-        const commentMsg = createAssistantMsg(messagesContainer);
+        const commentMsg = createAssistantMsg(messagesContainer, 'nona');
         typewriterEffect(commentMsg, nonaResponse.relationshipComment.replace(/([.!?])\s+/g, '$1<br><br>'));
     }
 
@@ -2415,7 +2428,7 @@ setTimeout(() => {
     
 } else if (nonaResponse.success && nonaResponse.message) {
     const intakeMsgContainer = document.getElementById('chatMessages');
-    const msgDiv = createAssistantMsg(intakeMsgContainer);
+    const msgDiv = createAssistantMsg(intakeMsgContainer, 'nona');
     msgDiv.innerHTML = nonaResponse.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
     intakeMsgContainer.scrollTop = intakeMsgContainer.scrollHeight;
                 
@@ -2434,7 +2447,7 @@ setTimeout(() => {
                     // Show Nona's intro in chat
                     const messagesContainer = document.getElementById('chatMessages');
                     if (nonaResponse.chatMessage) {
-                        const introMsg = createAssistantMsg(messagesContainer);
+                        const introMsg = createAssistantMsg(messagesContainer, 'nona');
     introMsg.innerHTML = nonaResponse.chatMessage.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>');
                     }
                     if (nonaResponse.chatFollowUp && nonaResponse.chatFollowUp.length > 0) {
