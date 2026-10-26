@@ -73,6 +73,9 @@
   .attn .what{flex:1 1 260px;min-width:0}
   .attn .what a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--border)}
   .attn .what a:hover{border-bottom-color:var(--brand-blue)}
+  .attn li.more{display:none}
+  .attn.open li.more{display:flex}
+  .attn-more{margin:6px 0 0;font-size:12px;color:var(--muted)}
   .attn .group{font-size:12px;color:var(--subtle);min-width:84px}
   .attn .nums{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
   .attn .conf{font-size:12px;color:var(--subtle);white-space:nowrap;min-width:110px;text-align:right}
@@ -99,6 +102,23 @@
   tr.hit td{background:#FFF8EA}
   tr.flash td{animation:flash 1.6s ease-out}
   @keyframes flash{from{background:#FBE3B8}to{background:transparent}}
+  .demo{background:#2B4A6B;color:#fff;border-radius:var(--r-card);padding:8px 12px;margin-bottom:12px;font-size:13px}
+  .tier{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px;vertical-align:1px}
+  .tier.critical{background:#F7DADA;color:#8E1F22}
+  .tier.high{background:var(--warn-bg);color:var(--warn-ink)}
+  .tier.trend{background:#E3ECF4;color:#1E4E79}
+  .small{font-size:12px}
+  .htiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:10px 14px 0}
+  .ht{border:1px solid var(--border-lt);border-radius:var(--r-card);padding:8px 10px;background:var(--paper-lt)}
+  .ht .k{font-size:12px;color:var(--muted)}
+  .ht .v{font-family:var(--font-voice);font-size:22px;line-height:1.25}
+  .ht .v.sm{font-size:17px;padding-top:3px}
+  .ht .s{font-size:12px;color:var(--subtle)}
+  .ht.bad{background:#FBEFD9;border-color:#E8C98F}
+  .ht.bad .v{color:var(--warn-ink)}
+  .hbar{display:inline-block;width:90px;height:8px;background:var(--border-lt);border-radius:4px;overflow:hidden;vertical-align:middle}
+  .hbar i{display:block;height:100%;background:var(--brand-blue)}
+  .warnTxt{color:var(--warn-ink)}
   :focus-visible{outline:2px solid var(--brand-blue);outline-offset:2px}
   @media (prefers-reduced-motion:reduce){tr.flash td{animation:none}}
   @media (max-width:620px){
@@ -110,6 +130,7 @@
 <header>
   <h1>Compass Admin</h1>
   <span class="who" id="who"></span>
+  <button id="demoBtn">Demo data</button>
   <button id="logoutBtn" style="display:none">Sign out</button>
 </header>
 
@@ -126,6 +147,7 @@
     <button class="btn" id="applyBtn">Show</button>
   </div>
 
+  <div class="demo" id="demoBanner" style="display:none">DEMO DATA. Every number on this page is made up, to show how the page looks with real use. Only the date filter changes it.</div>
   <div class="guard">Counts are shown with every rate. No chart here treats fewer safety messages, longer chats or more personal sharing as “better.” Days and dates are Eastern time.</div>
 
   <div id="content"><p class="msg">Sign in to load.</p></div>
@@ -138,6 +160,7 @@
     <label for="liPw">Password</label><input id="liPw" type="password" autocomplete="current-password">
     <button class="btn" id="loginBtn">Sign in</button>
     <p class="msg" id="liMsg" style="padding:10px 0 0"></p>
+    <p class="msg" style="padding:6px 0 0;font-size:12px"><a href="#" id="demoLogin">See the page with demo data instead</a></p>
   </div>
 </div>
 
@@ -185,7 +208,7 @@ const GROUPS = [
   { title: "Engagement", rows: [
     { key:"frustration_sign", label:"Member showed frustration", den:"graded" },
   ]},
-  { title: "Reliability", rows: [
+  { title: "System health", health:true, rows: [
     { key:"reply_failed", label:"Reply empty or failed", den:"replies", code:true },
   ]},
 ];
@@ -216,12 +239,25 @@ async function doLogin(){
   finally{ $("loginBtn").disabled = false; }
 }
 
+// ---- Alert tiers (decided 10-26: Critical / High / Trend) ----
+const TIER = { missed_safety_signal:"critical", other_member_data:"critical",
+               wrong_safety_message:"high", untrue_about_self:"high", coverage_gap:"high", alerts_stuck:"high",
+               coverage_day:"trend" };
+const TIER_ORDER = { critical:0, high:1, trend:2 };
+const TIER_LABEL = { critical:"Critical", high:"High", trend:"Trend" };
+
+// ---- Demo mode: made-up data, generated in the browser, never sent anywhere ----
+let DEMO = /[?&]demo\b/.test(location.search);
+
 // ---- Data ----
 function filters(){
   return { from:$("fFrom").value, to:$("fTo").value, guide:$("fGuide").value, version:$("fVersion").value,
            test:$("fTest").value, company_id:$("fClient").value };
 }
 async function load(){
+  $("demoBanner").style.display = DEMO ? "" : "none";
+  $("demoBtn").textContent = DEMO ? "Leave demo" : "Demo data";
+  if(DEMO){ render(makeDemo(filters())); return; }
   if(!SESSION){ openLogin(); return; }
   $("applyBtn").disabled = true;
   $("content").innerHTML = '<p class="msg">Loading…</p>';
@@ -237,6 +273,12 @@ async function load(){
   }catch(e){ $("content").innerHTML = '<p class="msg err">Could not reach the server.</p>'; }
   finally{ $("applyBtn").disabled = false; }
 }
+function toggleDemo(){
+  DEMO = !DEMO; $("fFrom").value = ""; $("fTo").value = "";
+  if(!DEMO && !SESSION){ $("demoBanner").style.display = "none"; $("demoBtn").textContent = "Demo data";
+    $("content").innerHTML = '<p class="msg">Sign in to load.</p>'; openLogin(); return; }
+  $("loginMask").classList.remove("on"); load();
+}
 
 function fillSelect(sel, items, current, allLabel, toOpt){
   sel.innerHTML = `<option value="">${allLabel}</option>` + items.map(toOpt).join("");
@@ -251,25 +293,43 @@ function rowCounts(day, row){
   const f = (day.flags || {})[row.key] || [0,0]; return [f[0]||0, f[1]||0];
 }
 
-function spark(points){                   // points: [{rate|null}] in day order
-  const W = 140, H = 30, pad = 2, vals = points.map(p => p.rate);
-  const max = Math.max(0.0001, ...vals.filter(v => v != null));
-  const n = points.length; if(!n) return "";
-  const x = i => n === 1 ? W/2 : pad + i * (W - 2*pad) / (n - 1);
-  const y = v => H - pad - (v / max) * (H - 2*pad);
-  let segs = [], cur = [];
-  points.forEach((p,i) => { if(p.rate == null){ if(cur.length) segs.push(cur); cur = []; } else cur.push(`${x(i).toFixed(1)},${y(p.rate).toFixed(1)}`); });
-  if(cur.length) segs.push(cur);
-  const lines = segs.map(s => s.length === 1
-      ? `<circle cx="${s[0].split(",")[0]}" cy="${s[0].split(",")[1]}" r="1.8" fill="var(--brand-blue)"/>`
-      : `<polyline points="${s.join(" ")}" fill="none" stroke="var(--brand-blue)" stroke-width="1.5"/>`).join("");
-  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="daily rate"><line x1="0" y1="${H-pad}" x2="${W}" y2="${H-pad}" stroke="var(--border)"/>${lines}</svg>`;
+// ---- Small helpers ----
+const fmtN = n => Number(n || 0).toLocaleString("en-US");
+const secs = ms => ms == null ? "—" : (ms / 1000).toFixed(1) + " s";
+function ago(ts, now){
+  if(!ts) return "none in 30 days";
+  const m = Math.round((new Date(now || Date.now()) - new Date(ts)) / 60000);
+  if(m < 1) return "just now"; if(m < 60) return m + " min ago";
+  const h = Math.round(m / 60); if(h < 48) return h + " h ago"; return Math.round(h / 24) + " days ago";
+}
+const tierChip = t => t ? `<span class="tier ${t}">${TIER_LABEL[t]}</span>` : "";
+
+// Weeks (Monday start) for the weekly mini charts
+function weekOf(day){ const d = new Date(day + "T12:00:00Z"); const k = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - k); return d.toISOString().slice(0,10); }
+function weekly(days, row){
+  const w = {}, order = [];
+  days.forEach(x => { if(x.hidden) return; const k = weekOf(x.day);
+    if(!w[k]){ w[k] = { week:k, n:0, den:0 }; order.push(k); }
+    w[k].n += rowCounts(x, row)[0]; w[k].den += x[row.den] || 0; });
+  return order.map(k => w[k]);
+}
+function weekChart(weeks, denLabel){
+  const W = 150, H = 34, n = weeks.length; if(!n) return "";
+  const rates = weeks.map(w => w.den ? w.n / w.den : 0), max = Math.max(...rates, 0.000001);
+  const slot = W / n, bw = Math.max(3, Math.min(14, slot * 0.7));
+  let g = `<line x1="0" x2="${W}" y1="${H-1}" y2="${H-1}" stroke="var(--border)"/>`;
+  weeks.forEach((w, i) => {
+    const r = rates[i], h = r ? Math.max(2, (H - 4) * r / max) : 0, x = slot * i + (slot - bw) / 2;
+    const label = `Week of ${w.week}: ${fmtN(w.n)} of ${fmtN(w.den)} ${denLabel} (${pct(w.n, w.den)})`;
+    g += `<rect x="${x.toFixed(1)}" y="${(H-1-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${(h||1).toFixed(1)}" fill="${h ? "var(--brand-blue)" : "var(--border)"}"><title>${label}</title></rect>`;
+  });
+  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="weekly rate">${g}</svg>`;
 }
 
 function render(d){
   // header + filters
-  $("who").textContent = (d.label || "") + (d.scope === "all" ? "" : ` · ${d.scope}`);
-  $("logoutBtn").style.display = "";
+  $("who").textContent = DEMO ? "Demo data" : (d.label || "") + (d.scope === "all" ? "" : ` · ${d.scope}`);
+  $("logoutBtn").style.display = DEMO ? "none" : "";
   if(!$("fFrom").value) $("fFrom").value = d.range.from;
   if(!$("fTo").value)   $("fTo").value   = d.range.to;
   const o = d.options || {};
@@ -284,61 +344,72 @@ function render(d){
   const tot = { replies:sum("replies"), graded:sum("graded"), catch_fired:sum("catch_fired"),
                 catch_fired_graded:sum("catch_fired_graded"), lookups:sum("lookups") };
   const t = d.totals || {};
+  const h = d.health || null;
   let html = "";
 
   // tiles
   const lowDays = shown.filter(x => x.replies && x.graded / x.replies < COVERAGE_MIN).length;
   const cov = tot.replies ? tot.graded / tot.replies : null;
   html += `<div class="tiles">
-    <div class="tile"><div class="k">Real users to date</div><div class="v">${d.real_users_to_date ?? "<11"}</div><div class="s">all time, not test</div></div>
-    <div class="tile"><div class="k">Replies</div><div class="v">${t.hidden ? "—" : (t.replies ?? 0)}</div><div class="s">${t.hidden ? "fewer than "+d.min_group+" people" : (t.people ?? 0)+((t.people ?? 0) === 1 ? " person" : " people")+" in range"}</div></div>
+    <div class="tile"><div class="k">Real users to date</div><div class="v">${d.real_users_to_date == null ? "<11" : fmtN(d.real_users_to_date)}</div><div class="s">all time, not test</div></div>
+    <div class="tile"><div class="k">Replies</div><div class="v">${t.hidden ? "—" : fmtN(t.replies)}</div><div class="s">${t.hidden ? "fewer than "+d.min_group+" people" : fmtN(t.people)+((t.people ?? 0) === 1 ? " person" : " people")+" in range"}</div></div>
     <div class="tile ${cov != null && (cov < COVERAGE_MIN || lowDays) ? "warn" : ""}"><div class="k">Checked by the grader</div>
       <div class="v">${cov == null ? "—" : (100*cov).toFixed(1)+"%"}</div>
-      <div class="s">${tot.graded} of ${tot.replies}${lowDays ? ` · ${lowDays} day${lowDays>1?"s":""} under ${COVERAGE_MIN*100}%` : ""}</div></div>
-    <div class="tile"><div class="k">Safety messages sent</div><div class="v">${tot.catch_fired}</div><div class="s">of ${tot.replies} replies · not a score</div></div>
+      <div class="s">${fmtN(tot.graded)} of ${fmtN(tot.replies)}${lowDays ? ` · ${lowDays} day${lowDays>1?"s":""} under ${COVERAGE_MIN*100}%` : ""}</div></div>
+    <div class="tile"><div class="k">Safety messages sent</div><div class="v">${fmtN(tot.catch_fired)}</div><div class="s">of ${fmtN(tot.replies)} replies · not a score</div></div>
   </div>`;
 
   if(t.hidden){ html += `<p class="msg hidden-note">This selection covers fewer than ${d.min_group} people, so it isn't shown.</p>`; }
 
-  // gather every metric row once (used by the attention panel and the group tables)
+  // every metric row, once
   const den = k => tot[k] || 0;
   const DEN_LABEL = { replies:"replies", graded:"checked replies", catch_fired_graded:"checked safety messages", lookups:"lookups" };
   const stats = {};
   GROUPS.forEach(g => g.rows.forEach(row => {
     let n = 0, c = 0;
-    const pts = days.map(x => {
-      if(x.hidden) return { rate:null };
-      const [f, cf] = rowCounts(x, row); n += f; c += (cf || 0);
-      const dd = x[row.den] || 0;
-      return { rate: dd ? f / dd : null };
-    });
-    stats[row.key] = { n, c, pts, den: den(row.den), group: g.title };
+    days.forEach(x => { if(x.hidden) return; const [f, cf] = rowCounts(x, row); n += f; c += (cf || 0); });
+    stats[row.key] = { n, c, den: den(row.den), weeks: weekly(days, row) };
   }));
 
-  // needs attention: coverage under target, then any check above zero (safety-message count excluded: not a score)
+  // system-health checks that feed the attention panel
+  const now = h ? h.now : null;
+  const graderSilent = h && h.last_reply && (!h.last_check ||
+        (new Date(h.last_reply) - new Date(h.last_check) > 10*60000 && new Date(now) - new Date(h.last_check) > 2*3600000));
+  const alertsStuck  = h && h.alerts_waiting > 0 && h.oldest_waiting && (new Date(now) - new Date(h.oldest_waiting) > 10*60000);
+
+  // needs attention
   const items = [];
   const low = shown.filter(x => x.replies && x.graded / x.replies < COVERAGE_MIN);
+  if(graderSilent) items.push({ tier:"high", group:"System", label:"The grader has checked nothing for over 2 hours while replies came in",
+                                nums:`last check ${ago(h.last_check, now)}`, conf:"", target:"sec-health" });
+  if(alertsStuck)  items.push({ tier:"high", group:"System", label:"Alerts are not going out to Teams",
+                                nums:`${h.alerts_waiting} waiting, oldest ${ago(h.oldest_waiting, now)}`, conf:"check the Exchange_Alerts trigger", target:"sec-health" });
   if(low.length){
-    const list = low.map(x => x.day.slice(5)).join(", ");
-    items.push({ group:"Grader", label:`Under ${COVERAGE_MIN*100}% of replies checked on ${low.length} day${low.length>1?"s":""} (${list})`,
-                 nums:`${tot.graded} of ${tot.replies} checked`, conf:"", target:"sec-coverage" });
+    const list = low.length <= 4 ? " (" + low.map(x => x.day.slice(5)).join(", ") + ")" : "";
+    items.push({ tier:"trend", group:"Grader", label:`Under ${COVERAGE_MIN*100}% of replies checked on ${low.length} day${low.length>1?"s":""}${list}`,
+                 nums:`${fmtN(tot.graded)} of ${fmtN(tot.replies)} checked`, conf:"", target:"sec-coverage" });
   }
   GROUPS.forEach(g => g.rows.forEach(row => {
     const s = stats[row.key];
     if(row.key === "catch_fired" || !s.n) return;
-    items.push({ group:g.title, label:row.label, nums:`${s.n} of ${s.den} ${DEN_LABEL[row.den]} (${pct(s.n, s.den)})`,
-                 conf: row.code ? "set by code" : `${s.c} confirmed by a person`, target:"row-"+row.key });
+    items.push({ tier:TIER[row.key] || "", group:g.title, label:row.label, nums:`${fmtN(s.n)} of ${fmtN(s.den)} ${DEN_LABEL[row.den]} (${pct(s.n, s.den)})`,
+                 conf: row.code ? "set by code" : `${fmtN(s.c)} confirmed by a person`, target:"row-"+row.key });
   }));
+  items.sort((a, b) => (TIER_ORDER[a.tier] ?? 9) - (TIER_ORDER[b.tier] ?? 9));
   if(t.hidden){ /* nothing to judge */ }
   else if(items.length){
-    html += `<section class="attn" aria-labelledby="attnH"><h2 id="attnH">Needs attention</h2><ul>` +
-      items.map(i => `<li><span class="group">${esc(i.group)}</span><span class="what"><a href="#${i.target}" data-jump="${i.target}">${esc(i.label)}</a></span>
-        <span class="nums">${esc(i.nums)}</span><span class="conf">${esc(i.conf)}</span></li>`).join("") + `</ul></section>`;
+    // tiered items always show; untiered checks above zero fold into one line
+    const tiered = items.filter(i => i.tier), rest = items.filter(i => !i.tier);
+    const li = i => `<li class="${i.tier ? "" : "more"}"><span class="group">${tierChip(i.tier) || esc(i.group)}</span><span class="what"><a href="#${i.target}" data-jump="${i.target}">${esc(i.label)}</a>${i.tier ? ` <span class="muted small">${esc(i.group)}</span>` : ""}</span>
+        <span class="nums">${esc(i.nums)}</span><span class="conf">${esc(i.conf)}</span></li>`;
+    html += `<section class="attn" id="attn" aria-labelledby="attnH"><h2 id="attnH">Needs attention</h2><ul>` + tiered.map(li).join("") + rest.map(li).join("") + `</ul>` +
+      (rest.length ? `<p class="attn-more">${tiered.length ? "Plus " : ""}${rest.length} other check${rest.length > 1 ? "s" : ""} above zero, without an alert level. <button class="linkbtn" data-more aria-expanded="false">Show them</button></p>` : "") +
+      (!tiered.length && !rest.length ? "" : "") + `</section>`;
   } else if(tot.replies){
     html += `<section class="attn clear"><h2>Needs attention</h2><p>Nothing in this range. Every check is at zero and at least ${COVERAGE_MIN*100}% of replies were checked each day.</p></section>`;
   }
 
-  // coverage chart: one bar per day across the whole range, 90% line marked
+  // coverage chart
   html += `<section class="card" id="sec-coverage"><div class="hd"><h2>Checked by the grader, by day</h2>
     <span class="sum ${low.length ? "on" : ""}">${low.length ? `${low.length} day${low.length>1?"s":""} under ${COVERAGE_MIN*100}%` : (shown.length ? `every day at ${COVERAGE_MIN*100}% or more` : "")}</span></div>
     <p class="note">Share of each day's replies the grader checked. A dead grader would otherwise look like a clean day. Hover a bar for its counts.</p>
@@ -352,53 +423,90 @@ function render(d){
   [...days].reverse().forEach(x => {
     if(x.hidden){ html += `<tr><td>${esc(x.day)}</td><td colspan="4" class="hidden-note">fewer than ${d.min_group} people</td></tr>`; return; }
     const lo = x.replies && x.graded / x.replies < COVERAGE_MIN;
-    html += `<tr><td>${esc(x.day)}</td><td class="num">${x.replies}</td><td class="num">${x.graded}</td>
-      <td class="num">${pct(x.graded, x.replies)}${lo ? ' <span class="tag" style="background:var(--warn-bg);color:var(--warn-ink)">under '+COVERAGE_MIN*100+'%</span>' : ""}</td><td class="num">${x.people}</td></tr>`;
+    html += `<tr><td>${esc(x.day)}</td><td class="num">${fmtN(x.replies)}</td><td class="num">${fmtN(x.graded)}</td>
+      <td class="num">${pct(x.graded, x.replies)}${lo ? ' <span class="tag" style="background:var(--warn-bg);color:var(--warn-ink)">under '+COVERAGE_MIN*100+'%</span>' : ""}</td><td class="num">${fmtN(x.people)}</td></tr>`;
   });
   if(!days.length) html += `<tr><td colspan="5" class="muted">No replies in this range.</td></tr>`;
   html += `</tbody></table></div></details></section>`;
 
-  // metric groups: rows at zero fold into one line; "Show all" opens them
-  GROUPS.forEach(g => {
+  // metric groups (System health renders its own card, with the reliability rows inside)
+  const groupTable = (g, extraTop) => {
     const hits = g.rows.filter(r => stats[r.key].n > 0);
     const zeros = g.rows.filter(r => stats[r.key].n === 0);
     const flagged = hits.filter(r => r.key !== "catch_fired").length;
-    const sum = !shown.length ? "" : flagged ? `${flagged} of ${g.rows.length} above zero` : (hits.length ? "" : `all ${g.rows.length} at zero`);
-    html += `<section class="card${hits.length ? "" : " allzero"}" id="grp-${g.title.replace(/\W+/g,"-").toLowerCase()}"><div class="hd"><h2>${g.title}</h2><span class="sum ${flagged ? "on" : ""}">${sum}</span></div>
+    const sm = !shown.length ? "" : flagged ? `${flagged} of ${g.rows.length} above zero` : (hits.length ? "" : `all ${g.rows.length} at zero`);
+    let s = `<section class="card${hits.length ? "" : " allzero"}" id="${g.id || "grp-" + g.title.replace(/\W+/g,"-").toLowerCase()}">
+      <div class="hd"><h2>${g.title}</h2><span class="sum ${flagged ? "on" : ""}">${sm}</span></div>${extraTop || ""}
       <div class="scroll"><table><thead><tr>
-      <th>What</th><th>Count</th><th>Out of</th><th>Rate</th><th>Confirmed by a person</th><th>Daily rate</th></tr></thead><tbody>`;
+      <th>What</th><th>Count</th><th>Out of</th><th>Rate</th><th>Confirmed by a person</th><th>By week</th></tr></thead><tbody>`;
     g.rows.forEach(row => {
-      const s = stats[row.key], isZero = s.n === 0;
-      const cls = isZero ? "zero" : (row.key === "catch_fired" ? "" : "hit");
-      html += `<tr id="row-${row.key}" class="${cls}"><td class="lbl">${row.label}${row.hint ? `<small>${row.hint}</small>` : ""}</td>
-        <td class="num">${s.n}</td><td class="num">${s.den} <span class="muted">${DEN_LABEL[row.den]}</span></td>
-        <td class="num">${pct(s.n, s.den)}</td>
-        <td class="num">${row.code ? '<span class="muted">n/a (set by code)</span>' : s.c}</td>
-        <td>${spark(s.pts)}</td></tr>`;
+      const st = stats[row.key], isZero = st.n === 0;
+      const cls = isZero ? "zero" : "";
+      s += `<tr id="row-${row.key}" class="${cls}"><td class="lbl">${row.label} ${tierChip(TIER[row.key])}${row.hint ? `<small>${row.hint}</small>` : ""}</td>
+        <td class="num">${fmtN(st.n)}</td><td class="num">${fmtN(st.den)} <span class="muted">${DEN_LABEL[row.den]}</span></td>
+        <td class="num">${pct(st.n, st.den)}</td>
+        <td class="num">${row.code ? '<span class="muted">n/a (set by code)</span>' : fmtN(st.c)}</td>
+        <td>${weekChart(st.weeks, DEN_LABEL[row.den])}</td></tr>`;
       if(row.key === "catch_fired" && tot.catch_fired){
-        const sm = k => shown.reduce((a, x) => a + (x[k] || 0), 0);
-        const nr = sm("catch_fired") - sm("catch_intent") - sm("catch_regex") - sm("catch_both");
-        html += `<tr><td class="lbl"><small>What triggered it</small></td><td colspan="5" class="muted">
-          intent step ${sm("catch_intent")} · backstop (regex) only ${sm("catch_regex")} · both ${sm("catch_both")}${nr > 0 ? ` · not recorded ${nr}` : ""}</td></tr>`;
+        const q = k => shown.reduce((a, x) => a + (x[k] || 0), 0);
+        const nr = q("catch_fired") - q("catch_intent") - q("catch_regex") - q("catch_both");
+        s += `<tr><td class="lbl"><small>What triggered it</small></td><td colspan="5" class="muted">
+          intent step ${fmtN(q("catch_intent"))} · backstop (regex) only ${fmtN(q("catch_regex"))} · both ${fmtN(q("catch_both"))}${nr > 0 ? ` · not recorded ${fmtN(nr)}` : ""}</td></tr>`;
       }
     });
     if(zeros.length){
-      html += `<tr class="fold"><td colspan="6"><button class="linkbtn" data-fold aria-expanded="false">${zeros.length === g.rows.length ? "Show all " + zeros.length : "Show " + zeros.length + " more at zero"}</button>
+      s += `<tr class="fold"><td colspan="6"><button class="linkbtn" data-fold aria-expanded="false">${zeros.length === g.rows.length ? "Show all " + zeros.length : "Show " + zeros.length + " more at zero"}</button>
         <span class="zero-names"> · ${zeros.map(r => esc(r.label)).join(", ")}</span></td></tr>`;
     }
+    return s + `</tbody></table></div></section>`;
+  };
+  GROUPS.filter(g => !g.health).forEach(g => html += groupTable(g));
+
+  // system health
+  const hg = GROUPS.find(g => g.health);
+  let top = `<p class="note">How the system itself is running: speed, failures, and whether the checks and alerts are working.</p><div class="htiles">
+      <div class="ht"><div class="k">Typical reply time</div><div class="v">${secs(t.ms_p50)}</div><div class="s">half of replies were faster</div></div>
+      <div class="ht"><div class="k">Slowest replies</div><div class="v">${secs(t.ms_p95)}</div><div class="s">the slowest 5% took longer</div></div>`;
+  if(h){
+    top += `<div class="ht"><div class="k">Last reply logged</div><div class="v sm">${ago(h.last_reply, now)}</div><div class="s">${h.last_reply ? "" : "no replies"}</div></div>
+      <div class="ht ${graderSilent ? "bad" : ""}"><div class="k">Last grader check</div><div class="v sm">${ago(h.last_check, now)}</div><div class="s">${graderSilent ? "replies are waiting" : "keeping up"}</div></div>
+      <div class="ht ${alertsStuck ? "bad" : ""}"><div class="k">Alerts to Teams</div><div class="v sm">${alertsStuck ? "Not going out" : "Working"}</div>
+        <div class="s">${fmtN(h.alerts_sent_30d)} sent in 30 days${h.alerts_waiting ? ` · ${h.alerts_waiting} waiting` : ""}${h.alerts_failed ? ` · ${h.alerts_failed} failed` : ""}</div></div>`;
+  }
+  top += `<div class="ht"><div class="k">Cost per chat</div><div class="v sm muted">Not tracked yet</div><div class="s">coming with token logging</div></div></div>
+    <div class="cov">${latencyChart(days, d.range)}<div class="legend"><span><i class="sw" style="background:var(--brand-blue)"></i>typical reply time</span>
+      <span><i class="sw" style="background:var(--brand-orange)"></i>slowest 5%</span></div></div>`;
+  html += groupTable(Object.assign({}, hg, { id:"sec-health" }), top);
+
+  // versions (team scope only)
+  const vs = d.versions || [];
+  if(d.scope === "all" && vs.length){
+    html += `<section class="card"><div class="hd"><h2>Compare versions</h2><span class="sum">${vs.length} in range</span></div>
+      <p class="note">The same checks, split by guide version. A new version that does worse shows up here as a change, not a mystery. Flagged = any grader flag except member frustration, out of checked replies.</p>
+      <div class="scroll"><table><thead><tr><th>Version</th><th>Days</th><th>Replies</th><th>Checked</th><th>Flagged</th><th></th><th>Missed safety signal</th><th>Safety messages</th><th>Failed</th><th>Typical time</th></tr></thead><tbody>`;
+    const maxR = Math.max(...vs.map(v => v.graded ? v.flagged / v.graded : 0), 0.0001);
+    vs.forEach(v => {
+      const r = v.graded ? v.flagged / v.graded : 0;
+      html += `<tr><td>${esc(v.version)}</td><td class="muted">${esc(String(v.first_day).slice(5))} to ${esc(String(v.last_day).slice(5))}</td>
+        <td class="num">${fmtN(v.replies)}</td><td class="num">${pct(v.graded, v.replies)}</td>
+        <td class="num">${fmtN(v.flagged)} <span class="muted">(${pct(v.flagged, v.graded)})</span></td>
+        <td><span class="hbar"><i style="width:${(100 * r / maxR).toFixed(0)}%"></i></span></td>
+        <td class="num">${fmtN(v.missed_safety_signal)}</td><td class="num">${fmtN(v.catch_fired)}</td><td class="num">${fmtN(v.reply_failed)}</td><td class="num">${secs(v.ms_p50)}</td></tr>`;
+    });
     html += `</tbody></table></div></section>`;
-  });
+  }
 
   // clients
   const cl = d.clients || [];
-  html += `<section class="card"><h2>By client</h2>
+  html += `<section class="card"><div class="hd"><h2>By client</h2><span class="sum">${cl.length} client${cl.length === 1 ? "" : "s"}</span></div>
     ${d.hiding ? `<p class="note">Clients with fewer than ${d.min_group} people are hidden.</p>` : ""}
     <div class="scroll"><table><thead><tr><th>Client</th><th>Code</th><th>Parent</th><th>People</th><th>Replies</th><th>Checked</th><th>Safety messages</th><th>Missed safety signal</th><th>Other member's data</th></tr></thead><tbody>`;
   cl.forEach(c => {
     if(c.hidden){ html += `<tr><td>${esc(c.client_name)}</td><td>${esc(c.company_id)}</td><td>${esc(c.parent_code||"")}</td><td colspan="6" class="hidden-note">fewer than ${d.min_group} people</td></tr>`; return; }
+    const lo = c.replies && c.graded / c.replies < COVERAGE_MIN;
     html += `<tr><td>${esc(c.client_name)}</td><td>${esc(c.company_id ?? "(none)")}</td><td>${esc(c.parent_code || "")}</td>
-      <td class="num">${c.people}</td><td class="num">${c.replies}</td><td class="num">${pct(c.graded, c.replies)}</td>
-      <td class="num">${c.catch_fired}</td><td class="num">${c.missed_safety_signal}</td><td class="num">${c.other_member_data}</td></tr>`;
+      <td class="num">${fmtN(c.people)}</td><td class="num">${fmtN(c.replies)}</td><td class="num${lo ? " warnTxt" : ""}">${pct(c.graded, c.replies)}</td>
+      <td class="num">${fmtN(c.catch_fired)}</td><td class="num">${fmtN(c.missed_safety_signal)}</td><td class="num">${fmtN(c.other_member_data)}</td></tr>`;
   });
   if(!cl.length) html += `<tr><td colspan="9" class="muted">No clients in this range.</td></tr>`;
   html += `</tbody></table></div></section>`;
@@ -406,14 +514,14 @@ function render(d){
   // alerts (team scope only)
   if(d.scope === "all"){
     const al = d.alerts || [];
-    html += `<section class="card"><h2>Recent alerts</h2><p class="note">Latest 50 in range. Look up the row number in the database; no member text is shown here.</p>
-      <div class="scroll"><table><thead><tr><th>When (ET)</th><th>Guide</th><th>What</th><th>Detail</th><th>Client</th><th>Row</th><th>Sent to Teams</th></tr></thead><tbody>`;
+    html += `<section class="card"><div class="hd"><h2>Recent alerts</h2></div><p class="note">Latest 50 in range. Look up the row number in the database; no member text is shown here.</p>
+      <div class="scroll"><table><thead><tr><th>When (ET)</th><th>Level</th><th>Guide</th><th>What</th><th>Detail</th><th>Client</th><th>Row</th><th>Sent to Teams</th></tr></thead><tbody>`;
     al.forEach(a => {
       const when = new Date(a.at).toLocaleString("en-US", { timeZone:"America/New_York", month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
-      html += `<tr><td>${esc(when)}</td><td>${esc(a.guide)}</td><td>${esc(ALERT_KIND[a.kind] || a.kind)} ${a.is_test ? '<span class="tag test">TEST</span>' : ""}</td>
+      html += `<tr><td>${esc(when)}</td><td>${tierChip(TIER[a.kind]) || '<span class="muted">notice</span>'}</td><td>${esc(a.guide)}</td><td>${esc(ALERT_KIND[a.kind] || a.kind)} ${a.is_test ? '<span class="tag test">TEST</span>' : ""}</td>
         <td>${esc(a.detail || "")}</td><td>${esc(a.company_id || "")}</td><td class="num">${esc(a.row)}</td><td>${a.sent ? "yes" : '<span class="muted">not yet</span>'}</td></tr>`;
     });
-    if(!al.length) html += `<tr><td colspan="7" class="muted">No alerts in this range.</td></tr>`;
+    if(!al.length) html += `<tr><td colspan="8" class="muted">No alerts in this range.</td></tr>`;
     html += `</tbody></table></div></section>`;
   }
 
@@ -423,12 +531,13 @@ function render(d){
 
 // Fold buttons and attention links
 function wire(){
-  document.querySelectorAll("[data-fold]").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-fold]").forEach(b => { b.dataset.label = b.textContent; b.addEventListener("click", () => {
     const sec = b.closest("section.card"), open = sec.classList.toggle("open");
     b.setAttribute("aria-expanded", open);
     b.textContent = open ? "Hide rows at zero" : b.dataset.label;
-  }));
-  document.querySelectorAll("[data-fold]").forEach(b => b.dataset.label = b.textContent);
+  }); });
+  document.querySelectorAll("[data-more]").forEach(b => b.addEventListener("click", () => {
+    const open = $("attn").classList.toggle("open"); b.setAttribute("aria-expanded", open); b.textContent = open ? "Hide them" : "Show them"; }));
   document.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click", e => {
     const el = document.getElementById(a.dataset.jump); if(!el) return;
     e.preventDefault();
@@ -437,32 +546,132 @@ function wire(){
   }));
 }
 
-// Coverage chart: every day in the range on the x axis; bar = share checked; dashed line at the target.
-function coverageChart(days, range, minGroup){
-  const byDay = {}; days.forEach(x => byDay[x.day] = x);
+// Every day in the range
+function rangeDays(days, range){
   const all = [];
   if(range && range.from && range.to){
     for(let dt = new Date(range.from + "T12:00:00Z"); dt <= new Date(range.to + "T12:00:00Z"); dt.setUTCDate(dt.getUTCDate() + 1))
       all.push(dt.toISOString().slice(0, 10));
   } else days.forEach(x => all.push(x.day));
-  const n = all.length; if(!n) return '<p class="muted">No replies in this range.</p>';
+  return all;
+}
+function xAxis(all, L, slot, H){
+  const every = Math.ceil(all.length / 10); let g = "";
+  all.forEach((day, i) => { if(i % every === 0 || i === all.length - 1)
+    g += `<text x="${L + slot * (i + 0.5)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--subtle)">${day.slice(5).replace("-", "/")}</text>`; });
+  return g;
+}
+
+// Coverage chart: bar = share checked; dashed line at the target.
+function coverageChart(days, range, minGroup){
+  const byDay = {}; days.forEach(x => byDay[x.day] = x);
+  const all = rangeDays(days, range), n = all.length; if(!n) return '<p class="muted">No replies in this range.</p>';
   const W = 960, H = 190, L = 40, R = 8, T = 10, B = 26, ph = H - T - B, slot = (W - L - R) / n, bw = Math.max(2, Math.min(28, slot * 0.7));
   const y = v => T + ph * (1 - v);
   let g = "";
   [0, 0.5, 1].forEach(v => g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--border-lt)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--subtle)">${v*100}%</text>`);
-  const every = Math.ceil(n / 10);
+  g += xAxis(all, L, slot, H);
   all.forEach((day, i) => {
     const cx = L + slot * (i + 0.5), x = byDay[day];
-    if(i % every === 0 || i === n - 1) g += `<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--subtle)">${day.slice(5).replace("-", "/")}</text>`;
     if(!x) return;
     if(x.hidden){ g += `<rect x="${cx-bw/2}" y="${T}" width="${bw}" height="${ph}" fill="var(--border-lt)"><title>${day}: hidden (fewer than ${minGroup} people)</title></rect>`; return; }
     if(!x.replies) return;
     const r = x.graded / x.replies, lo = r < COVERAGE_MIN, h = Math.max(1.5, ph * r);
-    g += `<rect x="${cx-bw/2}" y="${T+ph-h}" width="${bw}" height="${h}" rx="2" fill="${lo ? "var(--brand-orange)" : "var(--brand-blue)"}"><title>${day}: ${x.graded} of ${x.replies} replies checked (${pct(x.graded, x.replies)})</title></rect>`;
-    if(n <= 14 || lo) g += `<text x="${cx}" y="${T+ph-h-4}" text-anchor="middle" font-size="10" fill="var(--muted)">${x.graded}/${x.replies}</text>`;
+    g += `<rect x="${cx-bw/2}" y="${T+ph-h}" width="${bw}" height="${h}" rx="2" fill="${lo ? "var(--brand-orange)" : "var(--brand-blue)"}"><title>${day}: ${fmtN(x.graded)} of ${fmtN(x.replies)} replies checked (${pct(x.graded, x.replies)})</title></rect>`;
+    if(n <= 14) g += `<text x="${cx}" y="${T+ph-h-4}" text-anchor="middle" font-size="10" fill="var(--muted)">${fmtN(x.graded)}/${fmtN(x.replies)}</text>`;
   });
-  g += `<line x1="${L}" x2="${W-R}" y1="${y(COVERAGE_MIN)}" y2="${y(COVERAGE_MIN)}" stroke="var(--ink)" stroke-dasharray="4 4" stroke-width="1"/>`;
+  g += `<line x1="${L}" x2="${W-R}" y1="${y(COVERAGE_MIN)}" y2="${y(COVERAGE_MIN)}" stroke="var(--panel)" stroke-width="4"/>`;
+  g += `<line x1="${L}" x2="${W-R}" y1="${y(COVERAGE_MIN)}" y2="${y(COVERAGE_MIN)}" stroke="var(--ink)" stroke-dasharray="6 4" stroke-width="1.5"/>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of replies checked by the grader, each day">${g}</svg>`;
+}
+
+// Reply-time chart: typical (p50) and slowest-5% (p95) per day, in seconds.
+function latencyChart(days, range){
+  const byDay = {}; days.forEach(x => byDay[x.day] = x);
+  const all = rangeDays(days, range), n = all.length;
+  const pts = all.map(day => { const x = byDay[day]; return x && !x.hidden && x.ms_n ? x : null; });
+  if(!pts.some(Boolean)) return '<p class="muted">No reply times in this range.</p>';
+  const W = 960, H = 170, L = 40, R = 8, T = 10, B = 26, ph = H - T - B, slot = (W - L - R) / n;
+  const max = Math.max(...pts.filter(Boolean).map(x => x.ms_p95 || x.ms_p50 || 0), 1000);
+  const top = Math.ceil(max / 5000) * 5000, y = v => T + ph * (1 - v / top);
+  let g = "";
+  for(let v = 0; v <= top; v += top / 2) g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--border-lt)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--subtle)">${v/1000} s</text>`;
+  g += xAxis(all, L, slot, H);
+  const line = (k, color) => {
+    let segs = [], cur = [];
+    pts.forEach((x, i) => { if(!x || x[k] == null){ if(cur.length) segs.push(cur); cur = []; } else cur.push([L + slot * (i + 0.5), y(x[k]), x, all[i]]); });
+    if(cur.length) segs.push(cur);
+    return segs.map(s => (s.length > 1 ? `<polyline points="${s.map(p => p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")}" fill="none" stroke="${color}" stroke-width="1.8"/>` : "")
+      + s.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${n <= 31 ? 2.4 : 1.6}" fill="${color}"><title>${p[3]}: typical ${secs(p[2].ms_p50)}, slowest 5% ${secs(p[2].ms_p95)} (${fmtN(p[2].ms_n)} replies)</title></circle>`).join("")).join("");
+  };
+  g += line("ms_p95", "var(--brand-orange)") + line("ms_p50", "var(--brand-blue)");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reply time each day">${g}</svg>`;
+}
+
+// ---- Demo data (made up; same shape the database returns) ----
+function makeDemo(fl){
+  let seed = 20261026; const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const pois = m => { if(m <= 0) return 0; if(m > 30) return Math.max(0, Math.round(m + Math.sqrt(m) * (rnd() + rnd() + rnd() - 1.5) * 1.4)); let L = Math.exp(-m), k = 0, p = 1; do { k++; p *= rnd(); } while(p > L); return k - 1; };
+  const today = new Date(); const iso = dt => dt.toISOString().slice(0,10);
+  const to = fl.to || iso(today), from = fl.from || iso(new Date(new Date(to + "T12:00:00Z").getTime() - 89 * 86400000));
+  const all = rangeDays([], { from, to }), n = all.length;
+  const outage = Math.max(0, n - 34), badFrom = Math.max(0, n - 30), badTo = Math.max(0, n - 20);
+  const verAt = i => i < n - 60 ? "maggie-2026-08-a" : i < n - 30 ? "maggie-2026-09-b" : i < n - 20 ? "maggie-2026-10-c" : "maggie-2026-10-d";
+  const RATES = { missed_safety_signal:0.0004, wrong_safety_message:0.0008, medicine_advice:0.004, diagnosed_or_judged_number:0.003,
+    clinician_only_number:0.004, exercise_program:0.002, plan_data_disclosed:0, answered_should_redirect:0.005, untrue_about_self:0.0008,
+    unsourced_claim:0.009, named_source_not_returned:0.002, profile_not_used:0.025, profile_conflict:0.003, other_member_data:0.0003, frustration_sign:0.018 };
+  const daily = [], vers = {};
+  all.forEach((day, i) => {
+    const dow = new Date(day + "T12:00:00Z").getUTCDay();
+    const replies = Math.round((60 + 220 * i / Math.max(1, n - 1)) * (dow === 0 || dow === 6 ? 0.55 : 1) * (0.85 + rnd() * 0.3));
+    const cov = i === outage ? 0.62 : i === outage + 1 ? 0.87 : 0.975 + rnd() * 0.02;
+    const graded = Math.round(replies * cov), catch_fired = pois(replies * 0.006), cfg = Math.round(catch_fired * cov);
+    const both = Math.round(catch_fired * 0.7), intent = Math.round(catch_fired * 0.25);
+    const lookups = Math.round(replies * 0.24), recent = i > n - 8;
+    const flags = {};
+    Object.entries(RATES).forEach(([k, r]) => {
+      const rate = (k === "clinician_only_number" && i >= badFrom && i < badTo) ? 0.03 : r;
+      const f = pois(graded * rate); flags[k] = [f, recent ? 0 : Math.round(f * 0.6)];
+    });
+    flags.safety_catch_false_alarm = [pois(cfg * 0.08), 0];
+    const p50 = i === outage ? 7400 : 2600 + Math.round(rnd() * 500), p95 = i === outage ? 16800 : 5600 + Math.round(rnd() * 1600);
+    const x = { day, replies, graded, people: Math.round(replies / 3.2), catch_fired, catch_fired_graded: cfg, catch_intent: intent,
+      catch_regex: Math.max(0, catch_fired - both - intent), catch_both: both, lookups, lookups_empty: pois(lookups * 0.04),
+      reply_failed: i === outage ? pois(replies * 0.02) : pois(replies * 0.003), reviewed: 0, ms_n: replies, ms_p50: p50, ms_p95: p95, flags, hidden: false };
+    daily.push(x);
+    const v = verAt(i); vers[v] = vers[v] || { version:v, first_day:day, last_day:day, replies:0, graded:0, flagged:0, missed_safety_signal:0, catch_fired:0, reply_failed:0, ms:[] };
+    const V = vers[v]; V.last_day = day; V.replies += replies; V.graded += graded; V.catch_fired += catch_fired; V.reply_failed += x.reply_failed; V.ms.push(p50);
+    V.missed_safety_signal += flags.missed_safety_signal[0];
+    V.flagged += Object.entries(flags).filter(([k]) => k !== "frustration_sign").reduce((a, [, f]) => a + f[0], 0);
+  });
+  const versions = Object.values(vers).reverse().map(V => { V.ms.sort((a, b) => a - b); V.ms_p50 = V.ms[V.ms.length >> 1]; delete V.ms; return V; });
+  const S = k => daily.reduce((a, x) => a + x[k], 0), R = S("replies"), G = S("graded");
+  const shares = [["Concentra Dallas","C-DAL","CONC",0.26],["Concentra Phoenix","C-PHX","CONC",0.19],["Concentra Atlanta","C-ATL","CONC",0.14],
+                  ["Harbor Health Plan","HHP",null,0.22],["Riverside Schools","RVS",null,0.17],["Pilot site","PLT",null,0.02]];
+  const clients = shares.map(([name, code, parent, s]) => ({ company_id:code, client_name:name, parent_code:parent, people: Math.max(4, Math.round(1240 * s)),
+    replies: Math.round(R * s), graded: Math.round(R * s * (code === "PLT" ? 0.93 : 0.965 + rnd() * 0.03)), catch_fired: Math.round(S("catch_fired") * s),
+    missed_safety_signal: Math.round(daily.reduce((a, x) => a + x.flags.missed_safety_signal[0], 0) * s), other_member_data: 0, hidden:false }));
+  const alerts = [];
+  const at = (day, hh) => new Date(day + "T" + String(Math.min(23, hh)).padStart(2,"0") + ":" + String(Math.floor(rnd() * 60)).padStart(2,"0") + ":00-04:00").toISOString();
+  const CO = ["C-DAL","C-PHX","C-ATL","HHP","RVS","PLT"], GU = ["maggie","maggie","maggie","liam","nona","dundee"], KD = ["crisis","crisis","emergency","unsafe_home"];
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  daily.slice().reverse().forEach((x, j) => {
+    if(x.flags.missed_safety_signal[0]) alerts.push({ at: at(x.day, 8 + Math.floor(rnd() * 13)), guide:"maggie", kind:"missed_safety_signal", detail:"", company_id: pick(CO), row: 90000 - j*50, is_test:false, sent:true });
+    for(let k = 0; k < x.flags.untrue_about_self[0]; k++) alerts.push({ at: at(x.day, 8 + Math.floor(rnd() * 13)), guide: pick(GU), kind:"untrue_about_self", detail:"", company_id: pick(CO), row: 90000 - j*50 - 11 - k, is_test:false, sent:true });
+    if(x.flags.other_member_data[0]) alerts.push({ at: at(x.day, 8 + Math.floor(rnd() * 13)), guide: pick(GU), kind:"other_member_data", detail:"", company_id: pick(CO), row: 90000 - j*50 - 7, is_test:false, sent:true });
+    for(let k = 0; k < Math.min(2, x.catch_fired); k++) alerts.push({ at: at(x.day, 7 + Math.floor(rnd() * 16)), guide: pick(GU), kind:"safety_message_sent", detail: pick(KD), company_id: pick(CO), row: 90000 - j*50 - 20 - k, is_test:false, sent:true });
+  });
+  const od = daily[outage]; if(od){ alerts.push({ at: at(od.day, 14), guide:"maggie", kind:"coverage_gap", detail:"", company_id:null, row:null, is_test:false, sent:true });
+    alerts.push({ at: at(od.day, 0), guide:"maggie", kind:"coverage_day", detail:od.day, company_id:null, row:null, is_test:false, sent:true }); }
+  alerts.sort((a, b) => new Date(b.at) - new Date(a.at));
+  const nowIso = new Date().toISOString();
+  const pct95 = Math.round(daily.reduce((a, x) => a + x.ms_p95, 0) / n), pct50 = Math.round(daily.reduce((a, x) => a + x.ms_p50, 0) / n);
+  return { ok:true, scope:"all", label:"Demo", min_group:11, hiding:false, range:{ from, to }, real_users_to_date: 1240,
+    totals:{ replies:R, graded:G, people: 1240, hidden:false, ms_p50: pct50, ms_p95: pct95 },
+    daily, clients, alerts: alerts.slice(0, 50), versions,
+    health:{ now: nowIso, last_reply: new Date(Date.now() - 2*60000).toISOString(), last_check: new Date(Date.now() - 2*60000).toISOString(),
+             alerts_waiting:0, oldest_waiting:null, alerts_failed:0, alerts_sent_30d: alerts.filter(a => (Date.now() - new Date(a.at)) < 30*86400000).length },
+    options:{ guides:["maggie","nona","dundee","liam"], versions: versions.map(v => v.version), companies: clients.map(c => ({ company_id:c.company_id, client_name:c.client_name })) } };
 }
 
 // ---- Wire up ----
@@ -470,8 +679,10 @@ $("loginBtn").addEventListener("click", doLogin);
 $("liPw").addEventListener("keydown", e => { if(e.key === "Enter") doLogin(); });
 $("applyBtn").addEventListener("click", load);
 $("logoutBtn").addEventListener("click", signOut);
+$("demoBtn").addEventListener("click", toggleDemo);
+$("demoLogin").addEventListener("click", e => { e.preventDefault(); toggleDemo(); });
 loadSession();
-if(SESSION) load(); else openLogin();
+if(SESSION || DEMO) load(); else openLogin();
 </script>
 </body>
 </html>
