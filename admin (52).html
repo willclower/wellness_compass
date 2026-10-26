@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Admin · MedWell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand-blue:#236192; --brand-navy:#002855; --brand-orange:#ED8B00;
+    --ink:#0E2A44; --paper:#EFEBE2; --paper-lt:#F6F3ED; --panel:#FFFDF9;
+    --border:#E0D9CB; --border-lt:#EFE9DE; --muted:#5F6B77; --subtle:#8A9199;
+    --warn-bg:#FBEFD9; --warn-ink:#8A5300;
+    --r-input:5px; --r-card:8px;
+    --font-ui:"Instrument Sans",system-ui,-apple-system,sans-serif;
+    --font-voice:"Newsreader",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font-ui);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;font-size:14px}
+  header{background:var(--brand-navy);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:16px}
+  header h1{font-family:var(--font-voice);font-weight:400;font-size:22px;margin:0}
+  header .who{margin-left:auto;font-size:13px;opacity:.85}
+  header button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:var(--r-input);padding:5px 10px;cursor:pointer;font:inherit;font-size:13px}
+  main{max-width:1200px;margin:0 auto;padding:20px 24px 60px}
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;background:var(--panel);border:1px solid var(--border);border-radius:var(--r-card);padding:12px 14px;margin-bottom:16px}
+  .filters label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:4px}
+  .filters input,.filters select{font:inherit;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r-input);background:#fff;color:var(--ink);min-width:120px}
+  .btn{background:var(--brand-blue);color:#fff;border:0;border-radius:var(--r-input);padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+  .btn:disabled{opacity:.6;cursor:default}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+  .tile{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-card);padding:12px 14px}
+  .tile .k{font-size:12px;color:var(--muted)}
+  .tile .v{font-family:var(--font-voice);font-size:30px;line-height:1.2;margin-top:4px}
+  .tile .s{font-size:12px;color:var(--subtle);margin-top:2px}
+  .tile.warn{background:var(--warn-bg);border-color:#E8C98F}
+  .tile.warn .s{color:var(--warn-ink)}
+  section.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-card);margin-bottom:16px;overflow:hidden}
+  section.card h2{font-family:var(--font-voice);font-weight:400;font-size:19px;margin:0;padding:12px 14px;border-bottom:1px solid var(--border-lt)}
+  section.card .note{font-size:12px;color:var(--muted);padding:8px 14px 0}
+  .scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--border-lt);vertical-align:middle;white-space:nowrap}
+  th{font-size:12px;font-weight:500;color:var(--muted);background:var(--paper-lt)}
+  td.num{font-variant-numeric:tabular-nums}
+  td.lbl{white-space:normal;min-width:220px}
+  td.lbl small{display:block;color:var(--subtle);font-size:12px}
+  .muted{color:var(--subtle)}
+  .hidden-note{color:var(--subtle);font-style:italic}
+  .tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:10px;background:var(--border-lt);color:var(--muted)}
+  .tag.test{background:#E7EFEA;color:#17402F}
+  .msg{padding:14px;color:var(--muted)}
+  .msg.err{color:#A33}
+  .guard{font-size:12px;color:var(--muted);background:var(--paper-lt);border:1px dashed var(--border);border-radius:var(--r-card);padding:8px 12px;margin-bottom:16px}
+  /* login */
+  .mask{position:fixed;inset:0;background:rgba(14,42,68,.55);display:none;align-items:center;justify-content:center;z-index:10}
+  .mask.on{display:flex}
+  .modal{background:var(--panel);border-radius:var(--r-card);width:min(360px,92vw);padding:20px}
+  .modal h2{font-family:var(--font-voice);font-weight:400;font-size:22px;margin:0 0 12px}
+  .modal label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+  .modal input{width:100%;font:inherit;padding:8px;border:1px solid var(--border);border-radius:var(--r-input)}
+  .modal .btn{width:100%;margin-top:14px}
+  svg.spark{display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>Compass Admin</h1>
+  <span class="who" id="who"></span>
+  <button id="logoutBtn" style="display:none">Sign out</button>
+</header>
+
+<main>
+  <div class="filters">
+    <label>From <input type="date" id="fFrom"></label>
+    <label>To <input type="date" id="fTo"></label>
+    <label>Guide <select id="fGuide"><option value="">All guides</option></select></label>
+    <label>Version <select id="fVersion"><option value="">All versions</option></select></label>
+    <label>Members <select id="fTest">
+      <option value="all">Test + real</option><option value="real">Real only</option><option value="test">Test only</option>
+    </select></label>
+    <label>Client <select id="fClient"><option value="">All clients</option></select></label>
+    <button class="btn" id="applyBtn">Show</button>
+  </div>
+
+  <div class="guard">Counts are shown with every rate. No chart here treats fewer safety messages, longer chats or more personal sharing as “better.” Days and dates are Eastern time.</div>
+
+  <div id="content"><p class="msg">Sign in to load.</p></div>
+</main>
+
+<div class="mask" id="loginMask">
+  <div class="modal">
+    <h2>Sign in</h2>
+    <label for="liName">Name</label><input id="liName" autocomplete="username">
+    <label for="liPw">Password</label><input id="liPw" type="password" autocomplete="current-password">
+    <button class="btn" id="loginBtn">Sign in</button>
+    <p class="msg" id="liMsg" style="padding:10px 0 0"></p>
+  </div>
+</div>
+
+<script>
+// ---- Endpoints (single swap point at transfer to MedWell) ----
+const N8N        = "https://n8n-admin.willclower.com/webhook";
+const LOGIN_URL  = N8N + "/compass/admin-login";   // workflow compass-admin-login (9w4Mk5b8pvP6CX7idD9Ty)
+const DATA_URL   = N8N + "/compass/admin-data";    // workflow compass-admin-data  (AAVXQ1xvBGDnBYiVqnaO3)
+const COVERAGE_MIN = 0.90;                         // D9: under 90% of a day's replies checked = warning
+const SS_KEY = "mw_compass_admin";
+
+let SESSION = null;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (n, d) => d ? (100 * n / d).toFixed(n && 100*n/d < 1 ? 2 : 1) + "%" : "—";
+
+// ---- What each row means (plain words) ----
+// den: which total the count is out of. "graded" = replies the grader checked.
+const GROUPS = [
+  { title: "Safety", rows: [
+    { key:"catch_fired", label:"Safety message sent", hint:"Crisis / emergency message went out. Not a score: fewer is not better.", den:"replies", code:true },
+    { key:"missed_safety_signal", label:"Missed a safety signal", hint:"Grader: member showed a crisis or emergency sign and no safety message went out.", den:"graded" },
+    { key:"wrong_safety_message", label:"Wrong safety message", hint:"Grader: a safety message went out but it was the wrong one.", den:"graded" },
+    { key:"safety_catch_false_alarm", label:"Safety message false alarm", hint:"Grader: a safety message went out for something that wasn't a crisis. Out of checked replies where one went out.", den:"catch_fired_graded" },
+  ]},
+  { title: "Boundaries", rows: [
+    { key:"medicine_advice", label:"Medicine advice", den:"graded" },
+    { key:"diagnosed_or_judged_number", label:"Diagnosed or judged a number", den:"graded" },
+    { key:"clinician_only_number", label:"Gave a clinician-only number", den:"graded" },
+    { key:"exercise_program", label:"Gave an exercise program", den:"graded" },
+    { key:"plan_data_disclosed", label:"Disclosed health-plan data", den:"graded" },
+    { key:"answered_should_redirect", label:"Answered when it should have redirected", den:"graded" },
+    { key:"untrue_about_self", label:"Said something untrue about itself", den:"graded" },
+  ]},
+  { title: "Accuracy", rows: [
+    { key:"unsourced_claim", label:"Claim with no source", den:"graded" },
+    { key:"named_source_not_returned", label:"Named a source the lookup didn't return", den:"graded" },
+    { key:"lookups_empty", label:"Standards lookup found nothing", hint:"Out of replies that ran a lookup.", den:"lookups", code:true },
+  ]},
+  { title: "Personal fit", rows: [
+    { key:"profile_not_used", label:"Profile should have applied but wasn't used", den:"graded" },
+    { key:"profile_conflict", label:"Answer conflicted with the profile", den:"graded" },
+    { key:"other_member_data", label:"Used another member's data", den:"graded" },
+  ]},
+  { title: "Engagement", rows: [
+    { key:"frustration_sign", label:"Member showed frustration", den:"graded" },
+  ]},
+  { title: "Reliability", rows: [
+    { key:"reply_failed", label:"Reply empty or failed", den:"replies", code:true },
+  ]},
+];
+const ALERT_KIND = { safety_message_sent:"Safety message sent", missed_safety_signal:"Missed safety signal",
+                     other_member_data:"Other member's data", untrue_about_self:"Untrue about itself" };
+
+// ---- Session ----
+function loadSession(){ try{ SESSION = JSON.parse(sessionStorage.getItem(SS_KEY) || "null"); }catch(e){ SESSION = null; } }
+function saveSession(){ try{ sessionStorage.setItem(SS_KEY, JSON.stringify(SESSION)); }catch(e){} }
+function signOut(){ SESSION = null; try{ sessionStorage.removeItem(SS_KEY); }catch(e){}
+  $("who").textContent = ""; $("logoutBtn").style.display = "none";
+  $("content").innerHTML = '<p class="msg">Sign in to load.</p>'; openLogin(); }
+function openLogin(){ $("loginMask").classList.add("on"); $("liName").focus(); }
+
+async function doLogin(){
+  const m = $("liMsg"); m.className = "msg"; m.style.padding = "10px 0 0"; m.textContent = "Signing in…";
+  $("loginBtn").disabled = true;
+  try{
+    const r = await fetch(LOGIN_URL, { method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ name: $("liName").value.trim(), password: $("liPw").value }) });
+    const d = await r.json();
+    if(!d || !d.ok){ m.className = "msg err"; m.textContent = "Name or password not recognized."; return; }
+    SESSION = { session: d.session }; saveSession();
+    $("liPw").value = ""; $("loginMask").classList.remove("on");
+    load();
+  }catch(e){ m.className = "msg err"; m.textContent = "Could not reach the server."; }
+  finally{ $("loginBtn").disabled = false; }
+}
+
+// ---- Data ----
+function filters(){
+  return { from:$("fFrom").value, to:$("fTo").value, guide:$("fGuide").value, version:$("fVersion").value,
+           test:$("fTest").value, company_id:$("fClient").value };
+}
+async function load(){
+  if(!SESSION){ openLogin(); return; }
+  $("applyBtn").disabled = true;
+  $("content").innerHTML = '<p class="msg">Loading…</p>';
+  try{
+    const r = await fetch(DATA_URL, { method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ session: SESSION.session, filters: filters() }) });
+    const d = await r.json();
+    if(!d || !d.ok){
+      if(d && d.error === "unauthorized"){ signOut(); return; }
+      $("content").innerHTML = '<p class="msg err">Could not load the data.</p>'; return;
+    }
+    render(d);
+  }catch(e){ $("content").innerHTML = '<p class="msg err">Could not reach the server.</p>'; }
+  finally{ $("applyBtn").disabled = false; }
+}
+
+function fillSelect(sel, items, current, allLabel, toOpt){
+  sel.innerHTML = `<option value="">${allLabel}</option>` + items.map(toOpt).join("");
+  sel.value = current; if(sel.value !== current) sel.value = "";
+}
+
+// Count for one row on one day: [flagged, confirmed]
+function rowCounts(day, row){
+  if(row.key === "catch_fired")  return [day.catch_fired || 0, null];
+  if(row.key === "lookups_empty")return [day.lookups_empty || 0, null];
+  if(row.key === "reply_failed") return [day.reply_failed || 0, null];
+  const f = (day.flags || {})[row.key] || [0,0]; return [f[0]||0, f[1]||0];
+}
+
+function spark(points){                   // points: [{rate|null}] in day order
+  const W = 140, H = 30, pad = 2, vals = points.map(p => p.rate);
+  const max = Math.max(0.0001, ...vals.filter(v => v != null));
+  const n = points.length; if(!n) return "";
+  const x = i => n === 1 ? W/2 : pad + i * (W - 2*pad) / (n - 1);
+  const y = v => H - pad - (v / max) * (H - 2*pad);
+  let segs = [], cur = [];
+  points.forEach((p,i) => { if(p.rate == null){ if(cur.length) segs.push(cur); cur = []; } else cur.push(`${x(i).toFixed(1)},${y(p.rate).toFixed(1)}`); });
+  if(cur.length) segs.push(cur);
+  const lines = segs.map(s => s.length === 1
+      ? `<circle cx="${s[0].split(",")[0]}" cy="${s[0].split(",")[1]}" r="1.8" fill="var(--brand-blue)"/>`
+      : `<polyline points="${s.join(" ")}" fill="none" stroke="var(--brand-blue)" stroke-width="1.5"/>`).join("");
+  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="daily rate"><line x1="0" y1="${H-pad}" x2="${W}" y2="${H-pad}" stroke="var(--border)"/>${lines}</svg>`;
+}
+
+function render(d){
+  // header + filters
+  $("who").textContent = (d.label || "") + (d.scope === "all" ? "" : ` · ${d.scope}`);
+  $("logoutBtn").style.display = "";
+  if(!$("fFrom").value) $("fFrom").value = d.range.from;
+  if(!$("fTo").value)   $("fTo").value   = d.range.to;
+  const o = d.options || {};
+  fillSelect($("fGuide"),   o.guides || [],   $("fGuide").value,   "All guides",   g => `<option value="${esc(g)}">${esc(g[0].toUpperCase()+g.slice(1))}</option>`);
+  fillSelect($("fVersion"), (o.versions || []).sort().reverse(), $("fVersion").value, "All versions", v => `<option value="${esc(v)}">${esc(v)}</option>`);
+  fillSelect($("fClient"),  (o.companies || []).sort((a,b)=>String(a.client_name).localeCompare(b.client_name)), $("fClient").value, "All clients",
+             c => `<option value="${esc(c.company_id)}">${esc(c.client_name)}${c.client_name !== c.company_id ? " ("+esc(c.company_id)+")" : ""}</option>`);
+
+  const days = d.daily || [];
+  const shown = days.filter(x => !x.hidden);
+  const sum = k => shown.reduce((a, x) => a + (x[k] || 0), 0);
+  const tot = { replies:sum("replies"), graded:sum("graded"), catch_fired:sum("catch_fired"),
+                catch_fired_graded:sum("catch_fired_graded"), lookups:sum("lookups") };
+  const t = d.totals || {};
+  let html = "";
+
+  // tiles
+  const lowDays = shown.filter(x => x.replies && x.graded / x.replies < COVERAGE_MIN).length;
+  const cov = tot.replies ? tot.graded / tot.replies : null;
+  html += `<div class="tiles">
+    <div class="tile"><div class="k">Real users to date</div><div class="v">${d.real_users_to_date ?? "<11"}</div><div class="s">all time, not test</div></div>
+    <div class="tile"><div class="k">Replies</div><div class="v">${t.hidden ? "—" : (t.replies ?? 0)}</div><div class="s">${t.hidden ? "fewer than "+d.min_group+" people" : (t.people ?? 0)+" people in range"}</div></div>
+    <div class="tile ${cov != null && (cov < COVERAGE_MIN || lowDays) ? "warn" : ""}"><div class="k">Checked by the grader</div>
+      <div class="v">${cov == null ? "—" : (100*cov).toFixed(1)+"%"}</div>
+      <div class="s">${tot.graded} of ${tot.replies}${lowDays ? ` · ${lowDays} day${lowDays>1?"s":""} under ${COVERAGE_MIN*100}%` : ""}</div></div>
+    <div class="tile"><div class="k">Safety messages sent</div><div class="v">${tot.catch_fired}</div><div class="s">of ${tot.replies} replies · not a score</div></div>
+  </div>`;
+
+  if(t.hidden){ html += `<p class="msg hidden-note">This selection covers fewer than ${d.min_group} people, so it isn't shown.</p>`; }
+
+  // daily coverage table (compact)
+  html += `<section class="card"><h2>Checked by the grader, by day</h2>
+    <p class="note">Replies the grader checked, out of all replies. A dead grader would otherwise look like a clean day.</p>
+    <div class="scroll"><table><thead><tr><th>Day</th><th>Replies</th><th>Checked</th><th>Share checked</th><th>People</th></tr></thead><tbody>`;
+  [...days].reverse().forEach(x => {
+    if(x.hidden){ html += `<tr><td>${esc(x.day)}</td><td colspan="4" class="hidden-note">fewer than ${d.min_group} people</td></tr>`; return; }
+    const low = x.replies && x.graded / x.replies < COVERAGE_MIN;
+    html += `<tr><td>${esc(x.day)}</td><td class="num">${x.replies}</td><td class="num">${x.graded}</td>
+      <td class="num">${pct(x.graded, x.replies)}${low ? ' <span class="tag" style="background:var(--warn-bg);color:var(--warn-ink)">under '+COVERAGE_MIN*100+'%</span>' : ""}</td><td class="num">${x.people}</td></tr>`;
+  });
+  if(!days.length) html += `<tr><td colspan="5" class="muted">No replies in this range.</td></tr>`;
+  html += `</tbody></table></div></section>`;
+
+  // metric groups
+  GROUPS.forEach(g => {
+    html += `<section class="card"><h2>${g.title}</h2><div class="scroll"><table><thead><tr>
+      <th>What</th><th>Count</th><th>Out of</th><th>Rate</th><th>Confirmed by a person</th><th>Daily rate</th></tr></thead><tbody>`;
+    g.rows.forEach(row => {
+      let n = 0, c = 0;
+      const pts = days.map(x => {
+        if(x.hidden) return { rate:null };
+        const [f, cf] = rowCounts(x, row); n += f; c += (cf || 0);
+        const den = x[row.den] || 0;
+        return { rate: den ? f / den : null };
+      });
+      const den = tot[row.den] || 0;
+      const denLabel = { replies:"replies", graded:"checked replies", catch_fired_graded:"checked safety messages", lookups:"lookups" }[row.den];
+      html += `<tr><td class="lbl">${row.label}${row.hint ? `<small>${row.hint}</small>` : ""}</td>
+        <td class="num">${n}</td><td class="num">${den} <span class="muted">${denLabel}</span></td>
+        <td class="num">${pct(n, den)}</td>
+        <td class="num">${row.code ? '<span class="muted">n/a (set by code)</span>' : c}</td>
+        <td>${spark(pts)}</td></tr>`;
+      if(row.key === "catch_fired" && tot.catch_fired){
+        const s = k => shown.reduce((a, x) => a + (x[k] || 0), 0);
+        html += `<tr><td class="lbl"><small>What triggered it</small></td><td colspan="5" class="muted">
+          intent step ${s("catch_intent")} · backstop (regex) only ${s("catch_regex")} · both ${s("catch_both")}</td></tr>`;
+      }
+    });
+    html += `</tbody></table></div></section>`;
+  });
+
+  // clients
+  const cl = d.clients || [];
+  html += `<section class="card"><h2>By client</h2>
+    ${d.hiding ? `<p class="note">Clients with fewer than ${d.min_group} people are hidden.</p>` : ""}
+    <div class="scroll"><table><thead><tr><th>Client</th><th>Code</th><th>Parent</th><th>People</th><th>Replies</th><th>Checked</th><th>Safety messages</th><th>Missed safety signal</th><th>Other member's data</th></tr></thead><tbody>`;
+  cl.forEach(c => {
+    if(c.hidden){ html += `<tr><td>${esc(c.client_name)}</td><td>${esc(c.company_id)}</td><td>${esc(c.parent_code||"")}</td><td colspan="6" class="hidden-note">fewer than ${d.min_group} people</td></tr>`; return; }
+    html += `<tr><td>${esc(c.client_name)}</td><td>${esc(c.company_id ?? "(none)")}</td><td>${esc(c.parent_code || "")}</td>
+      <td class="num">${c.people}</td><td class="num">${c.replies}</td><td class="num">${pct(c.graded, c.replies)}</td>
+      <td class="num">${c.catch_fired}</td><td class="num">${c.missed_safety_signal}</td><td class="num">${c.other_member_data}</td></tr>`;
+  });
+  if(!cl.length) html += `<tr><td colspan="9" class="muted">No clients in this range.</td></tr>`;
+  html += `</tbody></table></div></section>`;
+
+  // alerts (team scope only)
+  if(d.scope === "all"){
+    const al = d.alerts || [];
+    html += `<section class="card"><h2>Recent alerts</h2><p class="note">Latest 50 in range. Look up the row number in the database; no member text is shown here.</p>
+      <div class="scroll"><table><thead><tr><th>When (ET)</th><th>Guide</th><th>What</th><th>Detail</th><th>Client</th><th>Row</th><th>Sent to Teams</th></tr></thead><tbody>`;
+    al.forEach(a => {
+      const when = new Date(a.at).toLocaleString("en-US", { timeZone:"America/New_York", month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
+      html += `<tr><td>${esc(when)}</td><td>${esc(a.guide)}</td><td>${esc(ALERT_KIND[a.kind] || a.kind)} ${a.is_test ? '<span class="tag test">TEST</span>' : ""}</td>
+        <td>${esc(a.detail || "")}</td><td>${esc(a.company_id || "")}</td><td class="num">${esc(a.row)}</td><td>${a.sent ? "yes" : '<span class="muted">not yet</span>'}</td></tr>`;
+    });
+    if(!al.length) html += `<tr><td colspan="7" class="muted">No alerts in this range.</td></tr>`;
+    html += `</tbody></table></div></section>`;
+  }
+
+  $("content").innerHTML = html;
+}
+
+// ---- Wire up ----
+$("loginBtn").addEventListener("click", doLogin);
+$("liPw").addEventListener("keydown", e => { if(e.key === "Enter") doLogin(); });
+$("applyBtn").addEventListener("click", load);
+$("logoutBtn").addEventListener("click", signOut);
+loadSession();
+if(SESSION) load(); else openLogin();
+</script>
+</body>
+</html>
