@@ -62,6 +62,48 @@
   .modal input{width:100%;font:inherit;padding:8px;border:1px solid var(--border);border-radius:var(--r-input)}
   .modal .btn{width:100%;margin-top:14px}
   svg.spark{display:block}
+  /* needs attention */
+  .attn{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--brand-orange);border-radius:var(--r-card);padding:12px 16px;margin-bottom:16px}
+  .attn.clear{border-left-color:var(--brand-blue)}
+  .attn h2{font-family:var(--font-voice);font-weight:400;font-size:19px;margin:0 0 6px}
+  .attn p{margin:0;color:var(--muted)}
+  .attn ul{list-style:none;margin:0;padding:0}
+  .attn li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--border-lt)}
+  .attn li:first-child{border-top:0}
+  .attn .what{flex:1 1 260px;min-width:0}
+  .attn .what a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--border)}
+  .attn .what a:hover{border-bottom-color:var(--brand-blue)}
+  .attn .group{font-size:12px;color:var(--subtle);min-width:84px}
+  .attn .nums{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+  .attn .conf{font-size:12px;color:var(--subtle);white-space:nowrap;min-width:110px;text-align:right}
+  /* coverage chart */
+  .cov{padding:10px 14px 4px;overflow-x:auto}
+  .cov svg{display:block;width:100%;min-width:560px;height:auto}
+  .cov .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:2px 0 8px}
+  .cov .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  details.astable{border-top:1px solid var(--border-lt)}
+  details.astable summary{cursor:pointer;font-size:12px;color:var(--brand-blue);padding:8px 14px}
+  /* group header + folding */
+  section.card .hd{display:flex;align-items:baseline;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border-lt)}
+  section.card .hd h2{padding:0;border:0}
+  section.card .hd .sum{margin-left:auto;font-size:12px;color:var(--muted)}
+  section.card .hd .sum.on{color:var(--warn-ink)}
+  tr.zero{display:none}
+  section.card.open tr.zero{display:table-row}
+  tr.fold td{padding:6px 14px;white-space:normal}
+  section.card.allzero:not(.open) thead{display:none}
+  section.card.open .zero-names{display:none}
+  .linkbtn{background:none;border:0;padding:0;font:inherit;font-size:12px;color:var(--brand-blue);cursor:pointer}
+  .linkbtn:hover{text-decoration:underline}
+  .zero-names{color:var(--subtle);font-size:12px;white-space:normal}
+  tr.hit td{background:#FFF8EA}
+  tr.flash td{animation:flash 1.6s ease-out}
+  @keyframes flash{from{background:#FBE3B8}to{background:transparent}}
+  :focus-visible{outline:2px solid var(--brand-blue);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){tr.flash td{animation:none}}
+  @media (max-width:620px){
+    main{padding:14px 12px 40px} .attn .group{min-width:0;width:100%} .attn .conf{text-align:left;min-width:0}
+  }
 </style>
 </head>
 <body>
@@ -249,7 +291,7 @@ function render(d){
   const cov = tot.replies ? tot.graded / tot.replies : null;
   html += `<div class="tiles">
     <div class="tile"><div class="k">Real users to date</div><div class="v">${d.real_users_to_date ?? "<11"}</div><div class="s">all time, not test</div></div>
-    <div class="tile"><div class="k">Replies</div><div class="v">${t.hidden ? "—" : (t.replies ?? 0)}</div><div class="s">${t.hidden ? "fewer than "+d.min_group+" people" : (t.people ?? 0)+" people in range"}</div></div>
+    <div class="tile"><div class="k">Replies</div><div class="v">${t.hidden ? "—" : (t.replies ?? 0)}</div><div class="s">${t.hidden ? "fewer than "+d.min_group+" people" : (t.people ?? 0)+((t.people ?? 0) === 1 ? " person" : " people")+" in range"}</div></div>
     <div class="tile ${cov != null && (cov < COVERAGE_MIN || lowDays) ? "warn" : ""}"><div class="k">Checked by the grader</div>
       <div class="v">${cov == null ? "—" : (100*cov).toFixed(1)+"%"}</div>
       <div class="s">${tot.graded} of ${tot.replies}${lowDays ? ` · ${lowDays} day${lowDays>1?"s":""} under ${COVERAGE_MIN*100}%` : ""}</div></div>
@@ -258,44 +300,92 @@ function render(d){
 
   if(t.hidden){ html += `<p class="msg hidden-note">This selection covers fewer than ${d.min_group} people, so it isn't shown.</p>`; }
 
-  // daily coverage table (compact)
-  html += `<section class="card"><h2>Checked by the grader, by day</h2>
-    <p class="note">Replies the grader checked, out of all replies. A dead grader would otherwise look like a clean day.</p>
+  // gather every metric row once (used by the attention panel and the group tables)
+  const den = k => tot[k] || 0;
+  const DEN_LABEL = { replies:"replies", graded:"checked replies", catch_fired_graded:"checked safety messages", lookups:"lookups" };
+  const stats = {};
+  GROUPS.forEach(g => g.rows.forEach(row => {
+    let n = 0, c = 0;
+    const pts = days.map(x => {
+      if(x.hidden) return { rate:null };
+      const [f, cf] = rowCounts(x, row); n += f; c += (cf || 0);
+      const dd = x[row.den] || 0;
+      return { rate: dd ? f / dd : null };
+    });
+    stats[row.key] = { n, c, pts, den: den(row.den), group: g.title };
+  }));
+
+  // needs attention: coverage under target, then any check above zero (safety-message count excluded: not a score)
+  const items = [];
+  const low = shown.filter(x => x.replies && x.graded / x.replies < COVERAGE_MIN);
+  if(low.length){
+    const list = low.map(x => x.day.slice(5)).join(", ");
+    items.push({ group:"Grader", label:`Under ${COVERAGE_MIN*100}% of replies checked on ${low.length} day${low.length>1?"s":""} (${list})`,
+                 nums:`${tot.graded} of ${tot.replies} checked`, conf:"", target:"sec-coverage" });
+  }
+  GROUPS.forEach(g => g.rows.forEach(row => {
+    const s = stats[row.key];
+    if(row.key === "catch_fired" || !s.n) return;
+    items.push({ group:g.title, label:row.label, nums:`${s.n} of ${s.den} ${DEN_LABEL[row.den]} (${pct(s.n, s.den)})`,
+                 conf: row.code ? "set by code" : `${s.c} confirmed by a person`, target:"row-"+row.key });
+  }));
+  if(t.hidden){ /* nothing to judge */ }
+  else if(items.length){
+    html += `<section class="attn" aria-labelledby="attnH"><h2 id="attnH">Needs attention</h2><ul>` +
+      items.map(i => `<li><span class="group">${esc(i.group)}</span><span class="what"><a href="#${i.target}" data-jump="${i.target}">${esc(i.label)}</a></span>
+        <span class="nums">${esc(i.nums)}</span><span class="conf">${esc(i.conf)}</span></li>`).join("") + `</ul></section>`;
+  } else if(tot.replies){
+    html += `<section class="attn clear"><h2>Needs attention</h2><p>Nothing in this range. Every check is at zero and at least ${COVERAGE_MIN*100}% of replies were checked each day.</p></section>`;
+  }
+
+  // coverage chart: one bar per day across the whole range, 90% line marked
+  html += `<section class="card" id="sec-coverage"><div class="hd"><h2>Checked by the grader, by day</h2>
+    <span class="sum ${low.length ? "on" : ""}">${low.length ? `${low.length} day${low.length>1?"s":""} under ${COVERAGE_MIN*100}%` : (shown.length ? `every day at ${COVERAGE_MIN*100}% or more` : "")}</span></div>
+    <p class="note">Share of each day's replies the grader checked. A dead grader would otherwise look like a clean day. Hover a bar for its counts.</p>
+    <div class="cov">${coverageChart(days, d.range, d.min_group)}
+    <div class="legend"><span><i class="sw" style="background:var(--brand-blue)"></i>${COVERAGE_MIN*100}% or more checked</span>
+      <span><i class="sw" style="background:var(--brand-orange)"></i>under ${COVERAGE_MIN*100}%</span>
+      <span><i class="sw" style="background:transparent;border:1px dashed var(--subtle)"></i>${COVERAGE_MIN*100}% target</span>
+      <span>No bar: no replies that day</span></div></div>
+    <details class="astable"><summary>Show as a table</summary>
     <div class="scroll"><table><thead><tr><th>Day</th><th>Replies</th><th>Checked</th><th>Share checked</th><th>People</th></tr></thead><tbody>`;
   [...days].reverse().forEach(x => {
     if(x.hidden){ html += `<tr><td>${esc(x.day)}</td><td colspan="4" class="hidden-note">fewer than ${d.min_group} people</td></tr>`; return; }
-    const low = x.replies && x.graded / x.replies < COVERAGE_MIN;
+    const lo = x.replies && x.graded / x.replies < COVERAGE_MIN;
     html += `<tr><td>${esc(x.day)}</td><td class="num">${x.replies}</td><td class="num">${x.graded}</td>
-      <td class="num">${pct(x.graded, x.replies)}${low ? ' <span class="tag" style="background:var(--warn-bg);color:var(--warn-ink)">under '+COVERAGE_MIN*100+'%</span>' : ""}</td><td class="num">${x.people}</td></tr>`;
+      <td class="num">${pct(x.graded, x.replies)}${lo ? ' <span class="tag" style="background:var(--warn-bg);color:var(--warn-ink)">under '+COVERAGE_MIN*100+'%</span>' : ""}</td><td class="num">${x.people}</td></tr>`;
   });
   if(!days.length) html += `<tr><td colspan="5" class="muted">No replies in this range.</td></tr>`;
-  html += `</tbody></table></div></section>`;
+  html += `</tbody></table></div></details></section>`;
 
-  // metric groups
+  // metric groups: rows at zero fold into one line; "Show all" opens them
   GROUPS.forEach(g => {
-    html += `<section class="card"><h2>${g.title}</h2><div class="scroll"><table><thead><tr>
+    const hits = g.rows.filter(r => stats[r.key].n > 0);
+    const zeros = g.rows.filter(r => stats[r.key].n === 0);
+    const flagged = hits.filter(r => r.key !== "catch_fired").length;
+    const sum = !shown.length ? "" : flagged ? `${flagged} of ${g.rows.length} above zero` : (hits.length ? "" : `all ${g.rows.length} at zero`);
+    html += `<section class="card${hits.length ? "" : " allzero"}" id="grp-${g.title.replace(/\W+/g,"-").toLowerCase()}"><div class="hd"><h2>${g.title}</h2><span class="sum ${flagged ? "on" : ""}">${sum}</span></div>
+      <div class="scroll"><table><thead><tr>
       <th>What</th><th>Count</th><th>Out of</th><th>Rate</th><th>Confirmed by a person</th><th>Daily rate</th></tr></thead><tbody>`;
     g.rows.forEach(row => {
-      let n = 0, c = 0;
-      const pts = days.map(x => {
-        if(x.hidden) return { rate:null };
-        const [f, cf] = rowCounts(x, row); n += f; c += (cf || 0);
-        const den = x[row.den] || 0;
-        return { rate: den ? f / den : null };
-      });
-      const den = tot[row.den] || 0;
-      const denLabel = { replies:"replies", graded:"checked replies", catch_fired_graded:"checked safety messages", lookups:"lookups" }[row.den];
-      html += `<tr><td class="lbl">${row.label}${row.hint ? `<small>${row.hint}</small>` : ""}</td>
-        <td class="num">${n}</td><td class="num">${den} <span class="muted">${denLabel}</span></td>
-        <td class="num">${pct(n, den)}</td>
-        <td class="num">${row.code ? '<span class="muted">n/a (set by code)</span>' : c}</td>
-        <td>${spark(pts)}</td></tr>`;
+      const s = stats[row.key], isZero = s.n === 0;
+      const cls = isZero ? "zero" : (row.key === "catch_fired" ? "" : "hit");
+      html += `<tr id="row-${row.key}" class="${cls}"><td class="lbl">${row.label}${row.hint ? `<small>${row.hint}</small>` : ""}</td>
+        <td class="num">${s.n}</td><td class="num">${s.den} <span class="muted">${DEN_LABEL[row.den]}</span></td>
+        <td class="num">${pct(s.n, s.den)}</td>
+        <td class="num">${row.code ? '<span class="muted">n/a (set by code)</span>' : s.c}</td>
+        <td>${spark(s.pts)}</td></tr>`;
       if(row.key === "catch_fired" && tot.catch_fired){
-        const s = k => shown.reduce((a, x) => a + (x[k] || 0), 0);
+        const sm = k => shown.reduce((a, x) => a + (x[k] || 0), 0);
+        const nr = sm("catch_fired") - sm("catch_intent") - sm("catch_regex") - sm("catch_both");
         html += `<tr><td class="lbl"><small>What triggered it</small></td><td colspan="5" class="muted">
-          intent step ${s("catch_intent")} · backstop (regex) only ${s("catch_regex")} · both ${s("catch_both")}${(() => { const nr = s("catch_fired") - s("catch_intent") - s("catch_regex") - s("catch_both"); return nr > 0 ? ` · not recorded ${nr}` : ""; })()}</td></tr>`;
+          intent step ${sm("catch_intent")} · backstop (regex) only ${sm("catch_regex")} · both ${sm("catch_both")}${nr > 0 ? ` · not recorded ${nr}` : ""}</td></tr>`;
       }
     });
+    if(zeros.length){
+      html += `<tr class="fold"><td colspan="6"><button class="linkbtn" data-fold aria-expanded="false">${zeros.length === g.rows.length ? "Show all " + zeros.length : "Show " + zeros.length + " more at zero"}</button>
+        <span class="zero-names"> · ${zeros.map(r => esc(r.label)).join(", ")}</span></td></tr>`;
+    }
     html += `</tbody></table></div></section>`;
   });
 
@@ -328,6 +418,51 @@ function render(d){
   }
 
   $("content").innerHTML = html;
+  wire();
+}
+
+// Fold buttons and attention links
+function wire(){
+  document.querySelectorAll("[data-fold]").forEach(b => b.addEventListener("click", () => {
+    const sec = b.closest("section.card"), open = sec.classList.toggle("open");
+    b.setAttribute("aria-expanded", open);
+    b.textContent = open ? "Hide rows at zero" : b.dataset.label;
+  }));
+  document.querySelectorAll("[data-fold]").forEach(b => b.dataset.label = b.textContent);
+  document.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click", e => {
+    const el = document.getElementById(a.dataset.jump); if(!el) return;
+    e.preventDefault();
+    el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center" });
+    if(el.tagName === "TR"){ el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  }));
+}
+
+// Coverage chart: every day in the range on the x axis; bar = share checked; dashed line at the target.
+function coverageChart(days, range, minGroup){
+  const byDay = {}; days.forEach(x => byDay[x.day] = x);
+  const all = [];
+  if(range && range.from && range.to){
+    for(let dt = new Date(range.from + "T12:00:00Z"); dt <= new Date(range.to + "T12:00:00Z"); dt.setUTCDate(dt.getUTCDate() + 1))
+      all.push(dt.toISOString().slice(0, 10));
+  } else days.forEach(x => all.push(x.day));
+  const n = all.length; if(!n) return '<p class="muted">No replies in this range.</p>';
+  const W = 960, H = 190, L = 40, R = 8, T = 10, B = 26, ph = H - T - B, slot = (W - L - R) / n, bw = Math.max(2, Math.min(28, slot * 0.7));
+  const y = v => T + ph * (1 - v);
+  let g = "";
+  [0, 0.5, 1].forEach(v => g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--border-lt)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--subtle)">${v*100}%</text>`);
+  const every = Math.ceil(n / 10);
+  all.forEach((day, i) => {
+    const cx = L + slot * (i + 0.5), x = byDay[day];
+    if(i % every === 0 || i === n - 1) g += `<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--subtle)">${day.slice(5).replace("-", "/")}</text>`;
+    if(!x) return;
+    if(x.hidden){ g += `<rect x="${cx-bw/2}" y="${T}" width="${bw}" height="${ph}" fill="var(--border-lt)"><title>${day}: hidden (fewer than ${minGroup} people)</title></rect>`; return; }
+    if(!x.replies) return;
+    const r = x.graded / x.replies, lo = r < COVERAGE_MIN, h = Math.max(1.5, ph * r);
+    g += `<rect x="${cx-bw/2}" y="${T+ph-h}" width="${bw}" height="${h}" rx="2" fill="${lo ? "var(--brand-orange)" : "var(--brand-blue)"}"><title>${day}: ${x.graded} of ${x.replies} replies checked (${pct(x.graded, x.replies)})</title></rect>`;
+    if(n <= 14 || lo) g += `<text x="${cx}" y="${T+ph-h-4}" text-anchor="middle" font-size="10" fill="var(--muted)">${x.graded}/${x.replies}</text>`;
+  });
+  g += `<line x1="${L}" x2="${W-R}" y1="${y(COVERAGE_MIN)}" y2="${y(COVERAGE_MIN)}" stroke="var(--ink)" stroke-dasharray="4 4" stroke-width="1"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of replies checked by the grader, each day">${g}</svg>`;
 }
 
 // ---- Wire up ----
