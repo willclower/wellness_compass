@@ -292,7 +292,7 @@ function render(d){
       if(row.key === "catch_fired" && tot.catch_fired){
         const s = k => shown.reduce((a, x) => a + (x[k] || 0), 0);
         html += `<tr><td class="lbl"><small>What triggered it</small></td><td colspan="5" class="muted">
-          intent step ${s("catch_intent")} · backstop (regex) only ${s("catch_regex")} · both ${s("catch_both")}</td></tr>`;
+          intent step ${s("catch_intent")} · backstop (regex) only ${s("catch_regex")} · both ${s("catch_both")}${(() => { const nr = s("catch_fired") - s("catch_intent") - s("catch_regex") - s("catch_both"); return nr > 0 ? ` · not recorded ${nr}` : ""; })()}</td></tr>`;
       }
     });
     html += `</tbody></table></div></section>`;
