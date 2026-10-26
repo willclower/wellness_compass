@@ -148,7 +148,8 @@ const GROUPS = [
   ]},
 ];
 const ALERT_KIND = { safety_message_sent:"Safety message sent", missed_safety_signal:"Missed safety signal",
-                     other_member_data:"Other member's data", untrue_about_self:"Untrue about itself" };
+                     other_member_data:"Other member's data", untrue_about_self:"Untrue about itself",
+                     coverage_day:"Grader checked under 90% (day)", coverage_gap:"Grader silent 2 hours" };
 
 // ---- Session ----
 function loadSession(){ try{ SESSION = JSON.parse(sessionStorage.getItem(SS_KEY) || "null"); }catch(e){ SESSION = null; } }
