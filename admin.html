@@ -126,12 +126,26 @@
   @media (max-width:620px){
     main{padding:14px 12px 40px} .attn .group{min-width:0;width:100%} .attn .conf{text-align:left;min-width:0}
   }
+  /* notes mode: yellow sticky notes explaining each part (for walkthroughs) */
+  body.notes main{max-width:1520px}
+  .cov svg{max-height:230px}
+  .sticky{background:#FFF1A8;border:1px solid #E6CF5C;border-radius:3px;box-shadow:0 2px 5px rgba(80,60,0,.14);
+    padding:8px 10px;font-size:12.5px;line-height:1.45;color:#3B3311;white-space:normal;font-family:var(--font-body, inherit)}
+  .sticky b{font-weight:600}
+  .sticky.wide{margin:10px 14px 4px;max-width:760px}
+  .tile .sticky,.ht .sticky{margin-top:8px;font-size:12px}
+  .filters + .sticky,.attn .sticky{margin:8px 0 0}
+  th.stk,td.stk{width:290px;min-width:250px;white-space:normal;vertical-align:top}
+  body.notes tr.zero{display:table-row}
+  body.notes tr.fold{display:none}
+  body.notes section.card.allzero thead{display:table-header-group}
 </style>
 </head>
 <body>
 <header>
   <h1>Compass Admin</h1>
   <span class="who" id="who"></span>
+  <button id="notesBtn">Notes</button>
   <button id="demoBtn">Demo data</button>
   <button id="logoutBtn" style="display:none">Sign out</button>
 </header>
@@ -497,7 +511,7 @@ function render(d){
   // versions (team scope only)
   const vs = d.versions || [];
   if(d.scope === "all" && vs.length){
-    html += `<section class="card"><div class="hd"><h2>Compare versions</h2><span class="sum">${vs.length} in range</span><p class="desc">The same checks, split by guide version. A new version that does worse shows up here as a change, not a mystery. Flagged = any grader flag except member frustration, out of checked replies.</p></div>
+    html += `<section class="card" id="sec-versions"><div class="hd"><h2>Compare versions</h2><span class="sum">${vs.length} in range</span><p class="desc">The same checks, split by guide version. A new version that does worse shows up here as a change, not a mystery. Flagged = any grader flag except member frustration, out of checked replies.</p></div>
       <div class="scroll"><table><thead><tr><th>Version</th><th>Days</th><th>Replies</th><th>Checked</th><th>Flagged</th><th></th><th>Missed safety signal</th><th>Safety messages</th><th>Failed</th><th>Typical time</th></tr></thead><tbody>`;
     const maxR = Math.max(...vs.map(v => v.graded ? v.flagged / v.graded : 0), 0.0001);
     vs.forEach(v => {
@@ -513,7 +527,7 @@ function render(d){
 
   // clients
   const cl = d.clients || [];
-  html += `<section class="card"><div class="hd"><h2>By client</h2><span class="sum">${cl.length} client${cl.length === 1 ? "" : "s"}</span><p class="desc">The key safety numbers for each client, side by side.${d.hiding ? ` Clients with fewer than ${d.min_group} people are hidden.` : ""}</p></div>
+  html += `<section class="card" id="sec-clients"><div class="hd"><h2>By client</h2><span class="sum">${cl.length} client${cl.length === 1 ? "" : "s"}</span><p class="desc">The key safety numbers for each client, side by side.${d.hiding ? ` Clients with fewer than ${d.min_group} people are hidden.` : ""}</p></div>
     <div class="scroll"><table><thead><tr><th>Client</th><th>Code</th><th>Parent</th><th>People</th><th>Replies</th><th>Checked</th><th>Safety messages</th><th>Missed safety signal</th><th>Other member's data</th></tr></thead><tbody>`;
   cl.forEach(c => {
     if(c.hidden){ html += `<tr><td>${esc(c.client_name)}</td><td>${esc(c.company_id)}</td><td>${esc(c.parent_code||"")}</td><td colspan="6" class="hidden-note">fewer than ${d.min_group} people</td></tr>`; return; }
@@ -528,7 +542,7 @@ function render(d){
   // alerts (team scope only)
   if(d.scope === "all"){
     const al = d.alerts || [];
-    html += `<section class="card"><div class="hd"><h2>Recent alerts</h2><p class="desc">Every alert sent to the team's Teams chat, newest first (latest 50 in range). Look up the row number in the database; no member text is shown here.</p></div>
+    html += `<section class="card" id="sec-alerts"><div class="hd"><h2>Recent alerts</h2><p class="desc">Every alert sent to the team's Teams chat, newest first (latest 50 in range). Look up the row number in the database; no member text is shown here.</p></div>
       <div class="scroll"><table><thead><tr><th>When (ET)</th><th>Level</th><th>Guide</th><th>What</th><th>Detail</th><th>Client</th><th>Row</th><th>Sent to Teams</th></tr></thead><tbody>`;
     al.forEach(a => {
       const when = new Date(a.at).toLocaleString("en-US", { timeZone:"America/New_York", month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
@@ -543,8 +557,84 @@ function render(d){
   wire();
 }
 
+// ---- Notes mode: plain-language sticky notes beside each part of the page ----
+let NOTES = /[?&]notes\b/.test(location.search);
+const NOTE = {
+  filters: "These boxes choose what you’re looking at: which <b>dates</b>, which <b>guide</b> (Maggie, Nona…), which <b>version</b> of that guide, <b>test or real</b> members, and which <b>client</b>. Change them and press <b>Show</b>. Everything below updates.",
+  tile_real: "How many <b>real people</b> (not our testers) have ever chatted with the guides.",
+  tile_replies: "How many <b>answers</b> the guides gave in the dates you picked, and to how many people.",
+  tile_checked: "Every answer is meant to be double-checked by a second AI we call <b>the grader</b>. This shows how many actually were. Goal: <b>90% or more</b>. Yellow means it fell short.",
+  tile_safety: "How many times a guide sent the <b>emergency message</b> (for example “call 988 or 911”). This is <b>not a score</b>: a low number isn’t “better”, it just means fewer people needed it.",
+  attn: "<b>Start here.</b> This box lists only the things that need a look. <b>Critical</b> = look today. <b>High</b> = look soon. <b>Trend</b> = keep an eye on it. If it says “Nothing”, all is clear.",
+  sec_coverage: "One bar per day, showing how many of that day’s answers were double-checked. The <b>dashed line is our 90% goal</b>. An orange bar fell short. That usually means the checker broke, not the guide.",
+  cols: "<b>How to read the tables below.</b> Count = how many times it happened. Out of = how many answers were checked. Rate = count divided by out of. Confirmed by a person = how many a team member reviewed and agreed with. By week = the same rate each week; the dashed line is the average.",
+  "grp-safety": "<b>The most important section.</b> Did the guide notice when someone might be in danger, and respond the right way?",
+  "grp-boundaries": "A health coach is <b>not a doctor</b>. These rows catch the guide stepping into a doctor’s job.",
+  "grp-accuracy": "Did the guide <b>make things up</b>? It should only use facts from the approved health sources we give it.",
+  "grp-personal-fit": "Did the answer <b>fit the person asking</b>? And did it ever show someone else’s private details?",
+  "grp-engagement": "Was the person getting <b>frustrated</b>? A sign the answer didn’t help them.",
+  "sec-health": "Is the <b>machinery working</b>? Speed, errors, and whether the checks and alerts are running.",
+  catch_fired: "The emergency message went out. Not good or bad on its own. Each one also <b>pings our Teams chat</b> so a person can follow up.",
+  triggered: "How the danger was spotted: the guide understood the message (<b>intent</b>), a keyword safety net caught it (<b>backstop</b>), or <b>both</b>. Both is ideal: two locks on the door.",
+  missed_safety_signal: "Someone showed signs of danger and the guide did <b>not</b> send the emergency message. <b>Should always be 0.</b> Our most serious problem. Pings Teams as <b>Critical</b>.",
+  wrong_safety_message: "The emergency message went out, but the <b>wrong one</b> (for example the medical-emergency one when it should have been the crisis line). Marked High on this page.",
+  safety_catch_false_alarm: "The emergency message went out when it <b>wasn’t needed</b>. Not dangerous, but it can upset or confuse people.",
+  medicine_advice: "The guide told someone to <b>start, stop or change a medicine</b>. Only their doctor should do that.",
+  diagnosed_or_judged_number: "The guide told someone they <b>have a condition</b>, or said a test result was “good” or “bad”. That’s a doctor’s job.",
+  clinician_only_number: "The guide gave a <b>personal treatment target</b> (like “eat 1,400 calories a day”). General guideline numbers are fine; personal targets are for clinicians.",
+  exercise_program: "The guide wrote a <b>workout plan</b>. Exercise plans are Dundee’s job, so Maggie should hand the person over.",
+  plan_data_disclosed: "The guide mentioned <b>health-plan data</b> like risk scores. Members shouldn’t see those through the chat.",
+  answered_should_redirect: "The guide answered something it should have <b>sent to the person’s doctor</b> or to another guide.",
+  untrue_about_self: "The guide said something <b>untrue about itself</b> (for example “I can’t see your history” when it can). Pings Teams as <b>High</b>.",
+  unsourced_claim: "The guide stated a health fact that <b>isn’t in our approved sources</b>. It might be right, but we can’t vouch for it.",
+  named_source_not_returned: "The guide <b>named a source</b> (“the American Heart Association says…”) it wasn’t actually given. Possibly made up.",
+  lookups_empty: "The guide searched our approved health library and <b>found nothing</b>. A sign the library is missing a topic.",
+  profile_not_used: "The person’s profile mattered (for example, they’re vegetarian) and the answer <b>ignored it</b>.",
+  profile_conflict: "The answer <b>went against</b> the profile (for example, suggested peanuts to someone with a peanut allergy). More serious than ignoring it.",
+  other_member_data: "The answer seemed to contain <b>another person’s private details</b>. <b>Should always be 0.</b> A person must check each one. Pings Teams as <b>Critical</b>.",
+  frustration_sign: "The person asked for a human, corrected the guide, or asked the same thing twice. Means the answer <b>didn’t land</b>.",
+  reply_failed: "The person got a <b>blank answer or an error</b>. Should be close to 0.",
+  h_p50: "The <b>typical wait</b> for an answer. Half of answers came faster than this.",
+  h_p95: "The <b>slowest answers</b>. Only 1 in 20 took longer than this. Over about 10 seconds feels slow to people.",
+  h_last_reply: "When a guide <b>last answered anyone</b>. If chats are usually busy and this says hours, something may be down.",
+  h_last_check: "When the grader <b>last checked an answer</b>. “Keeping up” means it’s working.",
+  h_alerts: "Whether our <b>Teams warnings are going out</b>. “Not going out” means we could be missing warnings.",
+  h_cost: "What each chat <b>costs us</b>. Not measured yet.",
+  h_chart: "Answer <b>speed each day</b>. Blue = typical wait, orange = slowest. A spike means a slow day.",
+  "sec-versions": "Each time we update a guide, it gets a <b>new version name</b>. This table puts versions side by side, so if an update made things worse, we see it here first.",
+  "sec-clients": "The same key numbers <b>for each client company</b>. “Parent” groups clients under one organisation (for example, Concentra). Clients only ever see their own numbers, and small groups are hidden to protect privacy.",
+  "sec-alerts": "Every <b>warning sent to our Teams chat</b>. Level: Critical, High or Trend (see “Needs attention” at the top). “Notice” = an emergency message went out, for a person to follow up. “Row” is a reference number for the team; no private chat text is ever shown here."
+};
+function addNotes(){
+  document.body.classList.toggle("notes", NOTES);
+  $("notesBtn").textContent = NOTES ? "Hide notes" : "Notes";
+  if(!NOTES) return;
+  const mk = (html, cls) => { const d = document.createElement("div"); d.className = "sticky" + (cls ? " " + cls : ""); d.innerHTML = html; return d; };
+  const f = document.querySelector(".filters"); if(f && !(f.nextElementSibling && f.nextElementSibling.classList.contains("sticky"))) f.after(mk(NOTE.filters, "wide"));
+  ["tile_real","tile_replies","tile_checked","tile_safety"].forEach((k, i) => { const el = document.querySelectorAll(".tiles .tile")[i]; if(el) el.append(mk(NOTE[k])); });
+  const at = $("attn"); if(at) at.append(mk(NOTE.attn));
+  const sc = $("sec-coverage"); if(sc) sc.querySelector(".hd").after(mk(NOTE.sec_coverage, "wide"));
+  document.querySelectorAll("section.card").forEach(sec => {
+    if(NOTE[sec.id] && sec.id !== "sec-coverage") sec.querySelector(".hd").after(mk(NOTE[sec.id], "wide"));
+    const rows = sec.querySelectorAll("tr[id^='row-']"); if(!rows.length) return;
+    if(sec.id === "grp-safety") sec.querySelector(".hd").nextElementSibling.after(mk(NOTE.cols, "wide"));
+    sec.querySelectorAll("thead tr").forEach(tr => { const th = document.createElement("th"); th.className = "stk"; th.textContent = "What this means"; tr.append(th); });
+    sec.querySelectorAll("tbody tr").forEach(tr => {
+      const td = document.createElement("td"); td.className = "stk";
+      const key = tr.id && tr.id.slice(4);
+      if(key && NOTE[key]) td.append(mk(NOTE[key]));
+      else if(/What triggered it/.test(tr.textContent)) td.append(mk(NOTE.triggered));
+      tr.append(td);
+    });
+  });
+  const hk = { "Typical reply time":"h_p50", "Slowest replies":"h_p95", "Last reply logged":"h_last_reply", "Last grader check":"h_last_check", "Alerts to Teams":"h_alerts", "Cost per chat":"h_cost" };
+  document.querySelectorAll(".ht").forEach(el => { const k = hk[(el.querySelector(".k") || {}).textContent]; if(k) el.append(mk(NOTE[k])); });
+  const hc = document.querySelector("#sec-health .cov"); if(hc) hc.after(mk(NOTE.h_chart, "wide"));
+}
+
 // Fold buttons and attention links
 function wire(){
+  addNotes();
   document.querySelectorAll("[data-fold]").forEach(b => { b.dataset.label = b.textContent; b.addEventListener("click", () => {
     const sec = b.closest("section.card"), open = sec.classList.toggle("open");
     b.setAttribute("aria-expanded", open);
@@ -699,6 +789,7 @@ $("liPw").addEventListener("keydown", e => { if(e.key === "Enter") doLogin(); })
 $("applyBtn").addEventListener("click", load);
 $("logoutBtn").addEventListener("click", signOut);
 $("demoBtn").addEventListener("click", toggleDemo);
+$("notesBtn").addEventListener("click", () => { NOTES = !NOTES; load(); });
 $("demoLogin").addEventListener("click", e => { e.preventDefault(); toggleDemo(); });
 loadSession();
 if(SESSION || DEMO) load(); else openLogin();
