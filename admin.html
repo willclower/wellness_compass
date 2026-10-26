@@ -161,6 +161,8 @@
   .rv .bubble{border:1px solid var(--border-lt);border-radius:8px;padding:8px 10px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;max-height:260px;overflow:auto}
   .rv .bubble h4{margin:0 0 4px;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
   .rv .bubble.member{background:#F4F1EA}
+  .rv details.draft summary{cursor:pointer;font-size:12px;color:var(--brand-blue)}
+  .rv details.draft .bubble{margin-top:6px;color:var(--muted)}
   .rv .ask{font-size:13.5px;font-weight:600;color:var(--ink)}
   .rv .act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .rv .act button.out{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
@@ -597,6 +599,13 @@ let VIEW = /[?&]review\b/.test(location.search) ? "review" : "dash";
 let RV = { status:"open", data:null, pick:{} };
 const OUTCOME = { confirmed:"Agree", partly:"Partly agree", false_alarm:"Disagree" };
 const FLAG_LABEL = () => { const m = {}; GROUPS.forEach(g => g.rows.forEach(r => m[r.key] = r.label)); return m; };
+// The fixed safety messages, copied from Maggie's Safety Catch node (maggie-2026-10-23b). The member gets one of
+// these INSTEAD of the guide's draft; rag_activity_log keeps the draft, so the queue shows both. Update if the node changes.
+const FIXED_MSG = {
+  crisis: "I'm really glad you told me. If you have had thoughts of harming yourself in any way at all, there is someone to reach out to right now: call or text 988 (the 988 Suicide & Crisis Lifeline), any time, day or night. If you are in immediate danger, call 911. I'm here to keep talking whenever you want.",
+  emergency: "What you're describing could be a medical emergency. Please call 911 now, or ask someone near you to call. Once you're safe, I'm here.",
+  unsafe_home: "I'm really glad you told me. If you are in danger right now, please call 911. You can also call the National Domestic Violence Hotline at 1-800-799-7233, any time, day or night. I'm here whenever you want to keep talking."
+};
 const SAFETY_KIND = { crisis:"crisis (988 + 911)", emergency:"medical emergency (911)", unsafe_home:"not safe at home (911 + hotline)" };
 
 function setView(v){
@@ -605,6 +614,7 @@ function setView(v){
   $("demoBtn").textContent = DEMO ? "Leave demo" : "Demo data";
   $("reviewBtn").textContent = v === "review" ? "Dashboard" : "Review queue";
   document.querySelector(".filters").style.display = v === "review" ? "none" : "";
+  document.querySelectorAll(".filters + .sticky").forEach(s => s.style.display = v === "review" ? "none" : "");
   $("content").style.display = v === "review" ? "none" : "";
   $("review").style.display = v === "review" ? "" : "none";
   if(v === "review") loadReview(); else load();
@@ -650,7 +660,10 @@ function renderReview(){
         <div class="flags">${it.safety_sent ? `<span class="flag">Safety message sent: ${esc(SAFETY_KIND[it.safety_kind] || it.safety_kind || "")}</span>` : ""}
           ${flags.map(f => `<span class="flag">${esc(L[f] || f)}</span>`).join("")}${!flags.length && it.graded ? '<span class="flag none">Grader: no problems</span>' : ""}${!it.graded ? '<span class="flag none">Not checked by the grader</span>' : ""}</div>
         ${it.grader_note ? `<div class="why"><i>Grader’s reason:</i> ${esc(it.grader_note)}</div>` : ""}
-        <div class="msgs"><div class="bubble member"><h4>Member wrote</h4>${esc(it.member_text || "(not found)")}</div><div class="bubble"><h4>${esc(cap(it.guide || "guide"))} replied</h4>${esc(it.reply_text || "(not found)")}</div></div>
+        <div class="msgs"><div class="bubble member"><h4>Member wrote</h4>${esc(it.member_text || "(not found)")}</div>${it.safety_sent && FIXED_MSG[it.safety_kind]
+          ? `<div class="bubble"><h4>Member received: the fixed safety message</h4>${esc(FIXED_MSG[it.safety_kind])}</div></div>
+             <details class="draft"><summary>The guide’s own draft (replaced by the safety message, never sent)</summary><div class="bubble">${esc(it.reply_text || "(not found)")}</div></details>`
+          : `<div class="bubble"><h4>${esc(cap(it.guide || "guide"))} replied</h4>${esc(it.reply_text || "(not found)")}</div></div>`}
         ${it.review_outcome ? `<div class="done"><b>${esc(OUTCOME[it.review_outcome] || it.review_outcome)}</b> <span class="muted">· ${esc(it.reviewed_by || "")}, ${esc(new Date(it.reviewed_at).toLocaleString("en-US", { timeZone:"America/New_York", month:"short", day:"numeric", hour:"numeric", minute:"2-digit" }))} ET</span>${it.review_note ? `<div class="muted">${esc(it.review_note)}</div>` : ""}
            <div class="act" style="margin-top:6px"><button class="linkbtn" data-rvchange="${it.id}">Change</button></div></div>`
         : `<div class="ask">${ask}</div>
@@ -713,7 +726,7 @@ function makeDemoQueue(status){
       member_text:"Can you remind me what my cholesterol goal was?", reply_text:"I don't have access to your health records, so I can't see your goal. Your doctor can tell you." },
     { id:90277, tier:"notice", guide:"liam", company_id:"RVS", version:"liam-2026-10-a", flags:[], graded:true, safety_sent:true, safety_kind:"crisis",
       grader_note:"The member described thoughts of self-harm; the crisis message was the right response.",
-      member_text:"some nights I think everyone would be better off without me", reply_text:"I'm really glad you told me. You deserve support right now. Please call or text 988 to reach the Suicide and Crisis Lifeline, any time. If you're in danger, call 911." },
+      member_text:"some nights I think everyone would be better off without me", reply_text:"That sounds really heavy. You matter, and I'm glad you said something. Would it help to talk about what's been going on?" },
     { id:90240, tier:"other", guide:"maggie", company_id:"C-ATL", version:"maggie-2026-10-d", flags:["clinician_only_number"], graded:true, safety_sent:false,
       grader_note:"Gave a personal daily calorie target (1,400) rather than general guidance.",
       member_text:"How many calories should I eat to lose weight?", reply_text:"For you, aim for about 1,400 calories a day." },
