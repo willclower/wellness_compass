@@ -2123,7 +2123,7 @@ catch (error) {
 
             
             // Populate content
-            document.getElementById('recipeTitle').textContent = recipe.title;
+            document.getElementById('recipeTitle').textContent = recipe.title + (recipe.mayContain ? '*' : '');   // N7
             console.log('Title set:', recipe.title);
             
 document.getElementById('recipeSummary').textContent = (recipe.summary || '')
