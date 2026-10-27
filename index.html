@@ -2524,7 +2524,7 @@ const loadingRow = document.createElement('div');
                 const prevAssistant = window.MWClient.currentAssistant;
                 window.MWClient.currentAssistant = 'nona';
                 const nonaPromise = window.MWClient.sendMessage(
-                    `please provide the recipe for ${data.recipe_name}`
+                    `please provide the recipe for ${data.recipe_name}`, null, null, { auto: true }   // N8: page-sent
                 );
                 window.MWClient.currentAssistant = prevAssistant;
                 const nonaResponse = await nonaPromise;
@@ -2706,7 +2706,7 @@ setTimeout(() => {
                     recipeDisplay.classList.add('active');
 document.getElementById('recipeSummary').textContent = '';
                     
-                    window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`)
+                    window.MWClient.sendMessage(`please provide the recipe for ${recipeData.title}`, null, null, { auto: true })   // N8: page-sent
                         .then(response => {
                             if (response.success && response.isRecipe) {
                                 const recipe = window.MWClient.parseRecipe(response.message);
