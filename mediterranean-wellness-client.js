@@ -112,6 +112,12 @@ async sendMessage(message, proactiveLogId = null, signal = null, opts = {}) {
         // Title
         const titleMatch = text.match(/^#{1,3}\s+(.+)$/m);
         if (titleMatch) recipe.title = titleMatch[1].trim();
+        // N7: a trailing * means "some ingredients may contain an allergen". Keep the title clean (image, save,
+        // history and rating all look recipes up by title) and remember the mark for display only.
+        if (/\*+$/.test(recipe.title)) {
+            recipe.title = recipe.title.replace(/\s*\*+$/, '');
+            recipe.mayContain = true;
+        }
         
         // Introduction (first paragraph after title, before first ##)
         const summaryMatch = text.match(/^#{1,3}[^\n]+\n+(.+?)(?=\n##)/ms);
