@@ -24,7 +24,9 @@ class MediterraneanWellnessClient {
         return this.userId + '_' + today;
     }
 
-async sendMessage(message, proactiveLogId = null, signal = null) {
+// opts.auto = true: the page is asking on its own (featured recipe, reopening a recipe), not the member typing.
+// Nona then doesn't count it as an intake answer, a memory, or a graded exchange (N8, 2026-10-27).
+async sendMessage(message, proactiveLogId = null, signal = null, opts = {}) {
         try {
             const webhookPath = `${this.currentAssistant}_chat`;
             
@@ -36,7 +38,8 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
                     userId: this.userId,
                     sessionId: this.sessionId,
                     userName: 'User',
-                    ...(proactiveLogId && { loadProactive: true, proactive_log_id: proactiveLogId })
+                    ...(proactiveLogId && { loadProactive: true, proactive_log_id: proactiveLogId }),
+                    ...(opts.auto && { auto_request: true })
                 }),
                 ...(signal && { signal })
             });
@@ -51,6 +54,10 @@ async sendMessage(message, proactiveLogId = null, signal = null) {
             let data;
             try {
                 data = JSON.parse(text);
+                // Keep the page's "Nona intake done" flag in step with what Nona says (N8)
+                if (webhookPath === 'nona_chat' && typeof data.intake_completed === 'boolean') {
+                    localStorage.setItem('mw_intake_completed', data.intake_completed ? 'true' : 'false');
+                }
                 const messageText = data.message || data.response || data.text || text;
                 
    return {
