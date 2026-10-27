@@ -1653,6 +1653,19 @@ function showFeaturedTab() {
 
 const TYPEWRITER_SPEED = 48;
         
+// N5 (10-27): chat text from a guide. Line breaks after sentences (not after list numbers like "1."),
+// **bold** shown as bold once typing finishes (the typewriter can't type inside a tag), never as stars.
+function formatChatText(text) {
+    const base = String(text || '').replace(/([^\d\s][.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>');
+    return {
+        plain: base.replace(/\*\*([^*]+)\*\*/g, '$1'),
+        bold: base.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    };
+}
+function typeChat(element, text) {
+    const f = formatChatText(text);
+    typewriterEffect(element, f.plain, undefined, () => { element.innerHTML = f.bold; });
+}
 function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
     const segments = [];
     let remaining = html;
@@ -1912,7 +1925,7 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         // Also strip any closing text after the last suggestion
         if (introText) {
             const assistantMsg = createAssistantMsg(messagesContainer);
-            typewriterEffect(assistantMsg, introText.replace(/\.\s+/g, '.<br><br>').replace(/\n/g, '<br>'));
+            typeChat(assistantMsg, introText);   // N5
         }
         
         // Render suggestions as clickable buttons
@@ -1946,21 +1959,9 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
         
         messagesContainer.appendChild(btnContainer);
 } else {
-        // Normal chat response — split numbered tips into separate bubbles
-        const numberedPattern = /(?:^|\n)(?=\d+\.\s*\*\*)/;
-        const parts = response.message.split(numberedPattern).map(p => p.trim()).filter(Boolean);
-        
-        if (parts.length >= 3) {
-            // Multiple numbered items detected — render each in its own bubble
-            parts.forEach(part => {
-                const bubble = createAssistantMsg(messagesContainer);
-                typewriterEffect(bubble, part.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
-            });
-        } else {
-            // Standard single bubble
-            const assistantMsg = createAssistantMsg(messagesContainer);
-            typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
-        }
+        // Normal chat response: one bubble, numbered items kept together (N5, 10-27; was one bubble per item)
+        const assistantMsg = createAssistantMsg(messagesContainer);
+        typeChat(assistantMsg, response.message);
     }
     
     if (response.gapButtons && response.gapButtons.length > 0) {
