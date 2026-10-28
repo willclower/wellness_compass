@@ -1465,6 +1465,14 @@ video.addEventListener('ended', () => {
         // A button from one guide (btn.to = the other guide) switches guides and asks the
         // other guide for the item as a normal member message, so intake, allergy checks and
         // logging all run as usual. The member's bubble says who suggested it.
+        let _handoffFrom = '';
+        const HANDOFF_GREETINGS = {
+            nona: [
+                "Ciao! {from} told me you'd be coming. Let me get that recipe for you.",
+                "Benvenuto! {from} sent you my way. Let's get cooking!",
+                "Ah, {from} said you might stop by! One moment, I'll find it for you."
+            ]
+        };
         async function handoffToGuide(btn) {
             const from = (window.MWClient && window.MWClient.currentAssistant) || '';
             const to = btn.to || 'nona';
@@ -1473,7 +1481,8 @@ video.addEventListener('ended', () => {
                 c.classList.toggle('active', !!h && h.textContent.trim().toLowerCase() === to);
             });
             if (to === 'nona') featuredRecipeLoaded = true;   // don't also load the daily recipe
-            await switchToAssistant(to);
+            _handoffFrom = from;
+            try { await switchToAssistant(to); } finally { _handoffFrom = ''; }
             const input = document.getElementById('messageInput');
             const send = 'please provide the recipe for ' + btn.value;
             input.value = send;
@@ -1770,6 +1779,12 @@ function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
                 if (response.success && response.assistant) {
                     const greetingMsg = createAssistantMsg(messagesContainer);
                     greetingMsg.textContent = response.assistant.greeting;
+                    // Handoff greeting (2026-10-28): the new guide mentions the friend who sent them
+                    if (_handoffFrom && HANDOFF_GREETINGS[assistantId]) {
+                        const lines = HANDOFF_GREETINGS[assistantId];
+                        const who = _handoffFrom.charAt(0).toUpperCase() + _handoffFrom.slice(1);
+                        greetingMsg.textContent = lines[Math.floor(Math.random() * lines.length)].replace('{from}', who);
+                    }
                 }
                 // Featured recipe is Nona's: load it the first time she's selected
                 if (assistantId === 'nona' && !featuredRecipeLoaded
