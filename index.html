@@ -2543,11 +2543,12 @@ if (nonaResponse.success && nonaResponse.isRecipe) {
 displayRecipe(recipe);
 
     // Mark featured recipe as delivered so it doesn't repeat
-    if (data.queue_id) {
+    // N6 (2026-10-28): a requested recipe is marked shown by its request id (Comms queue not involved)
+    if (data.request_id) {
         fetch('https://n8n-admin.willclower.com/webhook/mark-featured-delivered', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ queue_id: data.queue_id, user_id: userId })
+            body: JSON.stringify({ request_id: data.request_id, user_id: userId })
         }).catch(err => console.log('Mark delivered failed (non-blocking):', err.message));
     }
 
@@ -2593,12 +2594,12 @@ setTimeout(() => {
     intakeMsgContainer.scrollTop = intakeMsgContainer.scrollHeight;
                 
                     // Mark this featured recipe as delivered so it doesn't repeat
-                    if (data.queue_id) {
+                    if (data.request_id) {   // N6 (2026-10-28): by request id
                         fetch('https://n8n-admin.willclower.com/webhook/mark-featured-delivered', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ 
-                                queue_id: data.queue_id, 
+                                request_id: data.request_id, 
                                 user_id: userId 
                             })
                         }).catch(err => console.log('Mark delivered failed (non-blocking):', err.message));
