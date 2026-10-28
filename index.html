@@ -1696,9 +1696,51 @@ function formatChatText(text) {
         bold: base.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     };
 }
-function typeChat(element, text) {
+function typeChat(element, text, onDone) {
     const f = formatChatText(text);
-    typewriterEffect(element, f.plain, undefined, () => { element.innerHTML = f.bold; });
+    typewriterEffect(element, f.plain, undefined, () => { element.innerHTML = f.bold; if (onDone) onDone(); });
+}
+// Inline handoff buttons (2026-10-28): a small "Recipe from Nona" button right after each dish
+// name in the reply, instead of a pile at the bottom. Any dish not found in the text still gets
+// a button underneath, so nothing is lost.
+function attachInlineHandoffs(msgEl, btns) {
+    if (!btns || !btns.length) return;
+    const left = btns.slice();
+    msgEl.querySelectorAll('strong').forEach(st => {
+        const name = st.textContent.replace(/[:\s]+$/, '').trim().toLowerCase();
+        const i = left.findIndex(b => String(b.label).trim().toLowerCase() === name);
+        if (i === -1) return;
+        const btn = left.splice(i, 1)[0];
+        const who = btn.to ? btn.to.charAt(0).toUpperCase() + btn.to.slice(1) : 'Nona';
+        const chip = document.createElement('button');
+        chip.textContent = '🍳 Recipe from ' + who;
+        chip.style.cssText = 'margin: 0 4px; padding: 2px 10px; border-radius: 14px; border: 1px solid #4a7c59; background: white; color: #4a7c59; cursor: pointer; font-size: 12px; vertical-align: middle;';
+        chip.addEventListener('mouseenter', () => { chip.style.background = '#4a7c59'; chip.style.color = 'white'; });
+        chip.addEventListener('mouseleave', () => { chip.style.background = 'white'; chip.style.color = '#4a7c59'; });
+        chip.addEventListener('click', () => { handoffToGuide(btn); });
+        // keep "Dish:" together, chip after the colon
+        const nx = st.nextSibling;
+        if (nx && nx.nodeType === 3 && /^\s*:/.test(nx.textContent)) {
+            nx.textContent = nx.textContent.replace(/^\s*:\s*/, ' ');
+            st.textContent = st.textContent.replace(/[:\s]+$/, '') + ':';
+        }
+        st.insertAdjacentElement('afterend', chip);
+    });
+    if (left.length) {
+        const mc = document.getElementById('chatMessages');
+        const box = document.createElement('div');
+        box.className = 'message assistant';
+        box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;';
+        left.forEach(btn => {
+            const b = document.createElement('button');
+            b.textContent = btn.label;
+            b.style.cssText = 'padding: 8px 16px; border-radius: 20px; border: 1px solid #4a7c59; background: white; color: #4a7c59; cursor: pointer; font-size: 14px;';
+            b.addEventListener('click', () => { box.remove(); handoffToGuide(btn); });
+            box.appendChild(b);
+        });
+        mc.appendChild(box);
+        mc.scrollTop = mc.scrollHeight;
+    }
 }
 function typewriterEffect(element, html, TYPEWRITER_SPEED, onComplete = null) {
     const segments = [];
@@ -2001,7 +2043,9 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0) {
 } else {
         // Normal chat response: one bubble, numbered items kept together (N5, 10-27; was one bubble per item)
         const assistantMsg = createAssistantMsg(messagesContainer);
-        typeChat(assistantMsg, response.message);
+        const handoffs = (response.gapButtons || []).filter(b => b.action === 'handoff');
+        if (handoffs.length) response.gapButtons = response.gapButtons.filter(b => b.action !== 'handoff');
+        typeChat(assistantMsg, response.message, () => attachInlineHandoffs(assistantMsg, handoffs));
     }
     
     if (response.gapButtons && response.gapButtons.length > 0) {
