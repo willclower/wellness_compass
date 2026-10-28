@@ -2149,6 +2149,10 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
     // Guide handoff button (2026-10-28), e.g. Nona -> "Ask Maggie about the nutrition"
     if (response.handoff && response.handoff.to) {
         const h = response.handoff;
+        if (h.line) {   // the friend line, after the whole reply (lists included)
+            const lm = createAssistantMsg(messagesContainer);
+            lm.textContent = h.line;
+        }
         const box = document.createElement('div');
         box.className = 'message assistant';
         box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;';
