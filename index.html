@@ -1467,6 +1467,11 @@ video.addEventListener('ended', () => {
         // logging all run as usual. The member's bubble says who suggested it.
         let _handoffFrom = '';
         const HANDOFF_GREETINGS = {
+            maggie: [
+                "Hi! {from} mentioned you had a nutrition question. I'm happy to help.",
+                "Hello! {from} sent you over. Let's look at the nutrition side together.",
+                "Hi there! {from} said you'd be stopping by. Let me help with that."
+            ],
             nona: [
                 "Ciao! {from} told me you'd be coming. Let me get that recipe for you.",
                 "Benvenuto! {from} sent you my way. Let's get cooking!",
@@ -1484,15 +1489,17 @@ video.addEventListener('ended', () => {
             _handoffFrom = from;
             try { await switchToAssistant(to); } finally { _handoffFrom = ''; }
             const input = document.getElementById('messageInput');
-            const send = 'please provide the recipe for ' + btn.value;
+            const who = from ? from.charAt(0).toUpperCase() + from.slice(1) : '';
+            // To Nona: ask for the dish's recipe. To any other guide: pass the member's own question on.
+            const send = to === 'nona' ? 'please provide the recipe for ' + btn.value : String(btn.value || btn.send || '');
+            const bubble = to === 'nona'
+                ? (who ? who + ' suggested ' + btn.value + '. ' : '') + 'Could I have the recipe?'
+                : (who ? who + ' suggested I ask you: ' : '') + send;
             input.value = send;
             sendMessage();
             const bubbles = document.getElementById('chatMessages').querySelectorAll('.message.user');
             const last = bubbles[bubbles.length - 1];
-            const who = from ? from.charAt(0).toUpperCase() + from.slice(1) : '';
-            if (last && last.textContent === send) {
-                last.textContent = (who ? who + ' suggested ' + btn.value + '. ' : '') + 'Could I have the recipe?';
-            }
+            if (last && last.textContent === send) last.textContent = bubble;
         }
 
         // ---- Guide panels -------------------------------------------------
@@ -2139,6 +2146,22 @@ if (response.chatFollowUp && response.chatFollowUp.length > 0 && suggestions.len
     messagesContainer.appendChild(btnContainer);
 }
 }
+    // Guide handoff button (2026-10-28), e.g. Nona -> "Ask Maggie about the nutrition"
+    if (response.handoff && response.handoff.to) {
+        const h = response.handoff;
+        const box = document.createElement('div');
+        box.className = 'message assistant';
+        box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;';
+        const hb = document.createElement('button');
+        hb.textContent = h.label || ('Ask ' + h.to.charAt(0).toUpperCase() + h.to.slice(1));
+        hb.style.cssText = 'padding: 8px 16px; border-radius: 20px; border: 1px solid #2a7d72; background: white; color: #2a7d72; cursor: pointer; font-size: 14px;';
+        hb.addEventListener('mouseenter', () => { hb.style.background = '#2a7d72'; hb.style.color = 'white'; });
+        hb.addEventListener('mouseleave', () => { hb.style.background = 'white'; hb.style.color = '#2a7d72'; });
+        hb.addEventListener('click', () => { box.remove(); handoffToGuide({ to: h.to, value: h.send, label: h.label }); });
+        box.appendChild(hb);
+        messagesContainer.appendChild(box);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 } else if (response.aborted) {
                     const stopMsg = createAssistantMsg(messagesContainer);
                     stopMsg.textContent = "I stopped the search for you. But no problem tesoro, can I help you find something else?";
