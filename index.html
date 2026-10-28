@@ -1461,6 +1461,31 @@ video.addEventListener('ended', () => {
             });
         });
 
+        // ---- Guide handoff (2026-10-28) -------------------------------------
+        // A button from one guide (btn.to = the other guide) switches guides and asks the
+        // other guide for the item as a normal member message, so intake, allergy checks and
+        // logging all run as usual. The member's bubble says who suggested it.
+        async function handoffToGuide(btn) {
+            const from = (window.MWClient && window.MWClient.currentAssistant) || '';
+            const to = btn.to || 'nona';
+            document.querySelectorAll('.assistant-card').forEach(c => {
+                const h = c.querySelector('h3');
+                c.classList.toggle('active', !!h && h.textContent.trim().toLowerCase() === to);
+            });
+            if (to === 'nona') featuredRecipeLoaded = true;   // don't also load the daily recipe
+            await switchToAssistant(to);
+            const input = document.getElementById('messageInput');
+            const send = 'please provide the recipe for ' + btn.value;
+            input.value = send;
+            sendMessage();
+            const bubbles = document.getElementById('chatMessages').querySelectorAll('.message.user');
+            const last = bubbles[bubbles.length - 1];
+            const who = from ? from.charAt(0).toUpperCase() + from.slice(1) : '';
+            if (last && last.textContent === send) {
+                last.textContent = (who ? who + ' suggested ' + btn.value + '. ' : '') + 'Could I have the recipe?';
+            }
+        }
+
         // ---- Guide panels -------------------------------------------------
         // Every coaching guide gets the same layout: Plan / Programs / Progress.
         // Content is config only; each tab's empty state shows until its
@@ -2001,6 +2026,9 @@ assistantMsg.innerHTML = response.message.replace(/([.!?])\s+/g, '$1<br><br>').r
                             messagesContainer.scrollTop = messagesContainer.scrollHeight;
                         }
                     });
+} else if (btn.action === 'handoff') {
+                    // Guide handoff (2026-10-28): e.g. Maggie names a dish, Nona gives the recipe
+                    handoffToGuide(btn);
 } else {
                     // Send btn.value VERBATIM so prefixed intents (ALLERGEN_OVERRIDE:<title>)
                     // reach the backend unmangled. Route through sendMessage() for full
