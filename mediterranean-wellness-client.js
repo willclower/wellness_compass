@@ -54,8 +54,8 @@ async sendMessage(message, proactiveLogId = null, signal = null, opts = {}) {
             let data;
             try {
                 data = JSON.parse(text);
-                // Keep the page's "Nona intake done" flag in step with what Nona says (N8)
-                if (webhookPath === 'nona_chat' && typeof data.intake_completed === 'boolean') {
+                // Keep the page's "intake done" flag in step with what the guide says (N8; 3b 10-29: the intake is shared, so any guide)
+                if (typeof data.intake_completed === 'boolean') {
                     localStorage.setItem('mw_intake_completed', data.intake_completed ? 'true' : 'false');
                 }
                 const messageText = data.message || data.response || data.text || text;
