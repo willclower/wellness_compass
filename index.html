@@ -356,6 +356,30 @@ border: 3px solid #2a7d72;
             .guide-empty img { width: 110px; height: 110px; }
         }
 
+        /* Live coaching panels (F3, 2026-10-31): What I'm Working On / How I'm Doing / My Support */
+        .mp-card { background: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 18px 20px; margin-bottom: 14px; }
+        .mp-card h3 { font-size: 16px; color: #1a3a4a; margin-bottom: 10px; }
+        .mp-card p { font-size: 14px; color: #555; line-height: 1.5; }
+        .mp-muted { color: #888; font-size: 13px; }
+        .mp-goal { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid #e6e6e6; }
+        .mp-goal:first-of-type { border-top: none; }
+        .mp-goal input { margin-top: 4px; width: 18px; height: 18px; accent-color: #1a7b8e; }
+        .mp-goal-label { font-size: 15px; color: #333; font-weight: 600; }
+        .mp-goal-why { font-size: 13px; color: #1a7b8e; margin-top: 2px; }
+        .mp-btn { background: #1a7b8e; color: #fff; border: none; border-radius: 6px; padding: 9px 16px; font-size: 14px; cursor: pointer; margin-top: 10px; }
+        .mp-btn.secondary { background: #fff; color: #1a7b8e; border: 1px solid #1a7b8e; }
+        .mp-btn:disabled { opacity: .5; cursor: default; }
+        .mp-bar-row { display: grid; grid-template-columns: 110px 1fr 40px; gap: 10px; align-items: center; margin: 8px 0; font-size: 13px; color: #555; }
+        .mp-bar { height: 12px; background: #e3e9eb; border-radius: 6px; overflow: hidden; }
+        .mp-bar span { display: block; height: 100%; border-radius: 6px; background: #1a7b8e; }
+        .mp-bar span.start { background: #9fb8bf; }
+        .mp-bar span.goal { background: #e0a33b; }
+        .mp-check { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid #e6e6e6; font-size: 14px; }
+        .mp-check:first-of-type { border-top: none; }
+        .mp-check .done { color: #2e7d32; font-weight: 600; white-space: nowrap; }
+        .mp-check .ask { color: #8a5a00; white-space: nowrap; }
+        .mp-contact { margin-top: 10px; font-size: 14px; color: #333; line-height: 1.6; }
+
         /* Right Panel - Chat */
         .chat-panel {
             background: white;
@@ -1508,19 +1532,20 @@ video.addEventListener('ended', () => {
         // backend lands (plan tables, program catalog, scorers).
         const GUIDE_PANELS = {
             maggie: {
+                live: true,   // F3: panels filled from /webhook/get-member-focus (member_panels, 12w)
                 tabs: [
-                    { key: 'plan', label: 'My Plan',
-                      title: 'Your nutrition plan',
-                      body: 'Maggie builds a plan around you: your health assessment, the foods you like, and how much change feels right.',
-                      hint: 'Say hi to Maggie in the chat to get started.' },
-                    { key: 'programs', label: 'Programs',
-                      title: 'Programs for you',
-                      body: 'Maggie suggests MedWell programs that fit your goals. You always choose which ones to join.',
-                      hint: 'Your suggestions will appear here.' },
-                    { key: 'progress', label: 'Progress',
-                      title: 'Your progress',
-                      body: 'Once your plan starts, your wins and trends show up here, week by week.',
-                      hint: 'Nothing to show yet.' }
+                    { key: 'working', label: "What I'm Working On",
+                      title: "What you're working on",
+                      body: 'Maggie picks one small step at a time from your health assessment, and you choose which to start with.',
+                      hint: 'Loading…' },
+                    { key: 'doing', label: "How I'm Doing",
+                      title: "How you're doing",
+                      body: 'Where you started, where you are now, and your next goal.',
+                      hint: 'Loading…' },
+                    { key: 'support', label: 'My Support',
+                      title: 'Your support',
+                      body: 'Your health checks, programs that fit your goals, and how to reach your care team.',
+                      hint: 'Loading…' }
                 ]
             },
             dundee: {
@@ -1586,6 +1611,144 @@ video.addEventListener('ended', () => {
                 });
             });
             host.dataset.rendered = '1';
+            if (cfg.live) loadMemberPanels(guideId);
+        }
+
+        // ---- Live coaching panels (F3) -----------------------------------
+        // Everything shown is worked out in SQL (member_panels); the page only displays it.
+        const MP_URL = 'https://n8n-admin.willclower.com/webhook/';
+        const mpEsc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const GUIDE_NAMES = { maggie: 'Maggie', dundee: 'Dundee', liam: 'Liam' };
+
+        async function loadMemberPanels(guideId) {
+            const host = document.getElementById('panel-' + guideId);
+            const userId = window.MWClient && window.MWClient.getUserId();
+            if (!host || !userId) return;
+            let data;
+            try {
+                const r = await fetch(MP_URL + 'get-member-focus', { method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, guide: guideId }) });
+                data = await r.json();
+            } catch (e) { console.warn('Member panels failed', e); return; }
+            if (!data || !data.success) return;
+            const sec = k => host.querySelector('.guide-section[data-section="' + k + '"]');
+            const name = GUIDE_NAMES[guideId] || 'Your guide';
+            if (!data.has_hra) {
+                ['working', 'doing', 'support'].forEach(k => {
+                    const el = sec(k); if (el) el.querySelector('.guide-hint').textContent =
+                        'Once your health assessment is in, ' + name + ' will set this up with you.';
+                });
+                return;
+            }
+            sec('working').innerHTML = mpWorking(data, guideId, name);
+            sec('doing').innerHTML = mpDoing(data);
+            sec('support').innerHTML = mpSupport(data, name);
+            mpWire(host, data, guideId);
+        }
+
+        function mpWorking(d, guideId, name) {
+            const w = d.working_on || {};
+            const goals = w.goals || [], choices = w.choices || [];
+            let html = '';
+            if (goals.length) {
+                html += '<div class="mp-card"><h3>This week</h3>' + goals.map(g =>
+                    '<div class="mp-goal"><div><div class="mp-goal-label">' + mpEsc(g.label) + '</div>' +
+                    (g.reason ? '<div class="mp-goal-why">' + mpEsc(g.reason) + '</div>' : '') + '</div></div>').join('') +
+                    '<button class="mp-btn secondary" data-mp="change">Change my goals</button></div>';
+            }
+            if (choices.length && w.max_goals > 0) {
+                const n = w.max_goals;
+                html += '<div class="mp-card mp-choose"' + (goals.length ? ' style="display:none"' : '') + '><h3>Pick your next step</h3>' +
+                    '<p class="mp-muted">' + (n > 1 ? 'Choose one or both.' : 'Choose one to start with.') + ' One small step at a time.</p>' +
+                    choices.map(c => '<label class="mp-goal"><input type="checkbox" value="' + mpEsc(c.item_key) + '"><div>' +
+                        '<div class="mp-goal-label">' + mpEsc(c.label) + '</div>' +
+                        (c.reason ? '<div class="mp-goal-why">' + mpEsc(c.reason) + '</div>' : '') + '</div></label>').join('') +
+                    '<button class="mp-btn" data-mp="save" disabled>Start</button></div>';
+            } else if (!goals.length) {
+                html += '<div class="mp-card"><h3>You\'re doing well here</h3><p>' + mpEsc(name) +
+                    ' will help you keep it that way. Ask anytime if there\'s something you\'d like to work on.</p></div>';
+            }
+            html += '<div class="mp-card"><h3>Tools</h3><p>Want a week of meals built around your goals?</p>' +
+                '<button class="mp-btn secondary" data-mp="ask" data-msg="Can you make me a meal plan for this week?">Ask ' +
+                mpEsc(name) + ' for a meal plan</button></div>';
+            return html;
+        }
+
+        function mpBar(label, v, cls) {
+            const pct = Math.max(0, Math.min(100, Number(v) || 0));
+            return '<div class="mp-bar-row"><div>' + mpEsc(label) + '</div><div class="mp-bar"><span class="' + (cls || '') +
+                '" style="width:' + pct + '%"></span></div><div>' + pct + '</div></div>';
+        }
+
+        function mpDoing(d) {
+            const h = d.how_im_doing || {}, o = h.own || {};
+            let html = '<div class="mp-card"><h3>' + mpEsc(o.label || 'Your score') + '</h3>' +
+                mpBar('Where I started', o.started, 'start') + mpBar('Where I am now', o.now) + mpBar('My goal', o.goal, 'goal') +
+                '<p class="mp-muted">Scores run from 0 to 100; higher is healthier. They update when you check in.</p></div>';
+            const others = h.others || [];
+            if (others.length) html += '<div class="mp-card"><h3>Your other areas</h3>' +
+                others.map(x => mpBar(x.label, x.now)).join('') + '</div>';
+            return html;
+        }
+
+        function mpSupport(d, name) {
+            const s = d.my_support || {}, checks = s.health_checks || [], c = s.care_contact;
+            let html = '';
+            if (checks.length) html += '<div class="mp-card"><h3>Health checks</h3>' + checks.map(x =>
+                '<div class="mp-check"><div>' + mpEsc(x.label) + '</div>' + (x.status === 'done'
+                    ? '<div class="done">Up to date</div>' : '<div class="ask">Ask your doctor whether you\'re due</div>') + '</div>').join('') + '</div>';
+            html += '<div class="mp-card"><h3>Programs for you</h3><p>' + mpEsc(name) +
+                ' will suggest MedWell programs that fit your goals. You always choose which ones to join.</p></div>';
+            let contact = '<p class="mp-muted">Your care team\'s contact details will appear here.</p>';
+            if (c) contact = '<div class="mp-contact"><strong>' + mpEsc(c.contact_name || c.heading) + '</strong>' +
+                (c.phone ? '<br>Phone: <a href="tel:' + mpEsc(c.phone) + '">' + mpEsc(c.phone) + '</a>' : '') +
+                (c.email ? '<br>Email: <a href="mailto:' + mpEsc(c.email) + '">' + mpEsc(c.email) + '</a>' : '') +
+                (c.url ? '<br><a href="' + mpEsc(c.url) + '" target="_blank" rel="noopener">Website</a>' : '') +
+                (c.hours ? '<br>' + mpEsc(c.hours) : '') + '</div>';
+            html += '<div class="mp-card"><h3>Talk to my care team</h3>' +
+                (s.talk_to_care_team ? '<p>Some things are best looked at by your doctor or nurse. Here\'s how to reach them.</p>'
+                                     : '<p>For anything medical, your care team is here for you.</p>') +
+                '<button class="mp-btn" data-mp="contact">Show contact</button><div class="mp-contact-box" style="display:none">' +
+                contact + '</div></div>';
+            return html;
+        }
+
+        function mpWire(host, d, guideId) {
+            const max = (d.working_on && d.working_on.max_goals) || 0;
+            const box = host.querySelector('.mp-choose');
+            if (box) {
+                const btn = box.querySelector('[data-mp="save"]');
+                const boxes = [...box.querySelectorAll('input[type="checkbox"]')];
+                boxes.forEach(b => b.addEventListener('change', () => {
+                    const on = boxes.filter(x => x.checked);
+                    if (on.length > max) b.checked = false;
+                    btn.disabled = boxes.filter(x => x.checked).length === 0;
+                }));
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true;
+                    const items = boxes.filter(x => x.checked).map(x => x.value);
+                    try {
+                        await fetch(MP_URL + 'save-member-goal', { method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ user_id: window.MWClient.getUserId(), guide: guideId, items }) });
+                    } catch (e) { console.warn('Save goal failed', e); }
+                    loadMemberPanels(guideId);
+                });
+            }
+            const chg = host.querySelector('[data-mp="change"]');
+            if (chg && box) chg.addEventListener('click', () => { box.style.display = ''; chg.style.display = 'none'; });
+            host.querySelectorAll('[data-mp="ask"]').forEach(b => b.addEventListener('click', () => {
+                const input = document.getElementById('messageInput');
+                if (!input) return;
+                input.value = b.dataset.msg;
+                sendMessage();
+            }));
+            const ct = host.querySelector('[data-mp="contact"]');
+            if (ct) ct.addEventListener('click', () => {
+                const bx = host.querySelector('.mp-contact-box'); bx.style.display = ''; ct.style.display = 'none';
+            });
         }
 
         // Show the panel for the guide in use, and highlight that guide's card,
