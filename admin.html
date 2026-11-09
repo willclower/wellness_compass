@@ -139,6 +139,14 @@
   body.notes tr.zero{display:table-row}
   body.notes tr.fold{display:none}
   body.notes section.card.allzero thead{display:table-header-group}
+  /* tabs (11-10): one page, five views, shared filters */
+  .tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--border);margin:0 0 14px}
+  .tabs button{background:transparent;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:9px 14px 8px;font:inherit;font-size:14px;color:var(--muted);cursor:pointer}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{color:var(--brand-navy);font-weight:600;border-bottom-color:var(--brand-blue)}
+  .tabs button .cnt{display:inline-block;min-width:18px;margin-left:6px;padding:0 6px;border-radius:9px;background:var(--warn-bg);color:var(--warn-ink);font-size:11px;font-weight:600;line-height:17px;text-align:center}
+  .tabpane{display:none}.tabpane.on{display:block}
+  .tabs + .sticky{margin:-6px 0 14px}
   /* review queue */
   .rv-bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:var(--r-card);padding:10px 14px;margin-bottom:12px}
   .rv-bar .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
@@ -177,13 +185,19 @@
 <header>
   <h1>Compass Admin</h1>
   <span class="who" id="who"></span>
-  <button id="reviewBtn">Review queue</button>
   <button id="notesBtn">Notes</button>
   <button id="demoBtn">Demo data</button>
   <button id="logoutBtn" style="display:none">Sign out</button>
 </header>
 
 <main>
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <button data-tab="overview">Overview</button>
+    <button data-tab="quality">Safety &amp; quality</button>
+    <button data-tab="results">Coaching results</button>
+    <button data-tab="system" data-team>System</button>
+    <button data-tab="review" data-team>Review queue</button>
+  </nav>
   <div class="filters">
     <label>From <input type="date" id="fFrom"></label>
     <label>To <input type="date" id="fTo"></label>
@@ -196,7 +210,7 @@
     <button class="btn" id="applyBtn">Show</button>
   </div>
 
-  <div class="demo" id="demoBanner" style="display:none">DEMO DATA. Every number on this page is made up, to show how the page looks with real use. Only the date filter changes it.</div>
+  <div class="demo" id="demoBanner" style="display:none">DEMO DATA. Every number on this page is made up, to show how the page looks with real use. Only the date filter changes it (and the client filter, on Coaching results).</div>
   <div class="guard">Counts are shown with every rate. No chart here treats fewer safety messages, longer chats or more personal sharing as “better.” Days and dates are Eastern time.</div>
 
   <div id="content"><p class="msg">Sign in to load.</p></div>
@@ -411,6 +425,9 @@ function render(d){
   const t = d.totals || {};
   const h = d.health || null;
   let html = "";
+  const P = { overview:"", quality:"", results:"", system:"" };
+  const put = tab => { P[tab] += html; html = ""; };
+  SCOPE = d.scope;
 
   // tiles
   const lowDays = shown.filter(x => x.replies && x.graded / x.replies < COVERAGE_MIN).length;
@@ -474,6 +491,8 @@ function render(d){
     html += `<section class="attn clear"><h2>Needs attention</h2><p>Nothing in this range. Every check is at zero and at least ${COVERAGE_MIN*100}% of replies were checked each day.</p></section>`;
   }
 
+  put("overview");
+
   // coverage chart
   html += `<section class="card" id="sec-coverage"><div class="hd"><h2>Checked by the grader, by day</h2>
     <span class="sum ${low.length ? "on" : ""}">${low.length ? `${low.length} day${low.length>1?"s":""} under ${COVERAGE_MIN*100}%` : (shown.length ? `every day at ${COVERAGE_MIN*100}% or more` : "")}</span><p class="desc">Share of each day's replies the grader checked. A dead grader would otherwise look like a clean day. Hover a bar for its counts.</p></div>
@@ -526,6 +545,7 @@ function render(d){
     return s + `</tbody></table></div></section>`;
   };
   GROUPS.filter(g => !g.health).forEach(g => html += groupTable(g));
+  put("quality");
 
   // system health
   const hg = GROUPS.find(g => g.health);
@@ -560,33 +580,32 @@ function render(d){
     html += `</tbody></table></div></section>`;
   }
 
-  // clients
-  const cl = d.clients || [];
-  html += `<section class="card" id="sec-clients"><div class="hd"><h2>By client</h2><span class="sum">${cl.length} client${cl.length === 1 ? "" : "s"}</span><p class="desc">The key safety numbers for each client, side by side.${d.hiding ? ` Clients with fewer than ${d.min_group} people are hidden.` : ""}</p></div>
-    <div class="scroll"><table><thead><tr><th>Client</th><th>Code</th><th>Parent</th><th>People</th><th>Replies</th><th>Checked</th><th>Safety messages</th><th>Missed safety signal</th><th>Other member's data</th></tr></thead><tbody>`;
-  cl.forEach(c => {
-    if(c.hidden){ html += `<tr><td>${esc(c.client_name)}</td><td>${esc(c.company_id)}</td><td>${esc(c.parent_code||"")}</td><td colspan="6" class="hidden-note">fewer than ${d.min_group} people</td></tr>`; return; }
-    const lo = c.replies && c.graded / c.replies < COVERAGE_MIN;
-    html += `<tr><td>${esc(c.client_name)}</td><td>${esc(c.company_id ?? "(none)")}</td><td>${esc(c.parent_code || "")}</td>
-      <td class="num">${fmtN(c.people)}</td><td class="num">${fmtN(c.replies)}</td><td class="num${lo ? " warnTxt" : ""}">${pct(c.graded, c.replies)}</td>
-      <td class="num">${fmtN(c.catch_fired)}</td><td class="num">${fmtN(c.missed_safety_signal)}</td><td class="num">${fmtN(c.other_member_data)}</td></tr>`;
-  });
-  if(!cl.length) html += `<tr><td colspan="9" class="muted">No clients in this range.</td></tr>`;
-  html += `</tbody></table></div></section>`;
+  put("system");
 
-  // program results (F4 client report, 13c): goals, check-ins, scores; no member IDs or text
-  const rs = d.results || {}, rr = rs.rows || [], rt = rs.totals || {};
+  // program results (F4 client report, 13c): goals, check-ins, scores; no member IDs or text.
+  // One row per guide, for the client chosen in the filter or all clients together (Will 11-10).
+  const rs = d.results || {}, rr = rs.rows || [];
   const GN = { maggie:"Maggie", nona:"Nona", dundee:"Dundee", liam:"Liam" };
-  html += `<section class="card" id="sec-results"><div class="hd"><h2>Program results</h2><span class="sum">${fmtN(rt.people)} people · ${fmtN(rt.goals_met)} goals met</span><p class="desc">How members are doing with the goals they chose. People = members who chose a goal in this range. Said yes = check-in asks the member agreed to. Score = the average section score (0–100) at the start and now, for people who checked in.${rs.hiding ? ` Groups with fewer than ${rs.min_group} people are hidden.` : ""}</p></div>
-    <div class="scroll"><table><thead><tr><th>Client</th><th>Guide</th><th>People</th><th>Goals chosen</th><th>Check-in asks</th><th>Said yes</th><th>Check-ins</th><th>Goals met</th><th>Score: start → now</th></tr></thead><tbody>`;
-  rr.forEach(x => {
-    if(x.hidden){ html += `<tr><td>${esc(x.client_name)}</td><td>${esc(GN[x.guide] || x.guide)}</td><td colspan="7" class="hidden-note">fewer than ${rs.min_group} people</td></tr>`; return; }
-    const score = x.scored ? `${x.score_started} → ${x.score_now} <span class="muted">(${fmtN(x.scored)})</span>` : '<span class="muted">no check-ins yet</span>';
-    html += `<tr><td>${esc(x.client_name)}</td><td>${esc(GN[x.guide] || x.guide)}</td><td class="num">${fmtN(x.people)}</td><td class="num">${fmtN(x.goals_chosen)}</td>
+  const hiddenGroups = rr.filter(x => x.hidden).length;
+  const byGuide = {};
+  rr.filter(x => !x.hidden).forEach(x => {
+    const G = byGuide[x.guide] || (byGuide[x.guide] = { guide:x.guide, people:0, goals_chosen:0, asks:0, said_yes:0, checkins:0, goals_met:0, scored:0, s0:0, s1:0 });
+    ["people","goals_chosen","asks","said_yes","checkins","goals_met"].forEach(k => G[k] += Number(x[k] || 0));
+    if(x.scored){ G.scored += Number(x.scored); G.s0 += x.score_started * x.scored; G.s1 += x.score_now * x.scored; }
+  });
+  const gr = Object.values(byGuide).sort((a, b) => Object.keys(GN).indexOf(a.guide) - Object.keys(GN).indexOf(b.guide));
+  const rp = gr.reduce((a, x) => a + x.people, 0), rg = gr.reduce((a, x) => a + x.goals_met, 0);
+  const forWho = $("fClient").value ? esc($("fClient").selectedOptions[0].textContent) : "All clients";
+  html += `<section class="card" id="sec-results"><div class="hd"><h2>Program results</h2><span class="sum">${fmtN(rp)} ${plural(rp, "person", "people")} · ${fmtN(rg)} ${plural(rg, "goal", "goals")} met</span><p class="desc">How members are doing with the goals they chose. ${forWho}. People = members who chose a goal in this range. Said yes = check-in asks the member agreed to. Score = the average section score (0–100) at the start and now, for people who checked in.${hiddenGroups ? ` ${hiddenGroups} ${plural(hiddenGroups, "group has", "groups have")} fewer than ${rs.min_group} people, so ${plural(hiddenGroups, "it is", "they are")} left out.` : ""}</p></div>
+    <div class="scroll"><table><thead><tr><th>Guide</th><th>People</th><th>Goals chosen</th><th>Check-in asks</th><th>Said yes</th><th>Check-ins</th><th>Goals met</th><th>Score: start → now</th></tr></thead><tbody>`;
+  gr.forEach(x => {
+    const score = x.scored ? `${Math.round(x.s0 / x.scored)} → ${Math.round(x.s1 / x.scored)} <span class="muted">(${fmtN(x.scored)})</span>` : '<span class="muted">no check-ins yet</span>';
+    html += `<tr><td>${esc(GN[x.guide] || x.guide)}</td><td class="num">${fmtN(x.people)}</td><td class="num">${fmtN(x.goals_chosen)}</td>
       <td class="num">${fmtN(x.asks)}</td><td class="num">${pct(x.said_yes, x.asks)}</td><td class="num">${fmtN(x.checkins)}</td><td class="num">${fmtN(x.goals_met)}</td><td class="num">${score}</td></tr>`;
   });
-  if(!rr.length) html += `<tr><td colspan="9" class="muted">No goals chosen in this range.</td></tr>`;
+  if(!gr.length) html += `<tr><td colspan="8" class="muted">${hiddenGroups ? `Fewer than ${rs.min_group} people in this selection.` : "No goals chosen in this range."}</td></tr>`;
   html += `</tbody></table></div></section>`;
+  put("results");
 
   // alerts (team scope only)
   if(d.scope === "all"){
@@ -602,14 +621,38 @@ function render(d){
     html += `</tbody></table></div></section>`;
   }
 
-  $("content").innerHTML = html;
+  put("system");
+
+  const attnN = items.filter(i => i.tier).length;
+  $("content").innerHTML = Object.keys(P).map(k => `<div class="tabpane" data-pane="${k}">${P[k]}</div>`).join("");
+  document.querySelector('#tabs [data-tab="overview"]').innerHTML = "Overview" + (attnN && !t.hidden ? `<span class="cnt" title="Items with an alert level in Needs attention">${attnN}</span>` : "");
+  showTab(TAB);
   wire();
+}
+
+// ---- Tabs (11-10) ----
+function plural(n, one, many){ return Number(n) === 1 ? one : many; }
+function teamTabs(){   // System and Review queue are for the MedWell team login only
+  document.querySelectorAll("#tabs [data-team]").forEach(b => b.style.display = SCOPE && SCOPE !== "all" ? "none" : "");
+  if(SCOPE && SCOPE !== "all" && (TAB === "system" || TAB === "review")) TAB = "overview";
+}
+function showTab(tab){
+  TAB = tab; teamTabs();
+  document.querySelectorAll("#tabs [data-tab]").forEach(b => { const on = b.dataset.tab === TAB; b.classList.toggle("on", on); b.setAttribute("aria-current", on ? "page" : "false"); });
+  document.querySelectorAll("#content .tabpane").forEach(p => p.classList.toggle("on", p.dataset.pane === TAB));
+}
+function pickTab(tab){
+  if(tab === "review"){ TAB = "review"; setView("review"); return; }
+  if(VIEW === "review"){ TAB = tab; setView("dash"); return; }
+  showTab(tab);
 }
 
 // ---- Review queue (O13): a person says whether they agree with the grader ----
 const REVIEWERS = ["Will", "Laura", "Rita", "Alex", "Grace"];          // until individual logins carry the name
 const RV_KEY = "mw_compass_reviewer";
 let VIEW = /[?&]review\b/.test(location.search) ? "review" : "dash";
+let TAB = VIEW === "review" ? "review" : "overview";
+let SCOPE = null;   // the login's scope, from the last data load
 let RV = { status:"open", data:null, pick:{} };
 const OUTCOME = { confirmed:"Agree", partly:"Partly agree", false_alarm:"Disagree" };
 const FLAG_LABEL = () => { const m = {}; GROUPS.forEach(g => g.rows.forEach(r => m[r.key] = r.label)); return m; };
@@ -626,7 +669,8 @@ function setView(v){
   VIEW = v;
   $("demoBanner").style.display = DEMO ? "" : "none";
   $("demoBtn").textContent = DEMO ? "Leave demo" : "Demo data";
-  $("reviewBtn").textContent = v === "review" ? "Dashboard" : "Review queue";
+  if(v === "review") TAB = "review";
+  document.querySelectorAll("#tabs [data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === TAB));
   document.querySelector(".filters").style.display = v === "review" ? "none" : "";
   document.querySelectorAll(".filters + .sticky").forEach(s => s.style.display = v === "review" ? "none" : "");
   $("content").style.display = v === "review" ? "none" : "";
@@ -803,15 +847,16 @@ const NOTE = {
   h_chart: "Answer <b>speed each day</b>. Blue = typical wait, orange = slowest. A spike means a slow day.",
   "sec-versions": "Each time we update a guide, it gets a <b>new version name</b>. This table puts versions side by side, so if an update made things worse, we see it here first.",
   "sec-results": "What members are <b>getting out of coaching</b>: how many chose a goal, how often they agreed to check in, how many check-ins and goals reached, and how their score moved. Check-ins only happen when the member says yes. Small groups are hidden for client logins.",
-  "sec-clients": "The same key numbers <b>for each client company</b>. “Parent” groups clients under one organisation (for example, Concentra). Clients only ever see their own numbers, and small groups are hidden to protect privacy.",
+  tabs: "The page is split into <b>tabs</b>. <b>Overview</b>: the headline numbers and anything that needs attention. <b>Safety &amp; quality</b>: what the grader found in each reply. <b>Coaching results</b>: how members are doing with their goals. <b>System</b>: whether everything is running (team only). <b>Review queue</b>: where a person checks the grader. The filters above apply to every tab. A number on the Overview tab = items in Needs attention with an alert level.",
   "sec-review": "<b>This is where a person double-checks the checker.</b> Each card is one answer the grader flagged, or one where an emergency message went out. Read what the member wrote and what the guide said. Then say whether the grader was right: <b>Agree</b>, <b>Partly agree</b> or <b>Disagree</b>. Your answers fill the “Confirmed by a person” column on the dashboard, and tell us whether the grader can be trusted.",
   "sec-alerts": "Every <b>warning sent to our Teams chat</b>. Level: Critical, High or Trend (see “Needs attention” at the top). “Notice” = an emergency message went out, for a person to follow up. “Row” is a reference number for the team; no private chat text is ever shown here."
 };
 function addNotes(){
   document.body.classList.toggle("notes", NOTES);
   $("notesBtn").textContent = NOTES ? "Hide notes" : "Notes";
-  if(!NOTES) return;
+  if(!NOTES){ document.querySelectorAll("main > .sticky").forEach(x => x.remove()); return; }
   const mk = (html, cls) => { const d = document.createElement("div"); d.className = "sticky" + (cls ? " " + cls : ""); d.innerHTML = html; return d; };
+  const tb = $("tabs"); if(tb && !(tb.nextElementSibling && tb.nextElementSibling.classList.contains("sticky"))) tb.after(mk(NOTE.tabs));
   if(VIEW === "review"){ const s = $("sec-review"); if(s && !s.querySelector(".sticky")) s.querySelector(".hd").after(mk(NOTE["sec-review"], "wide"));
     [document.querySelector("article.rv .ask")].filter(Boolean).forEach(a => { if(!a.nextElementSibling || !a.nextElementSibling.classList.contains("sticky"))
       a.after(mk("<b>Agree</b> = the grader got it right. <b>Partly agree</b> = some of it is right. <b>Disagree</b> = the grader was wrong (or, for an emergency message, the message wasn’t right). Add a short note unless you agree.")); });
@@ -851,6 +896,8 @@ function wire(){
   document.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click", e => {
     const el = document.getElementById(a.dataset.jump); if(!el) return;
     e.preventDefault();
+    const pane = el.closest(".tabpane"); if(pane && pane.dataset.pane !== TAB) showTab(pane.dataset.pane);
+    if(el.tagName === "TR"){ const sec = el.closest("section.card"); if(el.classList.contains("zero") && sec && !sec.classList.contains("open")) sec.querySelector("[data-fold]")?.click(); }
     el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center" });
     if(el.tagName === "TR"){ el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
   }));
@@ -987,7 +1034,8 @@ function makeDemo(fl){
     results:(() => { const rows = clients.map(c => { const p = Math.max(3, Math.round(c.people * (0.35 + rnd() * 0.1))), a = Math.round(p * 1.8), y = Math.round(a * (0.62 + rnd() * 0.15)), ci = Math.round(y * 0.95);
         return { company_id:c.company_id, client_name:c.client_name, parent_code:c.parent_code, guide:"maggie", hidden:false, people:p, goals_chosen: Math.round(p * 1.3), asks:a, said_yes:y,
                  checkins:ci, goals_met: Math.round(ci * 0.3), scored: Math.round(p * 0.7), score_started: 52 + Math.round(rnd() * 8), score_now: 58 + Math.round(rnd() * 8) }; });
-      return { ok:true, min_group:11, hiding:false, rows, totals:{ people: rows.reduce((a, x) => a + x.people, 0), goals_met: rows.reduce((a, x) => a + x.goals_met, 0) } }; })(),
+      const cr = fl.company_id ? rows.filter(r => r.company_id === fl.company_id) : rows;
+      return { ok:true, min_group:11, hiding:false, rows: cr, totals:{ people: rows.reduce((a, x) => a + x.people, 0), goals_met: rows.reduce((a, x) => a + x.goals_met, 0) } }; })(),
     health:{ now: nowIso, last_reply: new Date(Date.now() - 2*60000).toISOString(), last_check: new Date(Date.now() - 2*60000).toISOString(),
              alerts_waiting:0, oldest_waiting:null, alerts_failed:0, alerts_sent_30d: alerts.filter(a => (Date.now() - new Date(a.at)) < 30*86400000).length },
     options:{ guides:["maggie","nona","dundee","liam"], versions: versions.map(v => v.version), companies: clients.map(c => ({ company_id:c.company_id, client_name:c.client_name })) } };
@@ -1000,7 +1048,7 @@ $("applyBtn").addEventListener("click", load);
 $("logoutBtn").addEventListener("click", signOut);
 $("demoBtn").addEventListener("click", toggleDemo);
 $("notesBtn").addEventListener("click", () => { NOTES = !NOTES; VIEW === "review" ? renderReviewSafe() : load(); });
-$("reviewBtn").addEventListener("click", () => setView(VIEW === "review" ? "dash" : "review"));
+document.querySelectorAll("#tabs [data-tab]").forEach(b => b.addEventListener("click", () => pickTab(b.dataset.tab)));
 function renderReviewSafe(){ if(RV.data) renderReview(); else loadReview(); }
 $("demoLogin").addEventListener("click", e => { e.preventDefault(); toggleDemo(); });
 loadSession();
