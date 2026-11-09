@@ -340,6 +340,8 @@ border: 3px solid #2a7d72;
         .mp-bar-row { display: grid; grid-template-columns: 110px 1fr 40px; gap: 10px; align-items: center; margin: 8px 0; font-size: 13px; color: #555; }
         .mp-progress { font-size: 13px; color: #555; padding: 8px 0; border-top: 1px solid #eee; }
         .mp-progress:first-of-type { border-top: none; padding-top: 0; }
+        .mp-change { display: grid; grid-template-columns: 1fr auto; gap: 12px; font-size: 13px; color: #555; padding: 8px 0; border-top: 1px solid #eee; }
+        .mp-change-a { color: #1a3a4a; font-weight: 600; white-space: nowrap; }
         .mp-bar { height: 12px; background: #e3e9eb; border-radius: 6px; overflow: hidden; }
         .mp-bar span { display: block; height: 100%; border-radius: 6px; background: #1a7b8e; }
         .mp-bar span.start { background: #9fb8bf; }
@@ -1620,6 +1622,11 @@ video.addEventListener('ended', () => {
             const prog = Array.isArray(h.progress) ? h.progress : [];
             if (prog.length) html += '<div class="mp-card"><h3>Progress</h3>' +
                 prog.map(p => '<div class="mp-progress">' + mpEsc(p.text) + '</div>').join('') + '</div>';
+            // 11-10 (F4 member report): every answer that changed since the assessment, both ways, no judgment.
+            const ch = Array.isArray(h.changes) ? h.changes : [];
+            if (ch.length) html += '<div class="mp-card"><h3>Then and now</h3><p class="mp-muted">Your answers when you started, and your latest answers.</p>' +
+                ch.map(x => '<div class="mp-change"><div>' + mpEsc(x.question) + '</div><div class="mp-change-a">' +
+                    mpEsc(x.started) + ' &rarr; ' + mpEsc(x.now) + '</div></div>').join('') + '</div>';
             const others = h.others || [];
             if (others.length) html += '<div class="mp-card"><h3>Your other areas</h3>' +
                 others.map(x => mpBar(x.label, x.now)).join('') + '</div>';
