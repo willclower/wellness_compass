@@ -574,6 +574,20 @@ function render(d){
   if(!cl.length) html += `<tr><td colspan="9" class="muted">No clients in this range.</td></tr>`;
   html += `</tbody></table></div></section>`;
 
+  // program results (F4 client report, 13c): goals, check-ins, scores; no member IDs or text
+  const rs = d.results || {}, rr = rs.rows || [], rt = rs.totals || {};
+  const GN = { maggie:"Maggie", nona:"Nona", dundee:"Dundee", liam:"Liam" };
+  html += `<section class="card" id="sec-results"><div class="hd"><h2>Program results</h2><span class="sum">${fmtN(rt.people)} people · ${fmtN(rt.goals_met)} goals met</span><p class="desc">How members are doing with the goals they chose. People = members who chose a goal in this range. Said yes = check-in asks the member agreed to. Score = the average section score (0–100) at the start and now, for people who checked in.${rs.hiding ? ` Groups with fewer than ${rs.min_group} people are hidden.` : ""}</p></div>
+    <div class="scroll"><table><thead><tr><th>Client</th><th>Guide</th><th>People</th><th>Goals chosen</th><th>Check-in asks</th><th>Said yes</th><th>Check-ins</th><th>Goals met</th><th>Score: start → now</th></tr></thead><tbody>`;
+  rr.forEach(x => {
+    if(x.hidden){ html += `<tr><td>${esc(x.client_name)}</td><td>${esc(GN[x.guide] || x.guide)}</td><td colspan="7" class="hidden-note">fewer than ${rs.min_group} people</td></tr>`; return; }
+    const score = x.scored ? `${x.score_started} → ${x.score_now} <span class="muted">(${fmtN(x.scored)})</span>` : '<span class="muted">no check-ins yet</span>';
+    html += `<tr><td>${esc(x.client_name)}</td><td>${esc(GN[x.guide] || x.guide)}</td><td class="num">${fmtN(x.people)}</td><td class="num">${fmtN(x.goals_chosen)}</td>
+      <td class="num">${fmtN(x.asks)}</td><td class="num">${pct(x.said_yes, x.asks)}</td><td class="num">${fmtN(x.checkins)}</td><td class="num">${fmtN(x.goals_met)}</td><td class="num">${score}</td></tr>`;
+  });
+  if(!rr.length) html += `<tr><td colspan="9" class="muted">No goals chosen in this range.</td></tr>`;
+  html += `</tbody></table></div></section>`;
+
   // alerts (team scope only)
   if(d.scope === "all"){
     const al = d.alerts || [];
@@ -788,6 +802,7 @@ const NOTE = {
   h_cost: "What each chat <b>costs us</b>. Not measured yet.",
   h_chart: "Answer <b>speed each day</b>. Blue = typical wait, orange = slowest. A spike means a slow day.",
   "sec-versions": "Each time we update a guide, it gets a <b>new version name</b>. This table puts versions side by side, so if an update made things worse, we see it here first.",
+  "sec-results": "What members are <b>getting out of coaching</b>: how many chose a goal, how often they agreed to check in, how many check-ins and goals reached, and how their score moved. Check-ins only happen when the member says yes. Small groups are hidden for client logins.",
   "sec-clients": "The same key numbers <b>for each client company</b>. “Parent” groups clients under one organisation (for example, Concentra). Clients only ever see their own numbers, and small groups are hidden to protect privacy.",
   "sec-review": "<b>This is where a person double-checks the checker.</b> Each card is one answer the grader flagged, or one where an emergency message went out. Read what the member wrote and what the guide said. Then say whether the grader was right: <b>Agree</b>, <b>Partly agree</b> or <b>Disagree</b>. Your answers fill the “Confirmed by a person” column on the dashboard, and tell us whether the grader can be trusted.",
   "sec-alerts": "Every <b>warning sent to our Teams chat</b>. Level: Critical, High or Trend (see “Needs attention” at the top). “Notice” = an emergency message went out, for a person to follow up. “Row” is a reference number for the team; no private chat text is ever shown here."
@@ -969,6 +984,10 @@ function makeDemo(fl){
   return { ok:true, scope:"all", label:"Demo", min_group:11, hiding:false, range:{ from, to }, real_users_to_date: 1240,
     totals:{ replies:R, graded:G, people: 1240, hidden:false, ms_p50: pct50, ms_p95: pct95 },
     daily, clients, alerts: alerts.slice(0, 50), versions,
+    results:(() => { const rows = clients.map(c => { const p = Math.max(3, Math.round(c.people * (0.35 + rnd() * 0.1))), a = Math.round(p * 1.8), y = Math.round(a * (0.62 + rnd() * 0.15)), ci = Math.round(y * 0.95);
+        return { company_id:c.company_id, client_name:c.client_name, parent_code:c.parent_code, guide:"maggie", hidden:false, people:p, goals_chosen: Math.round(p * 1.3), asks:a, said_yes:y,
+                 checkins:ci, goals_met: Math.round(ci * 0.3), scored: Math.round(p * 0.7), score_started: 52 + Math.round(rnd() * 8), score_now: 58 + Math.round(rnd() * 8) }; });
+      return { ok:true, min_group:11, hiding:false, rows, totals:{ people: rows.reduce((a, x) => a + x.people, 0), goals_met: rows.reduce((a, x) => a + x.goals_met, 0) } }; })(),
     health:{ now: nowIso, last_reply: new Date(Date.now() - 2*60000).toISOString(), last_check: new Date(Date.now() - 2*60000).toISOString(),
              alerts_waiting:0, oldest_waiting:null, alerts_failed:0, alerts_sent_30d: alerts.filter(a => (Date.now() - new Date(a.at)) < 30*86400000).length },
     options:{ guides:["maggie","nona","dundee","liam"], versions: versions.map(v => v.version), companies: clients.map(c => ({ company_id:c.company_id, client_name:c.client_name })) } };
