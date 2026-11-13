@@ -1,5 +1,5 @@
 /**
- * Mediterranean Wellness API Client
+ * Mediterranean Wellness API Client  (2026-11-13: N16 nutrition per serving parsed from Recipe Info)
  * Connects frontend to n8n Cloud backend
  */
 
@@ -208,6 +208,23 @@ const summarySection = text.match(/#{1,4}\s*Summary:?\s*\n+([\s\S]+?)(?=\n#{1,4}
             // Extract calories
             const caloriesMatch = infoText.match(/\*{0,2}Calories:\*{0,2}\s*(\d+)/i);
             if (caloriesMatch) recipe.recipeInfo.calories_per_serving = parseInt(caloriesMatch[1]);
+            
+            // N16 (2026-11-13): nutrition per serving, worked out from the ingredients (Nona's Recipe Info lines).
+            // Only present when the recipe has computed nutrition; otherwise none is shown.
+            const num = re => { const m = infoText.match(re); return m ? parseFloat(m[1]) : null; };
+            const nutrition = {
+                protein_g: num(/^[-*\s]*Protein:\*{0,2}\s*([\d.]+)/im),
+                fat_g:     num(/^[-*\s]*Fat:\*{0,2}\s*([\d.]+)/im),
+                sat_fat_g: num(/^[-*\s]*Saturated Fat:\*{0,2}\s*([\d.]+)/im),
+                carbs_g:   num(/^[-*\s]*Carbohydrates:\*{0,2}\s*([\d.]+)/im),
+                fiber_g:   num(/^[-*\s]*Fiber:\*{0,2}\s*([\d.]+)/im),
+                sugars_g:  num(/^[-*\s]*Sugar:\*{0,2}\s*([\d.]+)/im),
+                sodium_mg: num(/^[-*\s]*Sodium:\*{0,2}\s*([\d.]+)/im)
+            };
+            if (Object.values(nutrition).some(v => v !== null)) {
+                nutrition.salt_to_taste_note = /Sodium doesn.t include salt added to taste/i.test(infoText);
+                recipe.nutrition = nutrition;
+            }
             
             // Extract dietary tags
             const dietaryMatch = infoText.match(/\*{0,2}Dietary Tags:\*{0,2}\s*(.+)$/m);
