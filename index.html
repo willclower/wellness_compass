@@ -558,6 +558,13 @@ margin: 0 0 8px 0;
     color: #333;
 }
 
+/* N16 (2026-11-13): nutrition per serving, under the meta row */
+.recipe-nutrition-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 13px; color: #555; margin-top: 6px; }
+.recipe-nutrition-row:empty { display: none; }
+.recipe-nutrition-row .nutrition-label { font-weight: 600; color: #333; }
+.recipe-nutrition-row .recipe-meta-item { white-space: nowrap; }
+.recipe-nutrition-row .nutrition-note { flex-basis: 100%; font-size: 12px; font-style: italic; color: #777; }
+
 /* Compact actions row: rating + save + download inline */
 .recipe-actions-compact {
     display: flex;
@@ -1259,6 +1266,7 @@ color: #2a7d72;
                         <div class="recipe-hero-right">
                             <p class="recipe-summary" id="recipeSummary"></p>
                             <div class="recipe-meta-row" id="recipeMetaRow"></div>
+                            <div class="recipe-nutrition-row" id="recipeNutritionRow"></div>   <!-- N16 (2026-11-13) -->
                             <div class="recipe-actions-compact">
                                 <div class="yum-rating-inline" id="yumRating">
                                     <span class="yum-emoji" data-rating="1">😋</span>
@@ -2374,6 +2382,39 @@ document.getElementById('recipeSummary').textContent = (recipe.summary || '')
                 });
             }
             
+            // N16 (2026-11-13): nutrition per serving (only for recipes with computed nutrition)
+            const nutRow = document.getElementById('recipeNutritionRow');
+            if (nutRow) {
+                nutRow.innerHTML = '';
+                const n = recipe.nutrition;
+                if (n) {
+                    const fmt = v => (v < 1 ? Math.round(v * 10) / 10 : Math.round(v));
+                    const parts = [];
+                    if (n.protein_g != null) parts.push(`${fmt(n.protein_g)} g protein`);
+                    if (n.fat_g != null) parts.push(`${fmt(n.fat_g)} g fat` + (n.sat_fat_g != null ? ` (${fmt(n.sat_fat_g)} g saturated)` : ''));
+                    if (n.carbs_g != null) parts.push(`${fmt(n.carbs_g)} g carbs`);
+                    if (n.fiber_g != null) parts.push(`${fmt(n.fiber_g)} g fiber`);
+                    if (n.sugars_g != null) parts.push(`${fmt(n.sugars_g)} g sugar`);
+                    if (n.sodium_mg != null) parts.push(`${Math.round(n.sodium_mg)} mg sodium`);
+                    const label = document.createElement('span');
+                    label.className = 'nutrition-label';
+                    label.textContent = 'Per serving:';
+                    nutRow.appendChild(label);
+                    parts.forEach(t => {
+                        const span = document.createElement('span');
+                        span.className = 'recipe-meta-item';
+                        span.textContent = t;
+                        nutRow.appendChild(span);
+                    });
+                    if (n.salt_to_taste_note) {
+                        const note = document.createElement('span');
+                        note.className = 'nutrition-note';
+                        note.textContent = "Sodium doesn't include salt added to taste.";
+                        nutRow.appendChild(note);
+                    }
+                }
+            }
+            
             // Tags — compact pill row
             const tagsContainer = document.getElementById('recipeTags');
             tagsContainer.innerHTML = '';
@@ -2593,6 +2634,7 @@ console.log('✓ Image set, base64 length:', imgSrc.length, data.thumbnail_data 
                         h1 { color: #8b9f4a; border-bottom: 3px solid #8b9f4a; padding-bottom: 0.5rem; }
                         h2 { color: #8b9f4a; margin-top: 2rem; }
                         .summary { font-style: italic; color: #666; margin: 1rem 0; }
+                        .meta { color: #555; font-size: 0.95rem; margin: 0.25rem 0; }
                         ul, ol { line-height: 1.8; }
                         li { margin-bottom: 0.5rem; }
                         .notes { background: #fff9e6; border-left: 4px solid #ffd700; padding: 1rem; margin-top: 2rem; }
@@ -2602,6 +2644,23 @@ console.log('✓ Image set, base64 length:', imgSrc.length, data.thumbnail_data 
                 <body>
                     <h1>${recipe.title}</h1>
                     <p class="summary">${recipe.summary}</p>
+                    ${(() => {   // N16 (2026-11-13): servings and nutrition per serving in the download
+                        const ri = recipe.recipeInfo || {}, n = recipe.nutrition, f = v => (v < 1 ? Math.round(v * 10) / 10 : Math.round(v));
+                        const bits = [];
+                        if (ri.servings) bits.push(`${ri.servings} servings`);
+                        if (n && ri.calories_per_serving) bits.push(`${ri.calories_per_serving} calories`);
+                        if (n) {
+                            if (n.protein_g != null) bits.push(`${f(n.protein_g)} g protein`);
+                            if (n.fat_g != null) bits.push(`${f(n.fat_g)} g fat` + (n.sat_fat_g != null ? ` (${f(n.sat_fat_g)} g saturated)` : ''));
+                            if (n.carbs_g != null) bits.push(`${f(n.carbs_g)} g carbs`);
+                            if (n.fiber_g != null) bits.push(`${f(n.fiber_g)} g fiber`);
+                            if (n.sugars_g != null) bits.push(`${f(n.sugars_g)} g sugar`);
+                            if (n.sodium_mg != null) bits.push(`${Math.round(n.sodium_mg)} mg sodium`);
+                        }
+                        if (!bits.length) return '';
+                        return `<p class="meta">${n ? 'Per serving: ' : ''}${bits.join(' · ')}</p>` +
+                               (n && n.salt_to_taste_note ? `<p class="meta"><em>Sodium doesn't include salt added to taste.</em></p>` : '');
+                    })()}
                     <h2>What You'll Need</h2>
                     <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
                     <h2>What To Do</h2>
