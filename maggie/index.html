@@ -401,6 +401,50 @@
             if (container) container.scrollTop = container.scrollHeight;
         }
 
+        // ---- Recipe from Nona (11-18; the 10-28 guide handoff, for Maggie's own page) ----
+        // A dish Maggie names (e.g. a meal plan dinner) gets a small button right after its first mention.
+        // Tap -> Nona's page opens and shows that recipe (her saved-recipe path, loadRecipe), greeting
+        // the member as sent by Maggie. Nona's own checks (allergies) still run.
+        function openRecipeInNona(dish) {
+            localStorage.setItem('loadRecipe', JSON.stringify({ title: dish }));
+            localStorage.setItem('mw_handoff_from', 'maggie');
+            localStorage.setItem('mw_assistant', 'nona');
+            window.location.href = ASSISTANT_PAGES.nona;
+        }
+        function makeRecipeChip(dish) {
+            const chip = document.createElement('button');
+            chip.textContent = '🍳 Recipe from Nona';
+            chip.style.cssText = 'margin: 0 4px; padding: 2px 10px; border-radius: 14px; border: 1px solid #1e7a7a; background: white; color: #1e7a7a; cursor: pointer; font-size: 12px; vertical-align: middle;';
+            chip.addEventListener('mouseenter', () => { chip.style.background = '#1e7a7a'; chip.style.color = 'white'; });
+            chip.addEventListener('mouseleave', () => { chip.style.background = 'white'; chip.style.color = '#1e7a7a'; });
+            chip.addEventListener('click', () => openRecipeInNona(dish));
+            return chip;
+        }
+        function attachRecipeButtons(msgEl, btns) {
+            if (!btns || !btns.length) return;
+            btns.forEach(btn => {
+                const dish = String(btn.value || btn.label || '').trim();
+                if (!dish) return;
+                const walker = document.createTreeWalker(msgEl, NodeFilter.SHOW_TEXT);
+                let node;
+                while ((node = walker.nextNode())) {
+                    const i = node.textContent.indexOf(dish);
+                    if (i === -1) continue;
+                    const after = node.splitText(i + dish.length);
+                    after.parentNode.insertBefore(makeRecipeChip(dish), after);
+                    return;
+                }
+                const box = document.createElement('div');          // not found in the text: a button underneath
+                box.className = 'message assistant';
+                box.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;';
+                const b = makeRecipeChip(dish); b.textContent = '🍳 ' + dish;
+                box.appendChild(b);
+                document.getElementById('chatMessages').appendChild(box);
+            });
+            const mc = document.getElementById('chatMessages');
+            if (mc) mc.scrollTop = mc.scrollHeight;
+        }
+
         // Assistant-card switching: leave Maggie's page for the target guide's page.
         // (Each guide has its own Compass page; nona keeps index.html.)
         const ASSISTANT_PAGES = {
@@ -500,7 +544,11 @@
                         });
                     } else {
                         const assistantMsg = createAssistantMsg(messagesContainer);
-                        typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'));
+                        // 11-18: meal plan dinners get a "Recipe from Nona" button; long replies (the week) type faster
+                        const handoffs = (response.gapButtons || []).filter(b => b && b.action === 'handoff');
+                        const speed = response.message.length > 600 ? 4 : TYPEWRITER_SPEED;
+                        typewriterEffect(assistantMsg, response.message.replace(/([.!?])\s+/g, '$1<br><br>').replace(/\n/g, '<br>'),
+                                         speed, () => attachRecipeButtons(assistantMsg, handoffs));
                     }
 
                     // Follow-up CTA buttons, if the backend sends any
