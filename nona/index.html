@@ -2450,6 +2450,9 @@ setTimeout(() => {
 
             // Check if we're loading a recipe from saved recipes page
             const loadRecipe = localStorage.getItem('loadRecipe');
+            // 11-18: sent here by another guide's "Recipe from Nona" button (Maggie's meal plan)
+            const _handoffFrom = loadRecipe ? (localStorage.getItem('mw_handoff_from') || '') : '';
+            localStorage.removeItem('mw_handoff_from');
  if (loadRecipe) {
                 _loadedFromSaved = true;
      localStorage.removeItem('loadRecipe');
@@ -2487,6 +2490,12 @@ document.getElementById('recipeSummary').textContent = '';
                             if (response.success && response.isRecipe) {
                                 const recipe = window.MWClient.parseRecipe(response.message);
                                 displayRecipe(recipe);
+                            } else if (_handoffFrom && response.message) {
+                                // 11-18: not a recipe (e.g. an allergy check): show Nona's reply in the chat
+                                const mc = document.getElementById('chatMessages');
+                                const m = createAssistantMsg(mc);
+                                m.innerHTML = String(response.message).replace(/\n/g, '<br>');
+                                mc.scrollTop = mc.scrollHeight;
                             }
                         });
 }
@@ -2526,6 +2535,14 @@ document.getElementById('recipeSummary').textContent = '';
                 }
             }
      
+            // 11-18: handoff greeting names the guide who sent them
+            if (_handoffFrom && loadRecipe) {
+                const who = _handoffFrom.charAt(0).toUpperCase() + _handoffFrom.slice(1);
+                let dish = ''; try { dish = JSON.parse(loadRecipe).title || ''; } catch (e) {}
+                const hm = createAssistantMsg(messagesContainer);
+                hm.textContent = `Ciao! ${who} told me you'd be coming. Here is the recipe for ${dish}.`;
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
 // Load featured recipe (recipe_ready or daily) unless loading from saved recipes
 if (!_loadedFromSaved && !loadRecipe) {
 console.log('PAGE LOAD BLOCK firing, intake_completed localStorage:', localStorage.getItem('mw_intake_completed'));
