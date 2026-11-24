@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- FILE ID: compass-hub (wellness_compass/hub.html) | 2026-11-25a | Change names the meal ("Swap day 1 dinner") so Maggie goes straight to the options; My Health Hub (team design): guides' chat in the sidebar, Maggie's meal plan and goals, Nona's recipes over the page; trackers on sample data (HubData) -->
+<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-25b | My Health Hub (team design, now the Compass page): trackers saved for real (hub_log / hub_profile via get-hub-data and save-hub-entry, SQL 20c); Done buttons on meals, the challenge, goals and tracker tiles; Change names the meal (11-25a) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1731,6 +1731,10 @@ nav::-webkit-scrollbar{display:none;}
 .ex-type.r{background:var(--purple-light);color:var(--purple)}
 @media(max-width:600px){.header-date{display:none}}
 .greeting-hero[hidden]{display:none}
+.plan-mini-button.is-done{background:#e8f7ef;border-color:#2eaa6e;color:#1f7a50}
+.tile-done{margin-top:8px;border:1px solid #cfe5ea;background:#fff;color:var(--blue-dark);border-radius:14px;padding:4px 10px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit}
+.tile-done.on{background:#e8f7ef;border-color:#2eaa6e;color:#1f7a50}
+.focus-row .plan-mini-button{margin-left:6px}
 
 </style>
 </head>
@@ -2315,55 +2319,121 @@ function fmtHM(h){ var m=Math.round(h*60); return Math.floor(m/60)+'h '+String(m
 function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 // ── DATA LAYER ──
+// mode 'live': hub_log / hub_profile through get-hub-data and save-hub-entry (SQL 20c).
+// mode 'demo': sample data in this tab only (?preview=demo, ?preview=new, or if live loading fails).
 var HubData = (function(){
-  var MODE = 'demo';          // 'demo' = sample data in this browser tab only
-  var st = null, nextId = 1000;
-  function empty(){ return {steps:[],water:[],weight:[],journal:[],sleep:[],meals:[],exercises:[],mood:[],medfoods:{},measures:{},
-    targets:{steps:10000,active:30,cardio:3,resistance:2,session:30,water:64,sleep:8,bedtime:'22:30',weight:165}}; }
+  var URL = 'https://n8n-admin.willclower.com/webhook/';
+  var MODE = 'demo', st = null, tmpId = -1, userId = null;
+  var DEF_TARGETS = {steps:10000,active:30,cardio:3,resistance:2,session:30,water:64,sleep:8,bedtime:'22:30',weight:165};
+  var KIND = {steps:'steps',water:'water',weight:'weight',journal:'journal',sleep:'sleep',meals:'meal',exercises:'exercise',mood:'mood',done:'done'};
+  var TYPE = {}; Object.keys(KIND).forEach(function(k){ TYPE[KIND[k]]=k; });
+  function blank(){ return {steps:[],water:[],weight:[],journal:[],sleep:[],meals:[],exercises:[],mood:[],done:[],medfoods:{},measures:{},
+    targets:Object.assign({},DEF_TARGETS), self_log:false}; }
   function seed(){
-    var s=empty(), r=1;
+    var s=blank(), r=1, id=1;
     function rnd(){ r=(r*16807)%2147483647; return (r-1)/2147483646; }
     var days=lastNDays(28), t=today();
     days.forEach(function(d,i){
       var isToday=d===t;
-      // steps: two or three walks a day; today partway through
       var walks=[['Morning walk',2200+rnd()*1500],['Lunch stroll',2500+rnd()*2500],['Evening walk',2500+rnd()*3500]];
-      (isToday?walks.slice(0,2):walks).forEach(function(w,k){ s.steps.push({id:nextId++,date:d,time:['7:10 AM','12:20 PM','6:30 PM'][k],label:w[0],value:Math.round(w[1]/10)*10}); });
-      // water
+      (isToday?walks.slice(0,2):walks).forEach(function(w,k){ s.steps.push({id:id++,date:d,time:['7:10 AM','12:20 PM','6:30 PM'][k],label:w[0],value:Math.round(w[1]/10)*10}); });
       var cups=isToday?[8,16,8]:[8,16,8,8,16,8,8].slice(0,4+Math.floor(rnd()*4));
-      cups.forEach(function(v,k){ s.water.push({id:nextId++,date:d,time:['7:00 AM','9:30 AM','12:00 PM','2:45 PM','4:30 PM','7:00 PM'][k],label:['Morning glass','Desk bottle','Lunch water','Afternoon refill','Late afternoon','Dinner water'][k],value:v}); });
-      // sleep (the night before this morning)
+      cups.forEach(function(v,k){ s.water.push({id:id++,date:d,time:['7:00 AM','9:30 AM','12:00 PM','2:45 PM','4:30 PM','7:00 PM','8:30 PM'][k],label:['Morning glass','Desk bottle','Lunch water','Afternoon refill','Late afternoon','Dinner water','Evening glass'][k],value:v}); });
       if(i>=14){ var bh=22+Math.floor(rnd()*2), bm=Math.floor(rnd()*4)*15, wm=Math.floor(rnd()*4)*15;
-        s.sleep.push({id:nextId++,date:d,bedtime:String(bh).padStart(2,'0')+':'+String(bm).padStart(2,'0'),wake:'06:'+String(wm).padStart(2,'0'),quality:2+Math.floor(rnd()*3),notes:''}); }
-      // weight every 3 or 4 days, drifting down slowly
-      if(i%4===0||isToday) s.weight.push({id:nextId++,date:d,value:Math.round((176-i*0.12+rnd()*0.6)*10)/10});
-      // mood check-ins
-      if(i>=7) s.mood.push({id:nextId++,date:d,level:1+Math.floor(rnd()*4)});
-      // exercise
-      if(i>=21 && i%2===0 && !isToday) s.exercises.push({id:nextId++,date:d,type:i%4===0?'resistance':'cardio',activity:i%4===0?'Bodyweight circuit':'Brisk walk',mins:30+Math.floor(rnd()*3)*5,intensity:'Moderate'});
-      // Mediterranean foods
+        s.sleep.push({id:id++,date:d,bedtime:String(bh).padStart(2,'0')+':'+String(bm).padStart(2,'0'),wake:'06:'+String(wm).padStart(2,'0'),quality:2+Math.floor(rnd()*3),notes:''}); }
+      if(i%4===0||isToday) s.weight.push({id:id++,date:d,value:Math.round((176-i*0.12+rnd()*0.6)*10)/10});
+      if(i>=7) s.mood.push({id:id++,date:d,level:1+Math.floor(rnd()*4)});
+      if(i>=21 && i%2===0 && !isToday) s.exercises.push({id:id++,date:d,type:i%4===0?'resistance':'cardio',activity:i%4===0?'Bodyweight circuit':'Brisk walk',mins:30+Math.floor(rnd()*3)*5,intensity:'Moderate'});
       var picks=[]; for(var f=0;f<11;f++) if(rnd()<0.45) picks.push(f); s.medfoods[d]=picks;
     });
-    s.journal.push({id:nextId++,date:addDays(t,-1),text:'Busy day, but the evening walk helped me unwind.'});
-    s.meals.push({id:nextId++,date:t,time:'7:30 AM',meal:'Breakfast',label:'Greek yogurt with berries'});
+    s.journal.push({id:id++,date:addDays(t,-1),text:'Busy day, but the evening walk helped me unwind.'});
+    s.meals.push({id:id++,date:t,time:'7:30 AM',meal:'Breakfast',label:'Greek yogurt with berries'});
     s.measures={ft:5,in:6};
     return s;
   }
+  // server row ↔ page entry
+  function fromRow(s, r){
+    var d=r.data||{}, e={id:r.id,date:String(r.date).slice(0,10),source:r.source};
+    switch(r.kind){
+      case 'steps': case 'water': e.time=r.time||''; e.label=r.label||''; e.value=+r.value||0; break;
+      case 'weight': e.value=+r.value; break;
+      case 'journal': e.text=r.label||''; break;
+      case 'sleep': e.bedtime=d.bedtime||'22:30'; e.wake=d.wake||'06:30'; e.quality=+d.quality||3; e.notes=d.notes||''; break;
+      case 'meal': e.time=r.time||''; e.label=r.label||''; e.meal=d.meal_label||d.meal||''; e.planned=!!d.planned; e.plan_id=d.plan_id; e.day_index=d.day_index; e.slot_meal=d.meal; break;
+      case 'exercise': e.type=d.type||'cardio'; e.activity=r.label||'Exercise'; e.mins=+r.value||0; e.intensity=d.intensity||'Moderate'; break;
+      case 'mood': e.level=+r.value||3; break;
+      case 'done': e.ref_type=d.ref_type; e.ref_id=d.ref_id; e.label=r.label||''; break;
+      case 'medfood': s.medfoods[e.date]=(d.items||[]).map(Number); return;
+      default: return;
+    }
+    s[TYPE[r.kind]].push(e);
+  }
+  function toEntry(type, e){
+    var k=KIND[type], x={kind:k,date:e.date,data:{}};
+    if(type==='steps'||type==='water'){ x.time=e.time; x.label=e.label; x.value=e.value; }
+    if(type==='weight') x.value=e.value;
+    if(type==='journal') x.label=e.text;
+    if(type==='sleep') x.data={bedtime:e.bedtime,wake:e.wake,quality:e.quality,notes:e.notes||''};
+    if(type==='meals'){ x.time=e.time; x.label=e.label; x.data=e.planned?{meal:e.slot_meal,meal_label:e.meal,planned:true,plan_id:e.plan_id,day_index:e.day_index}:{meal:String(e.meal||'').toLowerCase(),meal_label:e.meal}; }
+    if(type==='exercises'){ x.value=e.mins; x.label=e.activity; x.data={type:e.type,intensity:e.intensity}; }
+    if(type==='mood') x.value=e.level;
+    if(type==='done'){ x.label=e.label; x.data={ref_type:e.ref_type,ref_id:e.ref_id}; }
+    return x;
+  }
+  function post(body){
+    if(MODE!=='live') return Promise.resolve({success:true});
+    body.user_id=userId;
+    return fetch(URL+'save-hub-entry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){ return r.json(); })
+      .then(function(r){ if(!r||!r.success) saveFailed(); return r||{}; })
+      .catch(function(){ saveFailed(); return {}; });
+  }
+  function saveFailed(){ var m=el('hdrMode'); if(m){ m.textContent='Couldn\u2019t save the last change. Reload to see what\u2019s saved.'; m.hidden=false; } }
+  function sendAdd(type, e){ post({op:'add',entry:toEntry(type,e)}).then(function(r){ if(r.id) e.id=r.id; }); }
   return {
-    mode: MODE,
-    load: function(opts){ st = (opts && opts.empty) ? empty() : seed(); return st; },
+    mode: function(){ return MODE; },
+    blank: function(){ st=blank(); return st; },
+    load: function(opts){
+      opts=opts||{};
+      if(opts.mode!=='live'){ MODE='demo'; st=opts.empty?blank():seed(); return Promise.resolve(st); }
+      userId=opts.userId;
+      return fetch(URL+'get-hub-data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId})})
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if(!res||!res.success) throw new Error('load failed');
+          MODE='live'; var s=blank(), pr=res.profile||{};
+          Object.assign(s.targets, pr.targets||{}); s.measures=pr.measures||{}; s.self_log=!!pr.self_log;
+          (res.entries||[]).forEach(function(r){ fromRow(s,r); });
+          st=s; return st;
+        })
+        .catch(function(){ MODE='offline'; st=seed(); return st; });
+    },
     all: function(){ return st; },
     list: function(type){ return st[type]; },
-    add: function(type, entry){ entry.id = nextId++; st[type].push(entry); return entry; },
-    update: function(type, id, patch){ var e=st[type].find(function(x){ return x.id===id; }); if(e) Object.assign(e,patch); return e; },
-    remove: function(type, id){ st[type] = st[type].filter(function(x){ return x.id!==id; }); },
-    replaceDay: function(type, date, entry){ st[type] = st[type].filter(function(x){ return x.date!==date; }); if(entry){ entry.id=nextId++; entry.date=date; st[type].push(entry); } },
-    medFoods: function(date){ return new Set(st.medfoods[date] || []); },
-    setMedFoods: function(date, set){ st.medfoods[date] = Array.from(set); },
+    add: function(type, entry){ entry.id=tmpId--; st[type].push(entry); sendAdd(type,entry); return entry; },
+    update: function(type, id, patch){ var e=st[type].find(function(x){ return x.id===id; }); if(!e) return null; Object.assign(e,patch);
+      if(id>0) post({op:'update',id:id,entry:toEntry(type,e)}); return e; },
+    remove: function(type, id){ st[type]=st[type].filter(function(x){ return x.id!==id; }); if(id>0) post({op:'delete',id:id}); },
+    replaceDay: function(type, date, entry){
+      st[type]=st[type].filter(function(x){ return x.date!==date; });
+      var body={op:'replace_day',kind:KIND[type],date:date};
+      if(entry){ entry.id=tmpId--; entry.date=date; st[type].push(entry); body.entry=toEntry(type,entry); }
+      post(body).then(function(r){ if(entry&&r.id) entry.id=r.id; });
+    },
+    medFoods: function(date){ return new Set(st.medfoods[date]||[]); },
+    setMedFoods: function(date, set){ st.medfoods[date]=Array.from(set); post({op:'replace_day',kind:'medfood',date:date,entry:{kind:'medfood',date:date,data:{items:st.medfoods[date]}}}); },
     measures: function(){ return st.measures; },
-    setMeasures: function(m){ st.measures = m; },
+    setMeasures: function(m){ st.measures=m; post({op:'profile',measures:m}); },
     targets: function(){ return st.targets; },
-    setTargets: function(t){ Object.assign(st.targets, t); }
+    setTargets: function(t){ Object.assign(st.targets,t); post({op:'profile',targets:t}); },
+    // completion: one 'done' row per thing per day
+    isDone: function(refType, refId, date){ date=date||today(); return st.done.some(function(x){ return x.date===date && x.ref_type===refType && String(x.ref_id)===String(refId); }); },
+    toggleDone: function(refType, refId, label, date){
+      date=date||today();
+      var ex=st.done.find(function(x){ return x.date===date && x.ref_type===refType && String(x.ref_id)===String(refId); });
+      if(ex){ this.remove('done', ex.id); return false; }
+      this.add('done',{date:date,ref_type:refType,ref_id:refId,label:label}); return true;
+    }
   };
 })();
 var state = null;   // shortcut to HubData.all(), set in initTrackers()
@@ -2601,7 +2671,15 @@ function renderMealLog(){
   setHTML('mealLog', rows.map(function(e){ return '<div class="entry-row"><span class="er-date">'+esc(e.meal||'')+'</span><span class="er-label">'+esc(e.label)+'</span>'+actBtn('meals',e.id)+'</div>'; }).join('') || '<div class="empty-state">No meals logged for this date.</div>');
 }
 function addMealEntry(){ var l=gv('mealLabel').trim(); if(!l) return; HubData.add('meals',{date:gv('mealDate')||today(),time:nowTime(),meal:gv('mealType'),label:l}); el('mealLabel').value=''; renderAll(); }
-function logPlannedMeal(meal,label){ HubData.add('meals',{date:today(),time:nowTime(),meal:meal,label:label}); renderAll(); }
+// A planned meal eaten: also marks the plan (hub_mark_meal). Tapping again un-logs it.
+function plannedMealEntry(slotMeal){ var p=(typeof HubPlan!=='undefined')?HubPlan:null, di=(typeof planDayIndex==='function')?planDayIndex():null;
+  return state.meals.find(function(e){ return e.date===today() && e.planned && e.slot_meal===slotMeal && (!p || e.plan_id===p.plan_id) && e.day_index===di; }); }
+function togglePlannedMeal(slotMeal, mealLabel, label){
+  var ex=plannedMealEntry(slotMeal);
+  if(ex) HubData.remove('meals', ex.id);
+  else HubData.add('meals',{date:today(),time:nowTime(),meal:mealLabel,label:label,planned:true,plan_id:HubPlan&&HubPlan.plan_id,day_index:planDayIndex(),slot_meal:slotMeal});
+  renderAll(); if(typeof renderPlanAll==='function') renderPlanAll();
+}
 function renderFoods(){
   var set=HubData.medFoods(today());
   setHTML('medFoods', MED_FOODS.map(function(f,i){ return '<div class="med-food '+(set.has(i)?'checked':'')+'" onclick="toggleFood('+i+')"><span class="mf-icon">'+f.i+'</span><span class="mf-lbl">'+f.l+'</span></div>'; }).join(''));
@@ -2653,19 +2731,21 @@ function renderSummary(){
   var mood=state.mood.find(function(x){ return x.date===d; }), mf=HubData.medFoods(d).size;
   var sp=t.steps?Math.round(steps/t.steps*100):0, wp=t.water?Math.round(water/t.water*100):0, slp=t.sleep?Math.round(slh/t.sleep*100):0, mfp=Math.round(mf/MED_FOODS.length*100);
   var tiles=[
-    {cls:'',key:'activity',lbl:'Steps',val:steps.toLocaleString(),unit:'steps',sub:steps>=t.steps?'Goal reached!':(t.steps-steps).toLocaleString()+' to your '+t.steps.toLocaleString()+' goal',good:steps>=t.steps,pct:sp,fc:'f-blue',nav:'activity'},
-    {cls:'mt-w',key:'water',lbl:'Hydration',val:water,unit:'/ '+t.water+' oz',sub:water>=t.water?'Goal reached!':(t.water-water)+' oz to go today',good:water>=t.water,pct:wp,fc:'f-blue2',nav:'hydration'},
+    {cls:'',key:'activity',dk:'activity',lbl:'Steps',val:steps.toLocaleString(),unit:'steps',sub:steps>=t.steps?'Goal reached!':(t.steps-steps).toLocaleString()+' to your '+t.steps.toLocaleString()+' goal',good:steps>=t.steps,pct:sp,fc:'f-blue',nav:'activity'},
+    {cls:'mt-w',key:'water',dk:'water',lbl:'Hydration',val:water,unit:'/ '+t.water+' oz',sub:water>=t.water?'Goal reached!':(t.water-water)+' oz to go today',good:water>=t.water,pct:wp,fc:'f-blue2',nav:'hydration'},
     {cls:'mt-wt',key:'weight',lbl:'Weight',val:wcur!=null?wcur.toFixed(1):'\u2013',unit:'lbs',sub:'Target '+t.weight+' lbs',good:false,pct:null,fc:'f-purple',nav:'weight'},
-    {cls:'mt-sl',key:'sleep',lbl:'Sleep',val:sl?fmtHM(slh):'\u2013',unit:'last night',sub:sl?slp+'% of '+t.sleep+'h goal':'Log last night',good:slh>=t.sleep,pct:slp,fc:'f-blue',nav:'sleep'},
-    {cls:'mt-s',key:'stress',lbl:'Stress',val:mood?'Level '+mood.level:'\u2013',unit:mood?'/ 5':'',sub:mood?sTips[mood.level-1].l:'Check in on the Stress tab',good:!!mood&&mood.level<=2,pct:mood?(6-mood.level)*20:null,fc:'f-warn',nav:'stress'},
-    {cls:'mt-n',key:'nutrition',lbl:'Mediterranean Foods',val:mf,unit:'/ '+MED_FOODS.length+' today',sub:(function(n){ return n+' meal'+(n===1?'':'s')+' logged'; })(state.meals.filter(function(e){ return e.date===d; }).length),good:mf>=6,pct:mfp,fc:'f-green',nav:'nutrition'}
+    {cls:'mt-sl',key:'sleep',dk:'sleep',lbl:'Sleep',val:sl?fmtHM(slh):'\u2013',unit:'last night',sub:sl?slp+'% of '+t.sleep+'h goal':'Log last night',good:slh>=t.sleep,pct:slp,fc:'f-blue',nav:'sleep'},
+    {cls:'mt-s',key:'stress',dk:'stress',lbl:'Stress',val:mood?'Level '+mood.level:'\u2013',unit:mood?'/ 5':'',sub:mood?sTips[mood.level-1].l:'Check in on the Stress tab',good:!!mood&&mood.level<=2,pct:mood?(6-mood.level)*20:null,fc:'f-warn',nav:'stress'},
+    {cls:'mt-n',key:'nutrition',dk:'nutrition',lbl:'Mediterranean Foods',val:mf,unit:'/ '+MED_FOODS.length+' today',sub:(function(n){ return n+' meal'+(n===1?'':'s')+' logged'; })(state.meals.filter(function(e){ return e.date===d; }).length),good:mf>=6,pct:mfp,fc:'f-green',nav:'nutrition'}
   ];
   setHTML('sumTiles', tiles.map(function(x){
+    var dn=x.dk&&HubData.isDone(x.dk,'daily'); if(dn) x.good=true;
     return '<div class="mt '+x.cls+'" onclick="navToTab(\''+x.nav+'\')"><div class="mt-hdr"><div class="mt-ico-lbl"><img src="'+ICONS[x.key]+'" style="width:16px;height:16px;object-fit:contain;vertical-align:middle"> '+x.lbl+'</div>'+
-      (x.pct!=null?'<span class="mt-status '+(x.good?'good':'ok')+'">'+(x.good?'&#10003; On track':x.pct+'%')+'</span>':'')+'</div>'+
+      (x.pct!=null?'<span class="mt-status '+(x.good?'good':'ok')+'">'+(dn?'&#10003; Done':(x.good?'&#10003; On track':x.pct+'%'))+'</span>':'')+'</div>'+
       '<div class="mt-val">'+x.val+' <small>'+x.unit+'</small></div>'+
       (x.pct!=null?'<div class="prog-wrap" style="margin-bottom:4px"><div class="prog-bar"><div class="prog-fill '+x.fc+'" style="width:'+Math.min(x.pct,100)+'%"></div></div></div>':'')+
-      '<div class="mt-sub">'+x.sub+'</div></div>';
+      '<div class="mt-sub">'+x.sub+'</div>'+
+      (x.dk?'<button type="button" class="tile-done'+(dn?' on':'')+'" onclick="event.stopPropagation();toggleTileDone(\''+x.dk+'\',\''+x.lbl+' goal\')">'+(dn?'&#10003; Done today':'Mark done')+'</button>':'')+'</div>';
   }).join(''));
 
   // timeline: today's entries by time
@@ -2677,7 +2757,7 @@ function renderSummary(){
   ev.sort(function(a,b){ return tm(a.time)-tm(b.time); });
   setHTML('sumTimeline', ev.slice(-5).map(function(e){ return '<div class="tl-entry"><div class="tl-time">'+e.time+'</div><div class="tl-dot" style="background:'+e.col+'"></div><div class="tl-content"><div class="tl-lbl">'+e.lbl+'</div></div></div>'; }).join('') || '<div class="empty-state">Nothing logged yet today.</div>');
 
-  var stepS=streak(function(x){ return sumBy(state.steps,x)>=t.steps; }), sleepS=streak(function(x){ var e=state.sleep.find(function(s){ return s.date===x; }); return !!e&&sleepHours(e)>=7; }), waterS=streak(function(x){ return sumBy(state.water,x)>=t.water; });
+  var stepS=streak(function(x){ return sumBy(state.steps,x)>=t.steps||HubData.isDone('activity','daily',x); }), sleepS=streak(function(x){ var e=state.sleep.find(function(s){ return s.date===x; }); return (!!e&&sleepHours(e)>=7)||HubData.isDone('sleep','daily',x); }), waterS=streak(function(x){ return sumBy(state.water,x)>=t.water||HubData.isDone('water','daily',x); });
   setHTML('sumStreaks',
     '<div class="streak-badge"><div class="sb-icon">&#127939;</div><div><div class="sb-val">'+stepS+' day'+(stepS===1?'':'s')+'</div><div class="sb-lbl">Steps goal</div></div></div>'+
     '<div class="streak-badge"><div class="sb-icon">&#128564;</div><div><div class="sb-val">'+sleepS+' night'+(sleepS===1?'':'s')+'</div><div class="sb-lbl">7h+ sleep</div></div></div>'+
@@ -2698,6 +2778,7 @@ function renderSummary(){
   var bits=[]; if(steps<t.steps) bits.push((t.steps-steps).toLocaleString()+' steps'); if(water<t.water) bits.push((t.water-water)+' oz of water');
   setText('ghText', bits.length ? 'Just '+bits.join(' and ')+' to finish strong today.' : 'You\'ve hit your step and water goals today. Nice work!');
 }
+function toggleTileDone(key,label){ HubData.toggleDone(key,'daily',label); renderSummary(); }
 function renderQuickLog(){
   setHTML('quickLog',
     '<button class="ql-btn" onclick="quickAddSteps(1000)"><img src="'+ICONS.activity+'" class="qi-img">+1,000 Steps</button>'+
@@ -2776,15 +2857,20 @@ function renderAll(){
   if(typeof renderNutritionPlan==='function') renderNutritionPlan();
 }
 function initTrackers(opts){
-  state=HubData.load(opts);
-  buildNav(); injectTitles(); renderQuickLog(); renderMeasurements(); renderTrackingTargets(); renderAll();
+  state=HubData.all(); buildNav(); injectTitles(); renderQuickLog(); renderMeasurements(); renderTrackingTargets(); renderAll();
+  return HubData.load(opts).then(function(st){
+    state=st; renderMeasurements(); renderTrackingTargets(); renderAll();
+    var m=el('hdrMode'), md=HubData.mode();
+    if(m){ m.textContent = md==='live' ? '' : (md==='offline' ? 'Trackers: sample data (couldn\u2019t load yours)' : 'Trackers: sample data'); m.hidden = md==='live'; }
+  });
 }
 
 // ── START ──
-// ?preview=new shows the first-visit view; ?preview=returning forces the returning view.
+// ?preview=new: first-visit view (empty sample data) · ?preview=demo: sample data · ?preview=returning: returning view.
+// Otherwise trackers load the member's saved entries (initTrackers is called from the page script, after MWClient).
 var HUB_PREVIEW = new URLSearchParams(location.search).get('preview');
-var HUB_FIRST_TIME = HUB_PREVIEW === 'new' || (HUB_PREVIEW !== 'returning' && localStorage.getItem('mw_intake_completed') !== 'true');
-initTrackers({ empty: HUB_FIRST_TIME });
+var HUB_FIRST_TIME = HUB_PREVIEW === 'new' || (HUB_PREVIEW !== 'returning' && HUB_PREVIEW !== 'demo' && localStorage.getItem('mw_intake_completed') !== 'true');
+state = HubData.blank();
 
 </script>
 <script src="mediterranean-wellness-client.js"></script>
@@ -2908,13 +2994,18 @@ function renderTodayMeals() {
         var l = d && mealLine(m[0], d.meals[m[0]]); if (!l) return '';
         return '<div class="today-meal-row"><div><small>' + m[1] + '</small><strong>' + esc(l.name) + '</strong>' + (l.sub ? '<span class="tm-extra">' + esc(l.sub) + '</span>' : '') + '</div>' +
             '<div class="tm-btns">' + (l.recipe ? '<button type="button" class="plan-mini-button" data-recipe="' + esc(l.recipe) + '">&#127859; Recipe</button>' : '') +
-            '<button type="button" class="plan-mini-button" data-log="' + m[1] + '" data-label="' + esc(l.name) + '">Log</button></div></div>';
+            doneBtn(m) + '</div></div>';
     }).join('') || '<div class="empty-state">Nothing planned today.</div>';
     wirePlanButtons(box);
 }
+// Done on a planned meal: logs it as eaten and marks the plan; tap again to undo.
+function doneBtn(m) {
+    var d = planDay(planDayIndex()), l = d && mealLine(m[0], d.meals[m[0]]), on = !!plannedMealEntry(m[0]);
+    return '<button type="button" class="plan-mini-button' + (on ? ' is-done' : '') + '" data-done-meal="' + m[0] + '" data-meal-label="' + m[1] + '" data-label="' + esc(l ? l.name : '') + '">' + (on ? '&#10003; Done' : 'Done') + '</button>';
+}
 function wirePlanButtons(box) {
     box.querySelectorAll('[data-recipe]').forEach(function (b) { b.onclick = function () { openPlanRecipe(b.dataset.recipe); }; });
-    box.querySelectorAll('[data-log]').forEach(function (b) { b.onclick = function () { logPlannedMeal(b.dataset.log, b.dataset.label); b.textContent = '\u2713 Logged'; b.disabled = true; }; });
+    box.querySelectorAll('[data-done-meal]').forEach(function (b) { b.onclick = function () { togglePlannedMeal(b.dataset.doneMeal, b.dataset.mealLabel, b.dataset.label); }; });
     box.querySelectorAll('[data-swap]').forEach(function (b) { b.onclick = function () { askGuide('maggie', b.dataset.swap, true); }; });   // 11-25a: names the meal, so Maggie goes straight to the options
 }
 function renderNutritionPlan() {
@@ -2924,7 +3015,7 @@ function renderNutritionPlan() {
     box.innerHTML = MEALS.map(function (m) {
         var l = mealLine(m[0], d.meals[m[0]]); if (!l) return '';
         return '<div class="today-meal-row"><div><small>' + m[1] + '</small><strong>' + esc(l.name) + '</strong></div>' +
-            '<div class="tm-btns"><button type="button" class="plan-mini-button" data-log="' + m[1] + '" data-label="' + esc(l.name) + '">Log it</button></div></div>';
+            '<div class="tm-btns">' + doneBtn(m) + '</div></div>';
     }).join('');
     wirePlanButtons(box);
 }
@@ -3013,18 +3104,28 @@ function renderOtherGuideGoals() {
 }
 
 // ---- Today: this week's focus (challenges + goals) ----
+function focusDone(type, ref, label) {
+    var on = HubData.isDone(type, ref);
+    return '<button type="button" class="plan-mini-button' + (on ? ' is-done' : '') + '" data-done-type="' + type + '" data-done-ref="' + esc(ref) + '" data-done-label="' + esc(label) + '">' +
+        (on ? '&#10003; Done today' : 'Done today') + '</button>';
+}
 function renderTodayFocus() {
     var rows = [];
     ((HubPlan && HubPlan.challenges) || []).forEach(function (c) {
         rows.push('<div class="focus-row"><span class="fr-ico">&#127919;</span><span class="fr-txt"><strong>' + esc(c.title) + '</strong><small>Your eating challenge' +
-            (['breakfast', 'lunch', 'dinner'].indexOf(c.meal) >= 0 ? ', at ' + c.meal : '') + '</small></span></div>');
+            (['breakfast', 'lunch', 'dinner'].indexOf(c.meal) >= 0 ? ', at ' + c.meal : '') + '</small></span>' + focusDone('challenge', c.title, c.title) + '</div>');
     });
     var goals = (HubGoals && HubGoals.working_on && HubGoals.working_on.goals) || [];
     goals.forEach(function (g) {
         rows.push('<div class="focus-row"><span class="fr-ico">&#11088;</span><span class="fr-txt"><strong>' + esc(g.label) + '</strong>' +
-            (g.reason ? '<small>' + esc(g.reason) + '</small>' : '') + '</span><button type="button" class="plan-mini-button" onclick="askGuide(\'maggie\',\'\',false)">Talk to Maggie</button></div>');
+            (g.reason ? '<small>' + esc(g.reason) + '</small>' : '') + '</span>' + focusDone('goal', g.item_key || g.label, g.label) +
+            '<button type="button" class="plan-mini-button" onclick="askGuide(\'maggie\',\'\',false)">Talk to Maggie</button></div>');
     });
     var card = document.getElementById('todayFocusCard');
+    document.getElementById('todayFocus').onclick = function (e) {
+        var b = e.target.closest('[data-done-ref]'); if (!b) return;
+        HubData.toggleDone(b.dataset.doneType, b.dataset.doneRef, b.dataset.doneLabel); renderTodayFocus();
+    };
     card.hidden = !rows.length;
     document.getElementById('todayFocus').innerHTML = rows.join('');
 }
@@ -3071,6 +3172,8 @@ function hubPageReady() {
 function hubAfterMaggieReply() { refreshMealPlan(); loadMemberPanels('maggie'); }
 
 (function wireHub() {
+    var uid = window.MWClient && window.MWClient.getUserId();
+    initTrackers({ mode: (HUB_PREVIEW === 'new' || HUB_PREVIEW === 'demo' || !uid) ? 'demo' : 'live', empty: HUB_PREVIEW === 'new', userId: uid });
     document.getElementById('openRecipes').onclick = openRecipesFromHeader;
     document.getElementById('featuredOpen').onclick = openFeatured;
     document.getElementById('cpOpenMobile').onclick = openChat;
