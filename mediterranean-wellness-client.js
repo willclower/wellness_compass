@@ -1,5 +1,5 @@
 /**
- * Mediterranean Wellness API Client  (2026-11-13: N16 nutrition per serving parsed from Recipe Info)
+ * Mediterranean Wellness API Client  (2026-11-25: sends localDate with each chat message; 2026-11-13: N16 nutrition per serving parsed from Recipe Info)
  * Connects frontend to n8n Cloud backend
  */
 
@@ -38,6 +38,7 @@ async sendMessage(message, proactiveLogId = null, signal = null, opts = {}) {
                     userId: this.userId,
                     sessionId: this.sessionId,
                     userName: 'User',
+                    localDate: (() => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); })(),   // 2026-11-25: the member's own day, for Health Hub entries from chat
                     ...(proactiveLogId && { loadProactive: true, proactive_log_id: proactiveLogId }),
                     ...(opts.auto && { auto_request: true })
                 }),
