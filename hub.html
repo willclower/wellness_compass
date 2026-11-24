@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<!-- FILE ID: compass-hub (wellness_compass/hub.html) | 2026-11-24a | My Health Hub (team design): guides' chat in the sidebar, Maggie's meal plan and goals, Nona's recipes over the page; trackers on sample data (HubData) -->
+<!-- FILE ID: compass-hub (wellness_compass/hub.html) | 2026-11-25a | Change names the meal ("Swap day 1 dinner") so Maggie goes straight to the options; My Health Hub (team design): guides' chat in the sidebar, Maggie's meal plan and goals, Nona's recipes over the page; trackers on sample data (HubData) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2916,7 +2915,7 @@ function renderTodayMeals() {
 function wirePlanButtons(box) {
     box.querySelectorAll('[data-recipe]').forEach(function (b) { b.onclick = function () { openPlanRecipe(b.dataset.recipe); }; });
     box.querySelectorAll('[data-log]').forEach(function (b) { b.onclick = function () { logPlannedMeal(b.dataset.log, b.dataset.label); b.textContent = '\u2713 Logged'; b.disabled = true; }; });
-    box.querySelectorAll('[data-swap]').forEach(function (b) { b.onclick = function () { askGuide('maggie', 'Swap a meal', true); }; });
+    box.querySelectorAll('[data-swap]').forEach(function (b) { b.onclick = function () { askGuide('maggie', b.dataset.swap, true); }; });   // 11-25a: names the meal, so Maggie goes straight to the options
 }
 function renderNutritionPlan() {
     var box = document.getElementById('nutriPlanToday'); if (!box) return;
@@ -2961,7 +2960,7 @@ function renderPlanWeek() {
         var l = d && mealLine(m[0], d.meals[m[0]]); if (!l) return '';
         return '<div class="plan-sched-row"><span class="plan-when">' + m[1] + '</span><strong>' + esc(l.name) + (l.sub ? '<span class="ps-sub">' + esc(l.sub) + '</span>' : '') + '</strong>' +
             '<span class="ps-btns">' + (l.recipe ? '<button type="button" class="plan-mini-button" data-recipe="' + esc(l.recipe) + '">&#127859; Recipe</button>' : '') +
-            (m[0] !== 'snack' ? '<button type="button" class="plan-mini-button" data-swap="1">Change</button>' : '') + '</span></div>';
+            (m[0] !== 'snack' ? '<button type="button" class="plan-mini-button" data-swap="Swap day ' + (planSel + 1) + ' ' + m[0] + '">Change</button>' : '') + '</span></div>';
     }).join('');
     var ch = (HubPlan.challenges || []).map(function (c) { return '<div class="plan-challenge">&#127919; ' + esc(challengeText(c)) + '</div>'; }).join('');
     body.innerHTML = ch + '<div class="plan-days">' + days + '</div><div style="font-size:.82rem;color:#607c85;margin:8px 0">Day ' + (planSel + 1) + ' \u00B7 ' +
