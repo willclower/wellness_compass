@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-25b | My Health Hub (team design, now the Compass page): trackers saved for real (hub_log / hub_profile via get-hub-data and save-hub-entry, SQL 20c); Done buttons on meals, the challenge, goals and tracker tiles; Change names the meal (11-25a) -->
+<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-26a | trackers reload after each Maggie reply, so what she adds to the Health Hub shows at once; My Health Hub with saved trackers and Done buttons (11-25b) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2406,7 +2406,8 @@ var HubData = (function(){
           (res.entries||[]).forEach(function(r){ fromRow(s,r); });
           st=s; return st;
         })
-        .catch(function(){ MODE='offline'; st=seed(); return st; });
+        .catch(function(){ if(opts.keepOnFail) return st;   // a refresh that fails keeps what's on screen (11-26a)
+          MODE='offline'; st=seed(); return st; });
     },
     all: function(){ return st; },
     list: function(type){ return st[type]; },
@@ -3169,7 +3170,14 @@ function hubPageReady() {
         if (window.MWClient && window.MWClient.currentAssistant === 'nona') setTimeout(loadProactiveMessages, 2500);
     }
 }
-function hubAfterMaggieReply() { refreshMealPlan(); loadMemberPanels('maggie'); }
+// After each Maggie reply: plan, goals and (11-26a) the trackers, since she can add entries to the Health Hub from chat.
+function hubAfterMaggieReply() { refreshMealPlan(); loadMemberPanels('maggie'); refreshTrackers(); }
+function refreshTrackers() {
+    if (HubData.mode() !== 'live') return;
+    HubData.load({ mode: 'live', userId: window.MWClient.getUserId(), keepOnFail: true }).then(function (st) {
+        state = st; renderAll(); renderTodayFocus();
+    });
+}
 
 (function wireHub() {
     var uid = window.MWClient && window.MWClient.getUserId();
