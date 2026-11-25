@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-26d | switch reads "The Guides can update my Health Hub" (on by default; any Guide); goal reached by the numbers shows as done (11-26b) -->
+<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-26e | turning the Guides switch back on shows what they were reminded to add; switch reads "The Guides can update my Health Hub" (11-26d) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2431,7 +2431,7 @@ var HubData = (function(){
     measures: function(){ return st.measures; },
     setMeasures: function(m){ st.measures=m; post({op:'profile',measures:m}); },
     selfLog: function(){ return !!st.self_log; },
-    setSelfLog: function(v){ st.self_log=!!v; post({op:'profile',self_log:!!v}); },   // 11-26c: the member's own switch (any Guide; on by default)
+    setSelfLog: function(v){ st.self_log=!!v; return post({op:'profile',self_log:!!v}); },   // 11-26c: the member's own switch (any Guide; on by default)
     targets: function(){ return st.targets; },
     setTargets: function(t){ Object.assign(st.targets,t); post({op:'profile',targets:t}); },
     // completion: one 'done' row per thing per day
@@ -2853,7 +2853,11 @@ function renderTrackingTargets(){
       return '<div class="target-field"><label for="target-'+id+'">'+f[1]+'</label><input id="target-'+id+'" type="'+(isTime?'time':'number')+'" '+(isTime?'':'min="'+f[3]+'" max="'+f[4]+'" step="'+f[5]+'"')+' value="'+v[id]+'"><small>'+f[2]+'</small></div>'; }).join('')+'</div>'; }).join('')+
     '</div><div class="target-footer"><button class="btn" type="button" id="saveTrackingTargets">Save targets</button><span class="target-feedback" id="targetSaved" role="status"></span></div>'+
     '<label class="target-switch"><input type="checkbox" id="hubAutoLog"> <span><strong>The Guides can update my Health Hub</strong><small>On unless you turn it off, here or by telling a Guide. When it\u2019s off, they remind you to add things yourself.</small></span></label>');
-  el('hubAutoLog').onchange=function(){ HubData.setSelfLog(!this.checked); };
+  el('hubAutoLog').onchange=function(){
+    var on=this.checked;
+    // 11-26e: switching on adds what a Guide reminded them to add today (SQL 20n), so reload to show it
+    HubData.setSelfLog(!on).then(function(){ if(on && typeof refreshTrackers==='function') refreshTrackers(); });
+  };
   syncSelfLog();
   el('saveTrackingTargets').onclick=function(){
     var out={};
