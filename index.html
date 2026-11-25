@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-26a | trackers reload after each Maggie reply, so what she adds to the Health Hub shows at once; My Health Hub with saved trackers and Done buttons (11-25b) -->
+<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-26b | a tracker goal reached by the numbers (steps, water, sleep) shows as done; trackers reload after each Maggie reply (11-26a) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1735,6 +1735,7 @@ nav::-webkit-scrollbar{display:none;}
 .tile-done{margin-top:8px;border:1px solid #cfe5ea;background:#fff;color:var(--blue-dark);border-radius:14px;padding:4px 10px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit}
 .tile-done.on{background:#e8f7ef;border-color:#2eaa6e;color:#1f7a50}
 .focus-row .plan-mini-button{margin-left:6px}
+.tile-done[disabled]{cursor:default;opacity:1}
 
 </style>
 </head>
@@ -2732,21 +2733,24 @@ function renderSummary(){
   var mood=state.mood.find(function(x){ return x.date===d; }), mf=HubData.medFoods(d).size;
   var sp=t.steps?Math.round(steps/t.steps*100):0, wp=t.water?Math.round(water/t.water*100):0, slp=t.sleep?Math.round(slh/t.sleep*100):0, mfp=Math.round(mf/MED_FOODS.length*100);
   var tiles=[
-    {cls:'',key:'activity',dk:'activity',lbl:'Steps',val:steps.toLocaleString(),unit:'steps',sub:steps>=t.steps?'Goal reached!':(t.steps-steps).toLocaleString()+' to your '+t.steps.toLocaleString()+' goal',good:steps>=t.steps,pct:sp,fc:'f-blue',nav:'activity'},
-    {cls:'mt-w',key:'water',dk:'water',lbl:'Hydration',val:water,unit:'/ '+t.water+' oz',sub:water>=t.water?'Goal reached!':(t.water-water)+' oz to go today',good:water>=t.water,pct:wp,fc:'f-blue2',nav:'hydration'},
+    {cls:'',key:'activity',dk:'activity',met:steps>=t.steps,lbl:'Steps',val:steps.toLocaleString(),unit:'steps',sub:steps>=t.steps?'Goal reached!':(t.steps-steps).toLocaleString()+' to your '+t.steps.toLocaleString()+' goal',good:steps>=t.steps,pct:sp,fc:'f-blue',nav:'activity'},
+    {cls:'mt-w',key:'water',dk:'water',met:water>=t.water,lbl:'Hydration',val:water,unit:'/ '+t.water+' oz',sub:water>=t.water?'Goal reached!':(t.water-water)+' oz to go today',good:water>=t.water,pct:wp,fc:'f-blue2',nav:'hydration'},
     {cls:'mt-wt',key:'weight',lbl:'Weight',val:wcur!=null?wcur.toFixed(1):'\u2013',unit:'lbs',sub:'Target '+t.weight+' lbs',good:false,pct:null,fc:'f-purple',nav:'weight'},
-    {cls:'mt-sl',key:'sleep',dk:'sleep',lbl:'Sleep',val:sl?fmtHM(slh):'\u2013',unit:'last night',sub:sl?slp+'% of '+t.sleep+'h goal':'Log last night',good:slh>=t.sleep,pct:slp,fc:'f-blue',nav:'sleep'},
+    {cls:'mt-sl',key:'sleep',dk:'sleep',met:!!sl&&sl.date===d&&slh>=t.sleep,lbl:'Sleep',val:sl?fmtHM(slh):'\u2013',unit:'last night',sub:sl?slp+'% of '+t.sleep+'h goal':'Log last night',good:slh>=t.sleep,pct:slp,fc:'f-blue',nav:'sleep'},
     {cls:'mt-s',key:'stress',dk:'stress',lbl:'Stress',val:mood?'Level '+mood.level:'\u2013',unit:mood?'/ 5':'',sub:mood?sTips[mood.level-1].l:'Check in on the Stress tab',good:!!mood&&mood.level<=2,pct:mood?(6-mood.level)*20:null,fc:'f-warn',nav:'stress'},
     {cls:'mt-n',key:'nutrition',dk:'nutrition',lbl:'Mediterranean Foods',val:mf,unit:'/ '+MED_FOODS.length+' today',sub:(function(n){ return n+' meal'+(n===1?'':'s')+' logged'; })(state.meals.filter(function(e){ return e.date===d; }).length),good:mf>=6,pct:mfp,fc:'f-green',nav:'nutrition'}
   ];
   setHTML('sumTiles', tiles.map(function(x){
-    var dn=x.dk&&HubData.isDone(x.dk,'daily'); if(dn) x.good=true;
+    // 11-26b: a goal reached by the numbers (steps, water, sleep) counts as done; a tap or Maggie marks the rest
+    var marked=x.dk&&HubData.isDone(x.dk,'daily'), dn=marked||!!x.met; if(dn) x.good=true;
     return '<div class="mt '+x.cls+'" onclick="navToTab(\''+x.nav+'\')"><div class="mt-hdr"><div class="mt-ico-lbl"><img src="'+ICONS[x.key]+'" style="width:16px;height:16px;object-fit:contain;vertical-align:middle"> '+x.lbl+'</div>'+
       (x.pct!=null?'<span class="mt-status '+(x.good?'good':'ok')+'">'+(dn?'&#10003; Done':(x.good?'&#10003; On track':x.pct+'%'))+'</span>':'')+'</div>'+
       '<div class="mt-val">'+x.val+' <small>'+x.unit+'</small></div>'+
       (x.pct!=null?'<div class="prog-wrap" style="margin-bottom:4px"><div class="prog-bar"><div class="prog-fill '+x.fc+'" style="width:'+Math.min(x.pct,100)+'%"></div></div></div>':'')+
       '<div class="mt-sub">'+x.sub+'</div>'+
-      (x.dk?'<button type="button" class="tile-done'+(dn?' on':'')+'" onclick="event.stopPropagation();toggleTileDone(\''+x.dk+'\',\''+x.lbl+' goal\')">'+(dn?'&#10003; Done today':'Mark done')+'</button>':'')+'</div>';
+      (x.dk ? (x.met && !marked
+        ? '<button type="button" class="tile-done on" disabled title="Reached by what you logged today">&#10003; Goal reached</button>'
+        : '<button type="button" class="tile-done'+(dn?' on':'')+'" onclick="event.stopPropagation();toggleTileDone(\''+x.dk+'\',\''+x.lbl+' goal\')">'+(dn?'&#10003; Done today':'Mark done')+'</button>') : '')+'</div>';
   }).join(''));
 
   // timeline: today's entries by time
