@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-26b | a tracker goal reached by the numbers (steps, water, sleep) shows as done; trackers reload after each Maggie reply (11-26a) -->
+<!-- FILE ID: compass-root-index (wellness_compass/index.html) | 2026-11-26c | switch on My Plan for Maggie adding what the member tells her; a goal reached by the numbers shows as done (11-26b) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1736,6 +1736,10 @@ nav::-webkit-scrollbar{display:none;}
 .tile-done.on{background:#e8f7ef;border-color:#2eaa6e;color:#1f7a50}
 .focus-row .plan-mini-button{margin-left:6px}
 .tile-done[disabled]{cursor:default;opacity:1}
+.target-switch{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:12px 14px;background:var(--blue-tint);border-radius:10px;cursor:pointer}
+.target-switch input{margin-top:3px;width:18px;height:18px;accent-color:var(--blue-dark)}
+.target-switch strong{display:block;font-size:.84rem;color:var(--slate)}
+.target-switch small{font-size:.74rem;color:var(--slate-light)}
 
 </style>
 </head>
@@ -2426,6 +2430,8 @@ var HubData = (function(){
     setMedFoods: function(date, set){ st.medfoods[date]=Array.from(set); post({op:'replace_day',kind:'medfood',date:date,entry:{kind:'medfood',date:date,data:{items:st.medfoods[date]}}}); },
     measures: function(){ return st.measures; },
     setMeasures: function(m){ st.measures=m; post({op:'profile',measures:m}); },
+    selfLog: function(){ return !!st.self_log; },
+    setSelfLog: function(v){ st.self_log=!!v; post({op:'profile',self_log:!!v}); },   // 11-26c: the member's own switch
     targets: function(){ return st.targets; },
     setTargets: function(t){ Object.assign(st.targets,t); post({op:'profile',targets:t}); },
     // completion: one 'done' row per thing per day
@@ -2845,7 +2851,10 @@ function renderTrackingTargets(){
     TARGET_GROUPS.map(function(g){ return '<div class="target-group"><h4>'+g.name+'</h4>'+g.fields.map(function(f){
       var id=f[0], isTime=id==='bedtime';
       return '<div class="target-field"><label for="target-'+id+'">'+f[1]+'</label><input id="target-'+id+'" type="'+(isTime?'time':'number')+'" '+(isTime?'':'min="'+f[3]+'" max="'+f[4]+'" step="'+f[5]+'"')+' value="'+v[id]+'"><small>'+f[2]+'</small></div>'; }).join('')+'</div>'; }).join('')+
-    '</div><div class="target-footer"><button class="btn" type="button" id="saveTrackingTargets">Save targets</button><span class="target-feedback" id="targetSaved" role="status"></span></div>');
+    '</div><div class="target-footer"><button class="btn" type="button" id="saveTrackingTargets">Save targets</button><span class="target-feedback" id="targetSaved" role="status"></span></div>'+
+    '<label class="target-switch"><input type="checkbox" id="hubAutoLog"> <span><strong>Maggie adds what I tell her to my Health Hub</strong><small>When this is off, she reminds you to add things yourself.</small></span></label>');
+  el('hubAutoLog').onchange=function(){ HubData.setSelfLog(!this.checked); };
+  syncSelfLog();
   el('saveTrackingTargets').onclick=function(){
     var out={};
     for(var k in v){ var e=el('target-'+k); if(!e) continue;
@@ -2856,7 +2865,9 @@ function renderTrackingTargets(){
 }
 
 // ── RENDER ALL ──
+function syncSelfLog(){ var c=el('hubAutoLog'); if(c) c.checked=!HubData.selfLog(); }
 function renderAll(){
+  syncSelfLog();
   renderSummary(); renderExerciseLog(); renderChart(); renderRings(); renderActivityLog(); renderWaterLog();
   renderWeightLog(); renderJournal(); renderMealLog(); renderSleep(); renderMood(); renderFoods();
   if(typeof renderNutritionPlan==='function') renderNutritionPlan();
